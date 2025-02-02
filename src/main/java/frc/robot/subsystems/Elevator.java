@@ -20,8 +20,7 @@ public class Elevator extends SubsystemBase{
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
     private RelativeEncoder m_Encoder;
 
-    private ElevatorFeedforward m_ff = new ElevatorFeedforward(0, 0, 0, 0);
-    private PIDController pidController = new PIDController(0, 0, 0);
+    private PIDController pidController = new PIDController(0.4, 0, 0);
 
     private boolean goingUP = false;
     private boolean goingDOWN = false;
@@ -45,6 +44,10 @@ public class Elevator extends SubsystemBase{
         );
 
         m_Encoder = m_RMotor.getEncoder();
+        SmartDashboard.putNumber("setPoint", m_Encoder.getPosition());
+        SmartDashboard.putNumber("P", 0);
+        SmartDashboard.putNumber("I", 0);
+        SmartDashboard.putNumber("D", 0);
     }
 
     public void setPosision(double setpoint) {
@@ -54,15 +57,15 @@ public class Elevator extends SubsystemBase{
 
     public void setOutput(double output) {
         SmartDashboard.putNumber("aaaa", output);
-        m_RMotor.set(0.3*output);
+        m_RMotor.set(0.5*output);
     }
 
     public void up() {
-        m_RMotor.set(0.9);
+        m_RMotor.set(0.7);
     }
 
     public void down() {
-        m_RMotor.set(0.9);
+        m_RMotor.set(-0.7);
     }
 
     public void setSpeed(double tohighSpeed) {
