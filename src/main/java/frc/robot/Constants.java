@@ -19,7 +19,12 @@ public final class Constants {
 
   public static class CoralConstants {
     public static final int kLeftMotorID = 0;
-    public static final int kRightMotorID = 0;
+    public static final int kRightMotorID = 32;
+  }
+
+  public static class AlgeaConstants {
+    public static final int kArmMotorID = 0;
+    public static final int kIntakeMotorID = 0;
 
   }
 }

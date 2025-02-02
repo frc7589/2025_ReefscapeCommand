@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CoralSubsystem;
@@ -28,7 +27,7 @@ public class CoralIntakeCommand extends Command {
         m_reverseTimer.start();
         m_intake.SetReverse(true);
 
-        if(m_reverseTimer.get() > 0.3 && m_reverseTimer.get() < 0.5 && !hasReversed){
+        if(m_reverseTimer.get() > 0.3 && m_reverseTimer.get() < 0.5 ){
             m_intake.ReverseMotor();
             hasReversed = true;
         }

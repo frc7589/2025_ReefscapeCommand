@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.AlgeaSubsystem;
+import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 
 /**
@@ -28,15 +30,17 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   private final CoralSubsystem m_Coral = new CoralSubsystem();
+  private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
+  private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
 
   private final CommandXboxController m_DriveController = 
-      new CommandXboxController(0);
+      new CommandXboxController(1);
 
   private final CommandXboxController m_ActionController = 
-      new CommandXboxController(1);
+      new CommandXboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -64,16 +68,11 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
 
-    m_ActionController.y().whileTrue(Commands.startEnd(
-      () -> m_Coral.Shoot(), 
-      () -> m_Coral.Stop(),
-      m_Coral));
-    
-    m_ActionController.start().whileTrue(Commands.runOnce(
+    m_ActionController.a().whileTrue(Commands.runOnce(
       () -> m_Coral.ChangeMode(),
       m_Coral));
 
-    m_DriveController.a().whileTrue(new ConditionalCommand(
+    m_ActionController.y().whileTrue(new ConditionalCommand(
       Commands.startEnd(
         () -> m_Coral.Shoot(), 
         () -> m_Coral.Stop(),
@@ -82,6 +81,26 @@ public class RobotContainer {
         new InstantCommand(),
         () -> !m_Coral.isReversing())
         );
+    
+    m_ActionController.a().whileTrue(Commands.startEnd(
+      () -> m_Algea.setState(true),
+      () -> m_Algea.setState(false),
+      m_Algea
+    ));
+
+    m_ActionController.x().whileTrue(Commands.runOnce(
+      () -> m_AlgeaTest.setSuckSpeed(0.4), 
+      m_AlgeaTest));
+
+    m_ActionController.b().whileTrue(Commands.runOnce(
+      () -> m_AlgeaTest.setReleaseSpeed(0.4),
+       m_AlgeaTest));
+
+    if(m_ActionController.getRightY() >= 0.1){
+      Commands.run(
+        () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.6), 
+        m_AlgeaTest);
+    }
   }
 
   /**
