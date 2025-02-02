@@ -6,11 +6,16 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.CoralSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -22,9 +27,16 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
+  private final CoralSubsystem m_Coral = new CoralSubsystem();
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+ 
+
+  private final CommandXboxController m_DriveController = 
+      new CommandXboxController(0);
+
+  private final CommandXboxController m_ActionController = 
+      new CommandXboxController(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -46,9 +58,30 @@ public class RobotContainer {
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
+    new Trigger(m_Coral::hasCoral)
+        .onTrue(new CoralIntakeCommand(m_Coral));
+
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    m_ActionController.y().whileTrue(Commands.startEnd(
+      () -> m_Coral.Shoot(), 
+      () -> m_Coral.Stop(),
+      m_Coral));
+    
+    m_ActionController.start().whileTrue(Commands.runOnce(
+      () -> m_Coral.ChangeMode(),
+      m_Coral));
+
+    m_DriveController.a().whileTrue(new ConditionalCommand(
+      Commands.startEnd(
+        () -> m_Coral.Shoot(), 
+        () -> m_Coral.Stop(),
+        m_Coral
+      ),
+        new InstantCommand(),
+        () -> !m_Coral.isReversing())
+        );
   }
 
   /**
