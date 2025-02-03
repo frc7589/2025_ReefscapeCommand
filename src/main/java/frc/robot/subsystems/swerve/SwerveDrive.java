@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.SwerveConstants;
 
-public class Swerve extends SubsystemBase{
+public class SwerveDrive extends SubsystemBase{
     //private final SwerveModule m_LeftFrontModule, m_LeftRearModule, m_RightFrontModule, m_RightRearModule;
 
     public final SwerveModule m_LeftFrontModule = new SwerveModule(
@@ -104,7 +104,7 @@ public class Swerve extends SubsystemBase{
             // WPILog with this subsystem's name ("drive")
             this));*/
 
-    public Swerve() {
+    public SwerveDrive() {
         m_Imu.reset();       
     
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
@@ -128,10 +128,8 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("RR", this.getModuleStates()[3].angle.getDegrees());
 
 
-        SmartDashboard.putNumber("LF_speed", this.getModuleStates()[0].speedMetersPerSecond);
-        SmartDashboard.putNumber("RF_speed", this.getModuleStates()[1].speedMetersPerSecond);
-        SmartDashboard.putNumber("LR_speed", this.getModuleStates()[2].speedMetersPerSecond);
-        SmartDashboard.putNumber("RR_speed", this.getModuleStates()[3].speedMetersPerSecond);
+        SmartDashboard.putNumber("speed", maxspeed);
+        
 
         //m_LeftFrontModule.setRotorangle();
         //m_LeftRearModule.setRotorangle();
