@@ -23,12 +23,12 @@ public final class Constants {
 
   public final class SwerveConstants {
     //轉向馬達ID
-    public static final int kRightFrontrotorID = 62;
-    public static final int kRightRearrotorID = 55;
-    public static final int kLeftFrontrotorID = 33;
-    public static final int kLeftRearrotorID = 56;
+    public static final int kRightFrontRotorID = 62;
+    public static final int kRightRearRotorID = 55;
+    public static final int kLeftFrontRotorID = 33;
+    public static final int kLeftRearRotorID = 56;
 
-    //油門馬達ID
+    //動力馬達ID
     public static final int kRightFrontThrottleID = 61;
     public static final int kRightRearThrottleID = 34;
     public static final int kLeftFrontThrottleID = 57;
@@ -44,10 +44,10 @@ public final class Constants {
     public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
 
     //Rotor Encode 偏移量
-    public static final double kRightFrontRotorEncoderOffset = -40.1660156+0.5273+0.17578125-0.96;
-    public static final double kRightRearRotorEncoderOffset = -40.869140625+180+1.49;
-    public static final double kLeftFrontRotorEncoderOffset = (-42.5390625-0.17578125)+180+2.46;
-    public static final double kLeftRearRotorEncoderOffset = 97.822265625+0.56;
+    public static final double kRightFrontRotorEncoderOffset = -40.42293435;
+    public static final double kRightRearRotorEncoderOffset = 140.620859375;
+    public static final double kLeftFrontRotorEncoderOffset = 139.74515625;
+    public static final double kLeftRearRotorEncoderOffset = 98.382265625;
 
     public static final double whatever = 0.60325;//meter
 
@@ -73,10 +73,10 @@ public final class Constants {
     //輪徑
     public static final double kwheeldiameterMeter = 0.1016;
 
-    //油門齒輪比
+    //動力齒輪比
     public static final double kThrottleGearRatio = 6.12;
 
-    //油門速度轉換 通式：(1/齒輪比)*輪徑*PI   (這個也沒有搞懂要幹嘛)
+    //動力速度轉換 通式：(1/齒輪比)*輪徑*PI   (這個也沒有搞懂要幹嘛)
     public static final double ThrottleVelocityConversionFactor =
       (Math.PI * kwheeldiameterMeter) / (60.0 * kThrottleGearRatio);
 
@@ -96,29 +96,41 @@ public final class Constants {
 
   }
 
+
   public static class ElevatorConstants {
     public static final int kElevatorRMotorID = 47;
     public static final int kElevatorLMotorID = 43;
   }
+
 
   public static class ShooterConstants {
     public static final int kShooterRMotorID = 46;
     public static final int kShooterLMotorID = 45;
   }
 
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kActionControllerPort = 1;
   }
 
+
   public static class CoralConstants {
     public static final int kLeftMotorID = 0;
     public static final int kRightMotorID = 32;
+
+    public static final int kSensorPortID = 0;
   }
+
 
   public static class AlgeaConstants {
     public static final int kArmMotorID = 0;
     public static final int kIntakeMotorID = 0;
 
+    public static final int kEncoderID = 0;
+
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0;
   }
 }

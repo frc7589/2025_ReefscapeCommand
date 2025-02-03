@@ -17,15 +17,19 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class AlgeaSubsystem extends SubsystemBase {
     private SparkMax m_Intakemotor, m_Armmotor;
-    private final static PIDController m_Pid = new PIDController(0, 0, 0);
     private DutyCycleEncoder m_ArmEncoder;
+
+    private PIDController pidController;
+    
     private boolean m_enabled;
 
     public AlgeaSubsystem(){
         m_Intakemotor = new SparkMax(AlgeaConstants.kIntakeMotorID, MotorType.kBrushless);
         m_Armmotor = new SparkMax(AlgeaConstants.kArmMotorID, MotorType.kBrushless);
 
-        m_ArmEncoder = new DutyCycleEncoder(0);
+        pidController = new PIDController(AlgeaConstants.kP, AlgeaConstants.kI, AlgeaConstants.kD);
+
+        m_ArmEncoder = new DutyCycleEncoder(AlgeaConstants.kEncoderID);
 
         m_Armmotor.configure(
             new SparkMaxConfig()
@@ -47,30 +51,30 @@ public class AlgeaSubsystem extends SubsystemBase {
     @Override
     public void periodic(){
         if(m_enabled){
-            m_Armmotor.set(m_Pid.calculate(m_ArmEncoder.get()));
+            m_Armmotor.set(pidController.calculate(m_ArmEncoder.get()));
         }
 
-        SmartDashboard.putData("algea intake pid", m_Pid);
+        SmartDashboard.putData("algea intake pid", pidController);
     }
 
     public void setState(boolean enable){
         if(enable) {
             m_enabled = true;
-            m_Pid.reset();
+            pidController.reset();
         }else{
             m_enabled = false;
         }
     }
     
     public void setSetpoint(double setpoint){
-        m_Pid.setSetpoint(setpoint);
+        pidController.setSetpoint(setpoint);
     }
 
     public double getSetpoint(){
-        return m_Pid.getSetpoint();
+        return pidController.getSetpoint();
     }
 
-    public static PIDController getPIDController() {
-        return m_Pid;
+    public PIDController getPIDController() {
+        return pidController;
     }
 }

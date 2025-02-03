@@ -28,21 +28,21 @@ public class SwerveDrive extends SubsystemBase{
 
     public final SwerveModule m_LeftFrontModule = new SwerveModule(
         SwerveConstants.kLeftFrontThrottleID,
-        SwerveConstants.kLeftFrontrotorID,
+        SwerveConstants.kLeftFrontRotorID,
         SwerveConstants.kLeftFrontEncoderID,
         SwerveConstants.kLeftFrontRotorEncoderOffset
     );
 
     public final SwerveModule m_LeftRearModule = new SwerveModule(
         SwerveConstants.kLeftRearThrottleID,
-        SwerveConstants.kLeftRearrotorID,
+        SwerveConstants.kLeftRearRotorID,
         SwerveConstants.kLeftRearEncoderID,
         SwerveConstants.kLeftRearRotorEncoderOffset
     );
 
     public final SwerveModule m_RightFrontModule = new SwerveModule(
         SwerveConstants.kRightFrontThrottleID,
-        SwerveConstants.kRightFrontrotorID,
+        SwerveConstants.kRightFrontRotorID,
         SwerveConstants.kRightFrontEncoderID,
         SwerveConstants.kRightFrontRotorEncoderOffset
     );
@@ -50,7 +50,7 @@ public class SwerveDrive extends SubsystemBase{
 
     public final SwerveModule  m_RightRearModule = new SwerveModule(
         SwerveConstants.kRightRearThrottleID,
-        SwerveConstants.kRightRearrotorID,
+        SwerveConstants.kRightRearRotorID,
         SwerveConstants.kRightRearEncoderID,
         SwerveConstants.kRightRearRotorEncoderOffset
     );

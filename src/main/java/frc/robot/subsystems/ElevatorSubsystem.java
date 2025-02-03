@@ -56,7 +56,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
 
     public void setOutput(double output) {
-        SmartDashboard.putNumber("aaaa", output);
+        SmartDashboard.putNumber("elevatorOutput", output);
         m_RMotor.set(0.5*output);
     }
 
