@@ -5,11 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import frc.robot.commands.CoralIntakeReverseCommand;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -19,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.AlgeaSubsystem;
 import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -28,8 +25,6 @@ import frc.robot.subsystems.CoralSubsystem;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-
   private final CoralSubsystem m_Coral = new CoralSubsystem();
   private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
   private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
@@ -63,16 +58,14 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     new Trigger(m_Coral::hasCoral)
         .onTrue(new CoralIntakeReverseCommand(m_Coral));
 
     new Trigger(() -> Math.abs(m_ActionController.getRightY()) >= 0.08)
-    .whileTrue(Commands.run(
-      () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()* 0.4),
-       m_AlgeaTest));
+      .whileTrue(Commands.run(
+        () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.4), 
+        m_AlgeaTest));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -104,28 +97,7 @@ public class RobotContainer {
     m_ActionController.b().whileTrue(Commands.runOnce(
       () -> m_AlgeaTest.setReleaseSpeed(0.4),
        m_AlgeaTest));
-
-    if(Math.abs(m_ActionController.getRightY()) >= 0.08){
-      Commands.run(
-        () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.6), 
-        m_AlgeaTest);
-    }
-
-    m_AlgeaTest.setDefaultCommand(Commands.run(
-      () -> m_AlgeaTest.setArmSpeed(
-        Math.abs(m_ActionController.getLeftY()) >= 0.08 ? m_ActionController.getRightY() : 0),
-         m_AlgeaTest)
-         );
     
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
 }

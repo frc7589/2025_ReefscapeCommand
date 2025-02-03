@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -13,8 +20,95 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public final class SwerveConstants {
+    //轉向馬達ID
+    public static final int kRightFrontrotorID = 62;
+    public static final int kRightRearrotorID = 55;
+    public static final int kLeftFrontrotorID = 33;
+    public static final int kLeftRearrotorID = 56;
+
+    //油門馬達ID
+    public static final int kRightFrontThrottleID = 61;
+    public static final int kRightRearThrottleID = 34;
+    public static final int kLeftFrontThrottleID = 57;
+    public static final int kLeftRearThrottleID = 59;
+
+    //轉向馬達EncoderID
+    public static final int kRightFrontEncoderID = 2;
+    public static final int kRightRearEncoderID = 3;
+    public static final int kLeftFrontEncoderID = 1;
+    public static final int kLeftRearEncoderID = 4;
+
+    //轉向馬達encoder以及轉向馬達方向設置
+    public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
+
+    //Rotor Encode 偏移量
+    public static final double kRightFrontRotorEncoderOffset = -40.1660156+0.5273+0.17578125-0.96;
+    public static final double kRightRearRotorEncoderOffset = -40.869140625+180+1.49;
+    public static final double kLeftFrontRotorEncoderOffset = (-42.5390625-0.17578125)+180+2.46;
+    public static final double kLeftRearRotorEncoderOffset = 97.822265625+0.56;
+
+    public static final double whatever = 0.60325;//meter
+
+    //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
+    public static final SwerveDriveKinematics swervedrivekinematics = new SwerveDriveKinematics(
+       new Translation2d(whatever/2, whatever/2),
+       new Translation2d(whatever/2, whatever/-2),
+       new Translation2d(whatever/-2, whatever/2),
+       new Translation2d(whatever/-2, whatever/-2)
+    );
+
+    //Rotor PID constants(還沒搞懂要幹嘛)
+    public static final double kRotor_P = 0.008181818182;//0.00585;
+    public static final double kRotor_I = 0.0001374545455;//0.00001;
+    public static final double kRotor_D = 0;//0.000058;
+
+    public static final double kSpeed = 0.6;
+
+    //Swerve最大速度。加速度
+    public static final double kMaxVelocityMeterspersecond = 5.0;
+    public static final double kMaxAccelerationMetersPersecond = 3.0;
+
+    //輪徑
+    public static final double kwheeldiameterMeter = 0.1016;
+
+    //油門齒輪比
+    public static final double kThrottleGearRatio = 6.12;
+
+    //油門速度轉換 通式：(1/齒輪比)*輪徑*PI   (這個也沒有搞懂要幹嘛)
+    public static final double ThrottleVelocityConversionFactor =
+      (Math.PI * kwheeldiameterMeter) / (60.0 * kThrottleGearRatio);
+
+    public static final double ThrottlePositionConversionFactor =
+      (Math.PI * kwheeldiameterMeter) / kThrottleGearRatio;
+
+    public static final double kDefaultSpeed = 0.5;
+    
+    //電壓最大值
+    public static final double kVoltagecompensation = 12.0;
+
+    //最常超時時間
+    public static final double kLongtimeoutMs = 100.0;
+
+    public static final boolean kRotorMotorInverted = true;
+    public static final boolean kThrottleMotorInverted = true;
+
+  }
+
+  public static class ElevatorConstants {
+    public static final int kElevatorRMotorID = 47;
+    public static final int kElevatorLMotorID = 43;
+  }
+
+  public static class ShooterConstants {
+    public static final int kShooterRMotorID = 46;
+    public static final int kShooterLMotorID = 45;
+  }
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kActionControllerPort = 1;
   }
 
   public static class CoralConstants {
