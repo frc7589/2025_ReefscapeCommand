@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CoralSubsystem;
 
 
-public class CoralIntakeCommand extends Command {
+public class CoralIntakeReverseCommand extends Command {
     private CoralSubsystem m_intake;
     private Timer m_reverseTimer = new Timer();
     private boolean hasReversed;
 
-    public CoralIntakeCommand(CoralSubsystem m_intake){
+    public CoralIntakeReverseCommand(CoralSubsystem m_intake){
         this.m_intake = m_intake;
         addRequirements(m_intake);
     }
@@ -19,31 +19,31 @@ public class CoralIntakeCommand extends Command {
     public void initialize(){
         m_reverseTimer.reset();
         hasReversed = false;
+        m_intake.Stop();
+        m_reverseTimer.start();
     }
 
     @Override
     public void execute(){
-        m_intake.Stop();
-        m_reverseTimer.start();
-        m_intake.SetReverse(true);
-
-        if(m_reverseTimer.get() > 0.3 && m_reverseTimer.get() < 0.5 ){
+        if(m_reverseTimer.get() > 0.3 && m_reverseTimer.get() < 0.4 ){
             m_intake.ReverseMotor();
             hasReversed = true;
+            m_intake.SetReverse(true);
         }
 
-        if(m_reverseTimer.get() > 0.5){
+        if(m_reverseTimer.get() > 0.4 && hasReversed){
             m_intake.Stop();
             m_reverseTimer.stop();
         }
     }
 
     @Override
-    public boolean isFinished(){
-        boolean done = hasReversed && m_reverseTimer.get() >= 0.5;
-            if(done){
-                m_intake.SetReverse(false);
-            }
-            return done;
+    public void end(boolean interrupted){
+        m_intake.SetReverse(false);
     }
-}
+
+    @Override
+    public boolean isFinished(){
+        return m_reverseTimer.get() > 0.4 && m_intake.hasCoral();
+    }
+}            

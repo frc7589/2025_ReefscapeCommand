@@ -50,7 +50,7 @@ public class AlgeaSubsystem extends SubsystemBase {
             m_Armmotor.set(m_Pid.calculate(m_ArmEncoder.get()));
         }
 
-        SmartDashboard.putData("algea intaqke pid", m_Pid);
+        SmartDashboard.putData("algea intake pid", m_Pid);
     }
 
     public void setState(boolean enable){

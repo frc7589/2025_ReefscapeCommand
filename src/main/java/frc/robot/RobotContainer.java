@@ -6,9 +6,10 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.CoralIntakeCommand;
+import frc.robot.commands.CoralIntakeReverseCommand;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -42,6 +43,9 @@ public class RobotContainer {
   private final CommandXboxController m_ActionController = 
       new CommandXboxController(0);
 
+  private final XboxController m_Controller = 
+      new XboxController(0);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -63,12 +67,17 @@ public class RobotContainer {
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     new Trigger(m_Coral::hasCoral)
-        .onTrue(new CoralIntakeCommand(m_Coral));
+        .onTrue(new CoralIntakeReverseCommand(m_Coral));
+
+    new Trigger(() -> Math.abs(m_ActionController.getRightY()) >= 0.08)
+    .whileTrue(Commands.run(
+      () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()* 0.4),
+       m_AlgeaTest));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
 
-    m_ActionController.a().whileTrue(Commands.runOnce(
+    m_ActionController.start().whileTrue(Commands.runOnce(
       () -> m_Coral.ChangeMode(),
       m_Coral));
 
@@ -96,11 +105,18 @@ public class RobotContainer {
       () -> m_AlgeaTest.setReleaseSpeed(0.4),
        m_AlgeaTest));
 
-    if(m_ActionController.getRightY() >= 0.1){
+    if(Math.abs(m_ActionController.getRightY()) >= 0.08){
       Commands.run(
         () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.6), 
         m_AlgeaTest);
     }
+
+    m_AlgeaTest.setDefaultCommand(Commands.run(
+      () -> m_AlgeaTest.setArmSpeed(
+        Math.abs(m_ActionController.getLeftY()) >= 0.08 ? m_ActionController.getRightY() : 0),
+         m_AlgeaTest)
+         );
+    
   }
 
   /**

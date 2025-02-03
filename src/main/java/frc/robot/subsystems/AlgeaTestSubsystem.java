@@ -29,7 +29,7 @@ public class AlgeaTestSubsystem extends SubsystemBase{
         m_Intakemotor.configure(
             new SparkMaxConfig()
                 .idleMode(IdleMode.kBrake)
-                .inverted(false), 
+                .inverted(true), 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters);
     }
