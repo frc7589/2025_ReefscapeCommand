@@ -73,6 +73,16 @@ public class RobotContainer {
       m_Elevator
     ));
 
+    
+    m_AlgeaTest.setDefaultCommand(Commands.run(
+      () -> {
+        m_AlgeaTest.setArmSpeed(
+          Math.abs(m_ActionController.getLeftY()) > 0.08 ? m_ActionController.getLeftY() * 0.4 : 0
+        );
+      },
+      m_AlgeaTest
+    ));
+
     configureBindings();
   }
 
@@ -90,11 +100,6 @@ public class RobotContainer {
 
     new Trigger(m_Coral::hasCoral)
         .onTrue(new CoralIntakeReverseCommand(m_Coral));
-
-    new Trigger(() -> Math.abs(m_ActionController.getRightY()) >= 0.08)
-      .whileTrue(Commands.run(
-        () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.4), 
-        m_AlgeaTest));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
