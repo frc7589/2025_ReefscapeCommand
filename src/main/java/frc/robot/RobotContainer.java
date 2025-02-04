@@ -15,6 +15,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.AlgeaSubsystem;
 import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
+
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -71,13 +74,13 @@ public class RobotContainer {
     // cancelling on release.
 
     m_ActionController.start().whileTrue(Commands.runOnce(
-      () -> m_Coral.ChangeMode(),
+      () -> m_Coral.changeMode(),
       m_Coral));
 
     m_ActionController.y().whileTrue(new ConditionalCommand(
       Commands.startEnd(
-        () -> m_Coral.Shoot(), 
-        () -> m_Coral.Stop(),
+        () -> m_Coral.shoot(), 
+        () -> m_Coral.stop(),
         m_Coral
       ),
         new InstantCommand(),
