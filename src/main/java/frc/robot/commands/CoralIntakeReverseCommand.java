@@ -19,27 +19,27 @@ public class CoralIntakeReverseCommand extends Command {
     public void initialize(){
         m_reverseTimer.reset();
         hasReversed = false;
-        m_intake.Stop();
+        m_intake.stop();
         m_reverseTimer.start();
     }
 
     @Override
     public void execute(){
         if(m_reverseTimer.get() > 0.3 && m_reverseTimer.get() < 0.4 ){
-            m_intake.ReverseMotor();
+            m_intake.reverseMotor();
             hasReversed = true;
-            m_intake.SetReverse(true);
+            m_intake.setReverse(true);
         }
 
         if(m_reverseTimer.get() > 0.4 && hasReversed){
-            m_intake.Stop();
+            m_intake.stop();
             m_reverseTimer.stop();
         }
     }
 
     @Override
     public void end(boolean interrupted){
-        m_intake.SetReverse(false);
+        m_intake.setReverse(false);
     }
 
     @Override

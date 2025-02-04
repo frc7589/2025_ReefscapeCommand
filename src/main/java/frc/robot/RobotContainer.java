@@ -105,13 +105,13 @@ public class RobotContainer {
     // cancelling on release.
 
     m_ActionController.start().whileTrue(Commands.runOnce(
-      () -> m_Coral.ChangeMode(),
+      () -> m_Coral.changeMode(),
       m_Coral));
 
     m_ActionController.y().whileTrue(new ConditionalCommand(
       Commands.startEnd(
-        () -> m_Coral.Shoot(), 
-        () -> m_Coral.Stop(),
+        () -> m_Coral.shoot(), 
+        () -> m_Coral.stop(),
         m_Coral
       ),
         new InstantCommand(),
