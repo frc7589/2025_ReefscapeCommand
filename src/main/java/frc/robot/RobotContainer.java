@@ -15,9 +15,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.AlgeaSubsystem;
 import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
-
-import com.pathplanner.lib.auto.NamedCommands;
-
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.swerve.SwerveDrive;
 import edu.wpi.first.wpilibj.XboxController;
 
 /**
@@ -28,18 +27,23 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+  private final SwerveDrive m_Swerve = new SwerveDrive();
+
+  private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
+
   private final CoralSubsystem m_Coral = new CoralSubsystem();
   private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
+
   private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
 
   private final CommandXboxController m_DriveController = 
-      new CommandXboxController(1);
+      new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   private final CommandXboxController m_ActionController = 
-      new CommandXboxController(0);
+      new CommandXboxController(OperatorConstants.kActionControllerPort);
 
   private final XboxController m_Controller = 
       new XboxController(0);
@@ -47,6 +51,38 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+
+    m_Swerve.setDefaultCommand(Commands.run(
+      () -> m_Swerve.drive(
+        Math.abs(m_DriveController.getLeftY()) > 0.08 ? m_DriveController.getLeftY() : 0,
+        Math.abs(m_DriveController.getLeftX()) > 0.08 ? m_DriveController.getLeftX() : 0,
+        Math.abs(m_DriveController.getRightX()) > 0.08 ? -m_DriveController.getRightX() : 0,
+        true
+      ),
+      m_Swerve
+    ));
+
+    m_Elevator.setDefaultCommand(Commands.run(
+      () -> {
+        m_Elevator.setOutput(
+          Math.abs(m_ActionController.getRightY()) > 0.08 ? -m_ActionController.getRightY() : 0
+        );
+
+        //if( Math.abs(m_ActionController.getRightY()) > 0.08) System.out.print("aaaa");
+      },
+      m_Elevator
+    ));
+
+    
+    m_AlgeaTest.setDefaultCommand(Commands.run(
+      () -> {
+        m_AlgeaTest.setArmSpeed(
+          Math.abs(m_ActionController.getLeftY()) > 0.08 ? m_ActionController.getLeftY() * 0.4 : 0
+        );
+      },
+      m_AlgeaTest
+    ));
+
     configureBindings();
   }
 
@@ -64,11 +100,6 @@ public class RobotContainer {
 
     new Trigger(m_Coral::hasCoral)
         .onTrue(new CoralIntakeReverseCommand(m_Coral));
-
-    new Trigger(() -> Math.abs(m_ActionController.getRightY()) >= 0.08)
-      .whileTrue(Commands.run(
-        () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.4), 
-        m_AlgeaTest));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.

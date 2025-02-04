@@ -17,13 +17,15 @@ public class CoralSubsystem extends SubsystemBase {
 
     public Boolean mode = false;
 
-    private DigitalInput m_sensor = new DigitalInput(0);
+    private DigitalInput m_sensor;
 
     private boolean isReversing;
 
     public CoralSubsystem() {
         m_leftmotor = new SparkMax(CoralConstants.kLeftMotorID, MotorType.kBrushless);
         m_rightmotor = new SparkMax(CoralConstants.kRightMotorID, MotorType.kBrushless);
+
+        m_sensor = new DigitalInput(CoralConstants.kSensorPortID);
 
         m_rightmotor.configure(
             new SparkMaxConfig()
@@ -45,6 +47,7 @@ public class CoralSubsystem extends SubsystemBase {
     public void periodic(){
         SmartDashboard.putBoolean("hasCoral", hasCoral());
         
+        SmartDashboard.putBoolean("shooterMode", mode);
     } 
 
     public void changeMode(){
@@ -54,7 +57,7 @@ public class CoralSubsystem extends SubsystemBase {
     public void shoot(){
         if(mode){
             m_leftmotor.set(0.2);
-            m_rightmotor.set(0.2);
+            m_rightmotor.set(0.4);
         }else{
             m_leftmotor.set(0.2);
             m_rightmotor.set(0.6);
@@ -82,4 +85,4 @@ public class CoralSubsystem extends SubsystemBase {
     public boolean isReversing(){
         return isReversing;
     }
-    }
+}

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 
-public class Elevator extends SubsystemBase{
+public class ElevatorSubsystem extends SubsystemBase{
     private SparkMax m_RMotor = new SparkMax(ElevatorConstants.kElevatorRMotorID, MotorType.kBrushless);
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
     private RelativeEncoder m_Encoder;
@@ -25,7 +25,7 @@ public class Elevator extends SubsystemBase{
     private boolean goingUP = false;
     private boolean goingDOWN = false;
     
-    public Elevator() {
+    public ElevatorSubsystem() {
 
         m_RMotor.configure(
             new SparkMaxConfig().
@@ -45,9 +45,9 @@ public class Elevator extends SubsystemBase{
 
         m_Encoder = m_RMotor.getEncoder();
         SmartDashboard.putNumber("setPoint", m_Encoder.getPosition());
-        SmartDashboard.putNumber("P", 0);
-        SmartDashboard.putNumber("I", 0);
-        SmartDashboard.putNumber("D", 0);
+        SmartDashboard.putNumber("P", pidController.getP());
+        SmartDashboard.putNumber("I", pidController.getI());
+        SmartDashboard.putNumber("D", pidController.getD());
     }
 
     public void setPosision(double setpoint) {
@@ -56,7 +56,7 @@ public class Elevator extends SubsystemBase{
 
 
     public void setOutput(double output) {
-        SmartDashboard.putNumber("aaaa", output);
+        SmartDashboard.putNumber("elevatorOutput", output);
         m_RMotor.set(0.5*output);
     }
 
@@ -100,5 +100,7 @@ public class Elevator extends SubsystemBase{
         pidController.setD(
             SmartDashboard.getNumber("D", 0)
         );
+
+        // TODO
     }
 }
