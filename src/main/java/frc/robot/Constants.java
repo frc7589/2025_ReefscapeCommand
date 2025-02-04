@@ -26,11 +26,11 @@ public final class Constants {
     public static final int kRightFrontRotorID = 62;
     public static final int kRightRearRotorID = 55;
     public static final int kLeftFrontRotorID = 33;
-    public static final int kLeftRearRotorID = 56;
+    public static final int kLeftRearRotorID = 34;
 
     //動力馬達ID
     public static final int kRightFrontThrottleID = 61;
-    public static final int kRightRearThrottleID = 34;
+    public static final int kRightRearThrottleID = 56;
     public static final int kLeftFrontThrottleID = 57;
     public static final int kLeftRearThrottleID = 59;
 
