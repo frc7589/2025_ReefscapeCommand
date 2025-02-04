@@ -50,21 +50,21 @@ public class CoralSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("shooterMode", mode);
     } 
 
-    public void ChangeMode(){
+    public void changeMode(){
         mode = !mode;
     }
 
-    public void Shoot(){
+    public void shoot(){
         if(mode){
-            m_leftmotor.set(0.1);
-            m_rightmotor.set(0.1);
-        } else {
-            m_leftmotor.set(0.1);
-            m_rightmotor.set(0.5);
+            m_leftmotor.set(0.2);
+            m_rightmotor.set(0.4);
+        }else{
+            m_leftmotor.set(0.2);
+            m_rightmotor.set(0.6);
         }
     }
 
-    public void Stop(){
+    public void stop(){
         m_leftmotor.set(0);
         m_rightmotor.set(0);
     }
@@ -73,12 +73,12 @@ public class CoralSubsystem extends SubsystemBase {
         return m_sensor.get();
     }
 
-    public void ReverseMotor(){
+    public void reverseMotor(){
         m_leftmotor.set(-0.1);
         m_rightmotor.set(-0.1);
     }
 
-    public void SetReverse(boolean reversing){
+    public void setReverse(boolean reversing){
         isReversing = reversing;
     }
 

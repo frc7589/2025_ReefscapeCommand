@@ -5,18 +5,27 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -57,7 +66,7 @@ public class SwerveDrive extends SubsystemBase{
     
     private final AHRS m_Imu = new AHRS(NavXComType.kMXP_SPI);
     
-    private SwerveDriveOdometry odometry;
+    private SwerveDriveOdometry m_odometry;
 
     private double maxspeed = SwerveConstants.kDefaultSpeed;
 
@@ -108,11 +117,45 @@ public class SwerveDrive extends SubsystemBase{
         m_Imu.reset();       
     
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
-        odometry = new SwerveDriveOdometry(
+        m_odometry = new SwerveDriveOdometry(
             SwerveConstants.swervedrivekinematics,
             getRotation2d,
             getModulePositions()
         );
+
+        AutoBuilder.configure(
+            this::getPose,
+            this::setPose,
+            this::getSpeeds,
+            (speeds, feedforwards) -> driveChassis(speeds),
+            new PPHolonomicDriveController(
+                    new PIDConstants(
+                            SwerveConstants.kPath_kP,
+                            SwerveConstants.kPath_kI,
+                            SwerveConstants.kPath_kD
+                        ),
+                    new PIDConstants(
+                            SwerveConstants.kPathZ_kP,
+                            SwerveConstants.kPathZ_kI,
+                            SwerveConstants.kPathZ_kD
+                        )
+                ),
+                new RobotConfig(
+                    SwerveConstants.kMass,
+                    SwerveConstants.kMOI,
+                    new ModuleConfig(
+                            SwerveConstants.kWheelRadius,
+                            SwerveConstants.kMaxVelocityMeterspersecond,
+                            SwerveConstants.kWheelCOF,
+                            DCMotor.getNEO(SwerveConstants.kNumMotors),
+                            SwerveConstants.kdriveCurrentLimit,
+                            SwerveConstants.kNumMotors
+                        ),
+                        SwerveConstants.klModuleoffsets
+                    ),
+                () -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red,
+                this
+            );
     }
 
 
@@ -120,7 +163,7 @@ public class SwerveDrive extends SubsystemBase{
     public void periodic() {
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
         
-        odometry.update(getRotation2d, getModulePositions());
+        m_odometry.update(getRotation2d, getModulePositions());
 
         SmartDashboard.putNumber("LF", this.getModuleStates()[0].angle.getDegrees());
         SmartDashboard.putNumber("RF", this.getModuleStates()[1].angle.getDegrees());
@@ -238,6 +281,32 @@ drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
         };
     }
 
+    public Pose2d getPose() {
+        return m_odometry.getPoseMeters();
+    }
+
+    public void setPose(Pose2d pose) {
+        m_odometry.resetPosition(
+            Rotation2d.fromDegrees(m_Imu.getAngle()),
+            getModulePositions(),
+            pose);
+    }
+
+    public ChassisSpeeds getSpeeds () {
+        return SwerveConstants.swervedrivekinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    public void driveChassis(double xspeed, double ySpeed, double zSpeed) {
+        SwerveModuleState[] states = SwerveConstants.swervedrivekinematics.toSwerveModuleStates(
+            new ChassisSpeeds(xspeed, ySpeed, -zSpeed));
+    }
+
+    public void driveChassis(ChassisSpeeds speeds) {
+        driveChassis(
+            -speeds.vxMetersPerSecond, 
+            -speeds.vyMetersPerSecond, 
+            -speeds.omegaRadiansPerSecond);
+    }
     //將前面返回的state最大速度限制到1再回傳回去給SwerveModuleState
     public void setModulestate (SwerveModuleState[] desiredState) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, 1);

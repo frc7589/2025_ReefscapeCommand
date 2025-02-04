@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.pathplanner.lib.config.ModuleConfig;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -49,14 +50,14 @@ public final class Constants {
     public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175;
     public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966;
 
-    public static final double whatever = 0.60325;//meter
+    public static final double kwhatever = 0.60325;//meter
 
     //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
     public static final SwerveDriveKinematics swervedrivekinematics = new SwerveDriveKinematics(
-       new Translation2d(whatever/2, whatever/2),
-       new Translation2d(whatever/2, whatever/-2),
-       new Translation2d(whatever/-2, whatever/2),
-       new Translation2d(whatever/-2, whatever/-2)
+       new Translation2d(kwhatever/2, kwhatever/2),
+       new Translation2d(kwhatever/2, kwhatever/-2),
+       new Translation2d(kwhatever/-2, kwhatever/2),
+       new Translation2d(kwhatever/-2, kwhatever/-2)
     );
 
     //Rotor PID constants(還沒搞懂要幹嘛)
@@ -93,8 +94,36 @@ public final class Constants {
 
     public static final boolean kRotorMotorInverted = true;
     public static final boolean kThrottleMotorInverted = true;
+    
+    
+    public static final double kPath_kP = 0;
+    public static final double kPath_kI = 0;
+    public static final double kPath_kD = 0;
 
-  }
+    public static final double kPathZ_kP = 0;
+    public static final double kPathZ_kI = 0;
+    public static final double kPathZ_kD = 0;
+
+    //質量KG
+    public static final double kMass = 0;
+    //轉動動量
+    public static final double kMOI = 0;
+    //輪子半徑
+    public static final double kWheelRadius = 0;
+    //輪子摩擦係數
+    public static final double kWheelCOF = 0;
+    //馬達電流限制
+    public static final double kdriveCurrentLimit = 0;
+    //每個輪子馬德數量
+    public static final int kNumMotors = 1;
+
+    public static final Translation2d[] klModuleoffsets = {
+        new Translation2d(kwhatever/2, kwhatever/2),
+        new Translation2d(kwhatever/2, kwhatever/-2),
+        new Translation2d(kwhatever/-2, kwhatever/2),
+        new Translation2d(kwhatever/-2, kwhatever/-2)
+      };
+    }
 
 
   public static class ElevatorConstants {
