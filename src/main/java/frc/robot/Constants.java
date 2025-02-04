@@ -43,11 +43,11 @@ public final class Constants {
     //轉向馬達encoder以及轉向馬達方向設置
     public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
 
-    //Rotor Encode 偏移量
-    public static final double kRightFrontRotorEncoderOffset = -40.42293435;
-    public static final double kRightRearRotorEncoderOffset = 140.620859375;
-    public static final double kLeftFrontRotorEncoderOffset = 139.74515625;
-    public static final double kLeftRearRotorEncoderOffset = 98.382265625;
+    //Rotor Encode 偏移量    
+    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152;
+    public static final double kLeftRearRotorEncoderOffset = -82.793 - 0.08729 + 0.8;
+    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175;
+    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966;
 
     public static final double whatever = 0.60325;//meter
 

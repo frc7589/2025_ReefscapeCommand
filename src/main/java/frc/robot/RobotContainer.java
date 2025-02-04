@@ -88,10 +88,29 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
+    m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
+    m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
+
+    m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
+    m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
+    
+    m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
+
+    m_ActionController.a().whileTrue(Commands.startEnd(
+      () -> m_Elevator.down(),
+      () -> m_Elevator.stay(),
+      m_Elevator
+    ));
+
+    m_ActionController.y().whileTrue(Commands.startEnd(
+      () -> m_Elevator.up(),
+      () -> m_Elevator.stay(),
+      m_Elevator));
+    
     new Trigger(m_Coral::hasCoral)
         .onTrue(new CoralIntakeReverseCommand(m_Coral));
 
-    new Trigger(() -> Math.abs(m_ActionController.getRightY()) >= 0.08)
+    new Trigger(() -> Math.abs(m_ActionController.getLeftY()) >= 0.08)
       .whileTrue(Commands.run(
         () -> m_AlgeaTest.setArmSpeed(m_ActionController.getRightY()*0.4), 
         m_AlgeaTest));
@@ -113,6 +132,7 @@ public class RobotContainer {
         () -> !m_Coral.isReversing())
         );
     
+
     m_ActionController.a().whileTrue(Commands.startEnd(
       () -> m_Algea.setState(true),
       () -> m_Algea.setState(false),

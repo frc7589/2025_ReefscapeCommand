@@ -129,7 +129,11 @@ public class SwerveDrive extends SubsystemBase{
 
 
         SmartDashboard.putNumber("speed", maxspeed);
-        
+
+        SmartDashboard.putNumber("LF_speed", getModuleStates()[0].speedMetersPerSecond);
+        SmartDashboard.putNumber("LR_speed", getModuleStates()[2].speedMetersPerSecond);
+        SmartDashboard.putNumber("RF_speed", getModuleStates()[1].speedMetersPerSecond);
+        SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
 
         //m_LeftFrontModule.setRotorangle();
         //m_LeftRearModule.setRotorangle();
@@ -151,7 +155,8 @@ public class SwerveDrive extends SubsystemBase{
      * @param zSpeed percent power for rotation (旋轉的功率百分比)
      * @param fieldOriented configure robot movement style (設置機器運動方式) (field or robot oriented)
      */
-    public void drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
+    public void 
+drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
 
         if (fieldOriented) {
@@ -168,7 +173,13 @@ public class SwerveDrive extends SubsystemBase{
     public void drive(double xSpeed, double ySpeed, double zSpeed) {
         if (fieldOriented) {
             SwerveModuleState[] states = SwerveConstants.swervedrivekinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed*maxspeed, -ySpeed*maxspeed, zSpeed*maxspeed, Rotation2d.fromDegrees(m_Imu.getYaw() - headingoffset)));
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    -xSpeed*maxspeed, 
+                    -ySpeed*maxspeed, 
+                    zSpeed*maxspeed, 
+                    Rotation2d.fromDegrees(m_Imu.getYaw() - headingoffset)
+                )
+            );
             setModulestate(states);
         } else {
             SwerveModuleState[] states = SwerveConstants.swervedrivekinematics.toSwerveModuleStates(
@@ -183,7 +194,6 @@ public class SwerveDrive extends SubsystemBase{
         });
     }
 
-    /*
     public Command increaseSpeed() {
         return runOnce(() -> {
             if(this.maxspeed > 0.9) return;
@@ -197,7 +207,6 @@ public class SwerveDrive extends SubsystemBase{
             this.maxspeed-=0.1;
         });
     }
-    */
 
     public Command tohighSpeed() {
         return runOnce(() -> {
@@ -231,7 +240,7 @@ public class SwerveDrive extends SubsystemBase{
 
     //將前面返回的state最大速度限制到1再回傳回去給SwerveModuleState
     public void setModulestate (SwerveModuleState[] desiredState) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, 0.5);
+        SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, 1);
         m_LeftFrontModule.setstate(desiredState[0]);
         m_RightFrontModule.setstate(desiredState[1]);
         m_LeftRearModule.setstate(desiredState[2]);
