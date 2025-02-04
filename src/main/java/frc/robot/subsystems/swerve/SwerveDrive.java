@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -57,7 +58,7 @@ public class SwerveDrive extends SubsystemBase{
     
     private final AHRS m_Imu = new AHRS(NavXComType.kMXP_SPI);
     
-    private SwerveDriveOdometry odometry;
+    private SwerveDriveOdometry m_odometry;
 
     private double maxspeed = SwerveConstants.kDefaultSpeed;
 
@@ -108,7 +109,7 @@ public class SwerveDrive extends SubsystemBase{
         m_Imu.reset();       
     
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
-        odometry = new SwerveDriveOdometry(
+        m_odometry = new SwerveDriveOdometry(
             SwerveConstants.swervedrivekinematics,
             getRotation2d,
             getModulePositions()
@@ -120,7 +121,7 @@ public class SwerveDrive extends SubsystemBase{
     public void periodic() {
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
         
-        odometry.update(getRotation2d, getModulePositions());
+        m_odometry.update(getRotation2d, getModulePositions());
 
         SmartDashboard.putNumber("LF", this.getModuleStates()[0].angle.getDegrees());
         SmartDashboard.putNumber("RF", this.getModuleStates()[1].angle.getDegrees());
@@ -229,6 +230,32 @@ public class SwerveDrive extends SubsystemBase{
         };
     }
 
+    public Pose2d getPose() {
+        return m_odometry.getPoseMeters();
+    }
+
+    public void setPose(Pose2d pose) {
+        m_odometry.resetPosition(
+            Rotation2d.fromDegrees(m_Imu.getAngle()),
+            getModulePositions(),
+            pose);
+    }
+
+    public ChassisSpeeds getSpeeds () {
+        return SwerveConstants.swervedrivekinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    public void driverChassis(double xspeed, double ySpeed, double zSpeed) {
+        SwerveModuleState[] states = SwerveConstants.swervedrivekinematics.toSwerveModuleStates(
+            new ChassisSpeeds(xspeed, ySpeed, -zSpeed));
+    }
+
+    public void driveChassis(ChassisSpeeds speeds) {
+        driverChassis(
+            -speeds.vxMetersPerSecond, 
+            -speeds.vyMetersPerSecond, 
+            -speeds.omegaRadiansPerSecond);
+    }
     //將前面返回的state最大速度限制到1再回傳回去給SwerveModuleState
     public void setModulestate (SwerveModuleState[] desiredState) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, 0.5);
