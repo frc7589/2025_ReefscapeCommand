@@ -130,8 +130,8 @@ public final class Constants {
     public static final int kElevatorRMotorID = 47;
     public static final int kElevatorLMotorID = 43;
 
-    public static final double kDistancePerRevolution = 0;
     public static final double kTolerance = 1;
+    public static final double kDistancePerRevolution = 0;
   }
 
 
@@ -148,8 +148,8 @@ public final class Constants {
 
 
   public static class CoralConstants {
-    public static final int kLeftMotorID = 0;
-    public static final int kRightMotorID = 32;
+    public static final int kLeftMotorID = 47;
+    public static final int kRightMotorID = 45;
 
     public static final int kSensorPortID = 0;
   }
