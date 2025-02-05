@@ -24,7 +24,6 @@ public class ElevatorSubsystem extends SubsystemBase{
     private PIDController pidController = new PIDController(0.4, 0, 0);
 
     private double encoderOffset = 0;
-    private double output = 0;
     
     public ElevatorSubsystem() {
 
@@ -53,29 +52,29 @@ public class ElevatorSubsystem extends SubsystemBase{
         encoderOffset = m_Encoder.get();
     }
 
+    public void changeSetPosistion(double change) {
+        pidController.setSetpoint(getSetPosistion() + change);
+    }
+
     public double getPosition() {
         return (m_Encoder.get() - encoderOffset) * ElevatorConstants.kDistancePerRevolution;
+    }
+
+    public double getSetPosistion() {
+        return pidController.getSetpoint();
     }
 
     public void setPosision(double setpoint) {
         pidController.setSetpoint(setpoint);
     }
 
+    public double getPIDOutput() {
+        return pidController.calculate(getPosition());
+    }
+
     public void setOutput(double output) {
         SmartDashboard.putNumber("elevatorOutput", output);
         m_RMotor.set(output);
-    }
-
-    public void up() {
-        m_RMotor.set(0.7);
-    }
-
-    public void down() {
-        m_RMotor.set(-0.7);
-    }
-
-    public void stay() {
-        m_RMotor.set(0);
     }
 
 

@@ -61,18 +61,6 @@ public class RobotContainer {
       ),
       m_Swerve
     ));
-
-    m_Elevator.setDefaultCommand(Commands.run(
-      () -> {
-        m_Elevator.setOutput(
-          Math.abs(m_ActionController.getRightY()) > 0.08 ? -m_ActionController.getRightY() : 0
-        );
-
-        //if( Math.abs(m_ActionController.getRightY()) > 0.08) System.out.print("aaaa");
-      },
-      m_Elevator
-    ));
-    
     
     m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
@@ -82,6 +70,10 @@ public class RobotContainer {
       },
       m_AlgeaTest
     ));
+
+    m_Elevator.setDefaultCommand(Commands.run(
+      () -> m_Elevator.setOutput(m_Elevator.getPIDOutput()),
+      m_Elevator));
 
     configureBindings();
   }
@@ -96,8 +88,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-
+    new Trigger(m_Coral::hasCoral)
+        .onTrue(new CoralIntakeReverseCommand(m_Coral));
+        
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
 
@@ -106,22 +99,13 @@ public class RobotContainer {
     
     m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
 
-    m_ActionController.a().whileTrue(Commands.startEnd(
-      () -> m_Elevator.down(),
-      () -> m_Elevator.stay(),
-      m_Elevator
-    ));
-
-    m_ActionController.y().whileTrue(Commands.startEnd(
-      () -> m_Elevator.up(),
-      () -> m_Elevator.stay(),
+    m_ActionController.a().whileTrue(Commands.run(
+      () -> m_Elevator.changeSetPosistion(-5),
       m_Elevator));
-    
-    new Trigger(m_Coral::hasCoral)
-        .onTrue(new CoralIntakeReverseCommand(m_Coral));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
+    m_ActionController.y().whileTrue(Commands.run(
+      () -> m_Elevator.changeSetPosistion(5), //5cm
+      m_Elevator));
 
     m_ActionController.start().whileTrue(Commands.runOnce(
       () -> m_Coral.changeMode(),
@@ -137,6 +121,18 @@ public class RobotContainer {
         () -> !m_Coral.isReversing())
         );
     
+    m_ActionController.povUp().whileTrue(Commands.runOnce(
+      () -> m_Elevator.setPosision(0),
+      m_Elevator));
+    m_ActionController.povRight().whileTrue(Commands.runOnce(
+        () -> m_Elevator.setPosision(0),
+        m_Elevator));
+    m_ActionController.povDown().whileTrue(Commands.runOnce(
+        () -> m_Elevator.setPosision(0),
+        m_Elevator));
+    m_ActionController.povLeft().whileTrue(Commands.runOnce(
+        () -> m_Elevator.setPosision(0),
+        m_Elevator));
 
     m_ActionController.b().whileTrue(Commands.startEnd(
       () -> m_Algea.setState(true),
