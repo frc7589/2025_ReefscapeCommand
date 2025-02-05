@@ -72,7 +72,7 @@ public class RobotContainer {
       },
       m_Elevator
     ));
-
+    
     
     m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
@@ -127,7 +127,7 @@ public class RobotContainer {
       () -> m_Coral.changeMode(),
       m_Coral));
 
-    m_ActionController.y().whileTrue(new ConditionalCommand(
+    m_ActionController.x().whileTrue(new ConditionalCommand(
       Commands.startEnd(
         () -> m_Coral.shoot(), 
         () -> m_Coral.stop(),
@@ -138,17 +138,17 @@ public class RobotContainer {
         );
     
 
-    m_ActionController.a().whileTrue(Commands.startEnd(
+    m_ActionController.b().whileTrue(Commands.startEnd(
       () -> m_Algea.setState(true),
       () -> m_Algea.setState(false),
       m_Algea
     ));
 
-    m_ActionController.x().whileTrue(Commands.runOnce(
+    m_ActionController.rightTrigger().whileTrue(Commands.runOnce(
       () -> m_AlgeaTest.setSuckSpeed(0.4), 
       m_AlgeaTest));
 
-    m_ActionController.b().whileTrue(Commands.runOnce(
+    m_ActionController.leftTrigger().whileTrue(Commands.runOnce(
       () -> m_AlgeaTest.setReleaseSpeed(0.4),
        m_AlgeaTest));
     

@@ -129,6 +129,9 @@ public final class Constants {
   public static class ElevatorConstants {
     public static final int kElevatorRMotorID = 47;
     public static final int kElevatorLMotorID = 43;
+
+    public static final double kDistancePerRevolution = 0;
+    public static final double kTolerance = 1;
   }
 
 
@@ -153,10 +156,10 @@ public final class Constants {
 
 
   public static class AlgeaConstants {
-    public static final int kArmMotorID = 0;
-    public static final int kIntakeMotorID = 0;
+    public static final int kArmMotorID = 30;
+    public static final int kIntakeMotorID = 52;
 
-    public static final int kEncoderID = 0;
+    public static final int kEncoderID = 1;
 
     public static final double kP = 0;
     public static final double kI = 0;

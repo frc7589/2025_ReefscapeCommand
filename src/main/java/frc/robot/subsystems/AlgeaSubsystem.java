@@ -20,7 +20,8 @@ public class AlgeaSubsystem extends SubsystemBase {
     private DutyCycleEncoder m_ArmEncoder;
 
     private PIDController pidController;
-    
+    private double[] pidarray = {AlgeaConstants.kP, AlgeaConstants.kI, AlgeaConstants.kD};
+        
     private boolean m_enabled;
 
     public AlgeaSubsystem(){
@@ -55,6 +56,8 @@ public class AlgeaSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putData("algea intake pid", pidController);
+        SmartDashboard.getNumberArray("algea pid array", pidarray);
+        pidController.setPID(pidarray[0], pidarray[1], pidarray[2]);
     }
 
     public void setState(boolean enable){

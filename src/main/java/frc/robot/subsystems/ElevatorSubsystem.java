@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,12 +19,12 @@ import frc.robot.Constants.ElevatorConstants;
 public class ElevatorSubsystem extends SubsystemBase{
     private SparkMax m_RMotor = new SparkMax(ElevatorConstants.kElevatorRMotorID, MotorType.kBrushless);
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
-    private RelativeEncoder m_Encoder;
+    private DutyCycleEncoder m_Encoder = new DutyCycleEncoder(0);
 
     private PIDController pidController = new PIDController(0.4, 0, 0);
 
-    private boolean goingUP = false;
-    private boolean goingDOWN = false;
+    private double encoderOffset = 0;
+    private double output = 0;
     
     public ElevatorSubsystem() {
 
@@ -43,21 +44,26 @@ public class ElevatorSubsystem extends SubsystemBase{
             PersistMode.kPersistParameters
         );
 
-        m_Encoder = m_RMotor.getEncoder();
-        SmartDashboard.putNumber("setPoint", m_Encoder.getPosition());
         SmartDashboard.putNumber("P", pidController.getP());
         SmartDashboard.putNumber("I", pidController.getI());
         SmartDashboard.putNumber("D", pidController.getD());
+
+        pidController.setTolerance(ElevatorConstants.kTolerance);
+        pidController.setIntegratorRange(0, 0.7);
+        encoderOffset = m_Encoder.get();
+    }
+
+    public double getPosition() {
+        return (m_Encoder.get() - encoderOffset) * ElevatorConstants.kDistancePerRevolution;
     }
 
     public void setPosision(double setpoint) {
         pidController.setSetpoint(setpoint);
     }
 
-
     public void setOutput(double output) {
         SmartDashboard.putNumber("elevatorOutput", output);
-        m_RMotor.set(0.5*output);
+        m_RMotor.set(output);
     }
 
     public void up() {
@@ -68,26 +74,18 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_RMotor.set(-0.7);
     }
 
-    public void setSpeed(double tohighSpeed) {
-        m_RMotor.set(0.9*tohighSpeed);
-    }
-
     public void stay() {
         m_RMotor.set(0);
-        // TODO Stay
     }
+
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("height", m_Encoder.getPosition()/160);
 
+
+        SmartDashboard.putNumber("height", getPosition());
         // TODO PID控制
         SmartDashboard.putData("PID", pidController);
-        SmartDashboard.putNumber("Point", m_Encoder.getPosition());
-
-        pidController.setSetpoint(
-            SmartDashboard.getNumber("setPoint", m_Encoder.getPosition())
-        );
 
         pidController.setP(
             SmartDashboard.getNumber("P", 0)
@@ -100,7 +98,5 @@ public class ElevatorSubsystem extends SubsystemBase{
         pidController.setD(
             SmartDashboard.getNumber("D", 0)
         );
-
-        // TODO
     }
 }
