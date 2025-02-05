@@ -19,9 +19,9 @@ import frc.robot.Constants.ElevatorConstants;
 public class ElevatorSubsystem extends SubsystemBase{
     private SparkMax m_RMotor = new SparkMax(ElevatorConstants.kElevatorRMotorID, MotorType.kBrushless);
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
-    private DutyCycleEncoder m_Encoder = new DutyCycleEncoder(0);
+    private DutyCycleEncoder m_Encoder = new DutyCycleEncoder(ElevatorConstants.kEncoderID);
 
-    private PIDController pidController = new PIDController(0.4, 0, 0);
+    private PIDController pidController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
 
     private double encoderOffset = 0;
     
@@ -81,9 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
 
-
         SmartDashboard.putNumber("height", getPosition());
-        // TODO PID控制
         SmartDashboard.putData("PID", pidController);
 
         pidController.setP(
