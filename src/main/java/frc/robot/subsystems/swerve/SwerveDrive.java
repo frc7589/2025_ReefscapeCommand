@@ -13,6 +13,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,6 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
@@ -31,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.subsystems.VisionSuubsystem;
 
 public class SwerveDrive extends SubsystemBase{
     //private final SwerveModule m_LeftFrontModule, m_LeftRearModule, m_RightFrontModule, m_RightRearModule;
@@ -65,6 +68,8 @@ public class SwerveDrive extends SubsystemBase{
     );
     
     private final AHRS m_Imu = new AHRS(NavXComType.kMXP_SPI);
+
+    private VisionSuubsystem m_limelight;
     
     private SwerveDriveOdometry m_odometry;
 
@@ -75,6 +80,10 @@ public class SwerveDrive extends SubsystemBase{
     private double headingoffset = 0;
 
     private boolean fieldOriented = true;
+
+    private PIDController m_RotationPID;
+    private PIDController m_XmotionPID;
+    private PIDController m_YmotionPID;
 
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutVoltage m_appliedVoltage = Volts.mutable(0);
@@ -229,6 +238,18 @@ drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
                 new ChassisSpeeds(-xSpeed*maxspeed, -ySpeed*maxspeed, zSpeed*maxspeed));
             setModulestate(states);
         }
+    }
+
+        //自動對齊
+    public void autoAlignment() {
+        m_RotationPID = new PIDController(0, 0, 0);
+        m_XmotionPID = new PIDController(0, 0, 0);
+        m_YmotionPID = new PIDController(0, 0, 0);
+        drive(
+            m_XmotionPID.calculate(m_limelight.getCameraPose_TargetSpace(0), 0),
+            m_YmotionPID.calculate(m_limelight.getCameraPose_TargetSpace(1), 0),
+            m_RotationPID.calculate(m_limelight.getdegRotationToTarget(), 0)
+        );
     }
 
     public Command switchDriveMode() {
