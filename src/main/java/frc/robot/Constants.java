@@ -127,14 +127,8 @@ public final class Constants {
 
 
   public static class ElevatorConstants {
-    public static final int kElevatorRMotorID = 47;
-    public static final int kElevatorLMotorID = 43;
-  }
-
-
-  public static class ShooterConstants {
-    public static final int kShooterRMotorID = 46;
-    public static final int kShooterLMotorID = 45;
+    public static final int kElevatorRMotorID = 31;
+    public static final int kElevatorLMotorID = 46;
   }
 
 
@@ -145,16 +139,16 @@ public final class Constants {
 
 
   public static class CoralConstants {
-    public static final int kLeftMotorID = 0;
-    public static final int kRightMotorID = 32;
+    public static final int kLeftMotorID = 47;
+    public static final int kRightMotorID = 45;
 
     public static final int kSensorPortID = 0;
   }
 
 
   public static class AlgeaConstants {
-    public static final int kArmMotorID = 0;
-    public static final int kIntakeMotorID = 0;
+    public static final int kArmMotorID = 30;
+    public static final int kIntakeMotorID = 52;
 
     public static final int kEncoderID = 0;
 
