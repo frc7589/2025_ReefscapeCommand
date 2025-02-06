@@ -2,18 +2,22 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.ColorSensorV3;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants.CoralConstants;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralSubsystem extends SubsystemBase {
 
     private SparkMax m_leftmotor, m_rightmotor;
+    private ColorSensorV3 m_ColorSensorV3 = new ColorSensorV3(I2C.Port.kOnboard);
+    private int proximity = m_ColorSensorV3.getProximity();
 
     public Boolean mode = false;
 
@@ -45,7 +49,7 @@ public class CoralSubsystem extends SubsystemBase {
     }
     @Override
     public void periodic(){
-        SmartDashboard.putBoolean("hasCoral", hasCoral());
+        SmartDashboard.putNumber("Coral Distance", getDistance());
         
         SmartDashboard.putBoolean("shooterMode", mode);
     } 
@@ -69,8 +73,12 @@ public class CoralSubsystem extends SubsystemBase {
         m_rightmotor.set(0);
     }
 
+    public double getDistance(){
+        return m_ColorSensorV3.getProximity();
+    }
+
     public boolean hasCoral(){
-        return m_sensor.get();
+        return true ? getDistance() > 160 : false;
     }
 
     public void reverseMotor(){

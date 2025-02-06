@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CoralIntakeReverseCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -44,6 +45,9 @@ public class RobotContainer {
   private final CommandXboxController m_ActionController = 
       new CommandXboxController(OperatorConstants.kActionControllerPort);
 
+  private final XboxController m_Controller = 
+      new XboxController(0);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -58,14 +62,21 @@ public class RobotContainer {
       m_Swerve
     ));
     
-    m_AlgeaTest.setDefaultCommand(Commands.run(
+    /*m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
         m_AlgeaTest.setArmSpeed(
           Math.abs(m_ActionController.getLeftY()) > 0.08 ? m_ActionController.getLeftY() * 0.4 : 0
         );
       },
       m_AlgeaTest
-    ));
+    ));*/
+
+    m_Algea.setDefaultCommand(Commands.run(
+      () -> {
+        m_Algea.setSetpoint(
+          Math.abs(m_DriveController.getRightY()) > 0.08 ? m_DriveController.getRightY() : 0
+        );
+      }, m_Algea));
 
     m_Elevator.setDefaultCommand(Commands.run(
       () -> m_Elevator.setOutput(m_Elevator.getPIDOutput()),

@@ -34,15 +34,15 @@ public class AlgeaTestSubsystem extends SubsystemBase{
             PersistMode.kPersistParameters);
     }
 
-    public void setSuckSpeed(double SuckSpeed){
+    public void setSuckSpeed(double SuckSpeed) {
         m_Intakemotor.set(SuckSpeed);
     }
 
-    public void setReleaseSpeed(double ReleaseSpeed){
+    public void setReleaseSpeed(double ReleaseSpeed) {
         m_Intakemotor.set(ReleaseSpeed);
     }
 
-    public void setArmSpeed(double Armspeed){
+    public void setArmSpeed(double Armspeed) {
         m_Armmotor.set(Armspeed);
     }
 }
