@@ -156,11 +156,16 @@ public final class Constants {
     public static final int kElevatorRMotorID = 47;
     public static final int kElevatorLMotorID = 43;
 
+    public static final int kSWitchID = 0;
+
     public static final int kEncoderID = 0;
 
     public static final double kP = 0.4;
     public static final double kI = 0;
     public static final double kD = 0;
+
+    public static final double kMinimumIntegral = 0;
+    public static final double kMaximumIntegral = 0.7;
 
     public static final double kTolerance = 1;
     public static final double kDistancePerRevolution = 0;
