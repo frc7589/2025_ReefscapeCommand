@@ -6,7 +6,6 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CoralIntakeReverseCommand;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -44,9 +43,6 @@ public class RobotContainer {
 
   private final CommandXboxController m_ActionController = 
       new CommandXboxController(OperatorConstants.kActionControllerPort);
-
-  private final XboxController m_Controller = 
-      new XboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

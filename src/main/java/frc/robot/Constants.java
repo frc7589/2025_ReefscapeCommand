@@ -53,7 +53,7 @@ public final class Constants {
     public static final double kwhatever = 0.60325;//meter
 
     //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
-    public static final SwerveDriveKinematics swervedrivekinematics = new SwerveDriveKinematics(
+    public static final SwerveDriveKinematics kSwerveDriveKinematics = new SwerveDriveKinematics(
        new Translation2d(kwhatever/2, kwhatever/2),
        new Translation2d(kwhatever/2, kwhatever/-2),
        new Translation2d(kwhatever/-2, kwhatever/2),
