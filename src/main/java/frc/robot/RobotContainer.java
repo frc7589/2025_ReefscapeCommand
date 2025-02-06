@@ -17,6 +17,7 @@ import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.utils.OpzXboxController;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -43,12 +44,13 @@ public class RobotContainer {
   private final SendableChooser<Command> m_autChooser;
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
+  private final OpzXboxController m_DriveController = new OpzXboxController(
+      OperatorConstants.kDriverControllerPort,
+      OperatorConstants.kControllerMinValue);
+    private final OpzXboxController m_ActionController = new OpzXboxController(
+      OperatorConstants.kActionControllerPort,
+      OperatorConstants.kControllerMinValue);
 
-  private final CommandXboxController m_DriveController = 
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
-  private final CommandXboxController m_ActionController = 
-      new CommandXboxController(OperatorConstants.kActionControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -61,9 +63,9 @@ public class RobotContainer {
 
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
-        Math.abs(m_DriveController.getLeftY()) > 0.08 ? m_DriveController.getLeftY() : 0,
-        Math.abs(m_DriveController.getLeftX()) > 0.08 ? m_DriveController.getLeftX() : 0,
-        Math.abs(m_DriveController.getRightX()) > 0.08 ? -m_DriveController.getRightX() : 0,
+        m_DriveController.getLeftY(),
+        m_DriveController.getLeftX(),
+        m_DriveController.getRightX(),
         true
       ),
       m_Swerve
@@ -72,7 +74,7 @@ public class RobotContainer {
     m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
         m_AlgeaTest.setArmSpeed(
-          Math.abs(m_ActionController.getLeftY()) > 0.08 ? m_ActionController.getLeftY() * 0.4 : 0
+          m_ActionController.getLeftY() * 0.4
         );
       },
       m_AlgeaTest

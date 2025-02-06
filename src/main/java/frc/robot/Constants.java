@@ -176,6 +176,9 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kActionControllerPort = 1;
+
+    //Xbox控制器數值忽略基準值
+    public static final double kControllerMinValue = 0.08;
   }
 
 
