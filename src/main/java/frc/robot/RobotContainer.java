@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CoralIntakeReverseCommand;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -16,7 +17,11 @@ import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import edu.wpi.first.wpilibj.XboxController;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,6 +40,7 @@ public class RobotContainer {
 
   private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
 
+  private final SendableChooser<Command> m_autChooser;
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
 
@@ -47,6 +53,11 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+
+    //TODO Auto Named Commands
+
+    m_autChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(m_autChooser);
 
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
@@ -146,4 +157,9 @@ public class RobotContainer {
     
   }
 
+  public Command getAutonomousCommand() {
+    //TODO Auto初始化
+    
+    return m_autChooser.getSelected();
+  }
 }

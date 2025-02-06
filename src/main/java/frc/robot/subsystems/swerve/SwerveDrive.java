@@ -24,7 +24,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
@@ -94,6 +93,15 @@ public class SwerveDrive extends SubsystemBase{
 
     private PIDController m_autobeinggayPID;
 
+    RobotConfig config;{
+        try{
+        config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+        // Handle exception as needed
+        config = SwerveConstants.kconfig;
+        e.printStackTrace();
+        }
+    }
     // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
     private final MutVoltage m_appliedVoltage = Volts.mutable(0);
     // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
@@ -167,20 +175,14 @@ public class SwerveDrive extends SubsystemBase{
                             SwerveConstants.kPathZ_kD
                         )
                 ),
-                new RobotConfig(
-                    SwerveConstants.kMass,
-                    SwerveConstants.kMOI,
-                    new ModuleConfig(
-                            SwerveConstants.kWheelRadius,
-                            SwerveConstants.kMaxVelocityMeterspersecond,
-                            SwerveConstants.kWheelCOF,
-                            DCMotor.getNEO(SwerveConstants.kNumMotors),
-                            SwerveConstants.kdriveCurrentLimit,
-                            SwerveConstants.kNumMotors
-                        ),
-                        SwerveConstants.klModuleoffsets
-                    ),
-                () -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red,
+                config,
+                () -> {
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                      return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
                 this
             );
     }
