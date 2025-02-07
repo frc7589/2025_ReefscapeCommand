@@ -28,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(0);
     private Encoder m_RelEncoder = new Encoder(6, 7);
 
-    private DigitalInput limitswitch = new DigitalInput(3);
+    private DigitalInput m_limitSwitchBottom = new DigitalInput(3);
 
     private final PIDController pidController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
 
@@ -60,16 +60,26 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_RelEncoder.reset();
         m_RelEncoder.setReverseDirection(true);
         SmartDashboard.putData(pidController);
+        pidController.setSetpoint(50);
 
-        offset = ElevatorConstants.PositionConversionFactor*(m_AbsEncoder.get()-ElevatorConstants.kElevatorAbsOffset);
+        offset = 0;
+        //ElevatorConstants.PositionConversionFactor*(m_AbsEncoder.get()-ElevatorConstants.kElevatorAbsOffset);
     }
 
     public double getPosition() {
         return m_RelEncoder.getDistance()-offset;
     }
 
+    public double getSetpoint() {
+        return pidController.getSetpoint();
+    }
+
     public void setPosision(double setpoint) {
         pidController.setSetpoint(setpoint);
+    }
+
+    public Command setPosisionCommand(double setpoint) {
+        return runOnce(() -> pidController.setSetpoint(setpoint));
     }
 
     @Override
@@ -86,11 +96,11 @@ public class ElevatorSubsystem extends SubsystemBase{
 
         SmartDashboard.putNumber("Elevator", getPosition());
         
-        SmartDashboard.putBoolean("touch", limitswitch.get());
+        SmartDashboard.putBoolean("touch", m_limitSwitchBottom.get());
 
-        if(limitswitch.get()) {
-            m_RMotor.set(0);
-        }
+        //if(m_limitSwitchBottom.get()) {
+        //    m_RMotor.set(0);
+        //}
     }
 
     public Command runMotor() {

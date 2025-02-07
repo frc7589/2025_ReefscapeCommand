@@ -160,9 +160,9 @@ public final class Constants {
 
     public static final int kEncoderID = 0;
 
-    public static final double kP = 0.473;
-    public static final double kI = 0.006;
-    public static final double kD = 0.0001;
+    public static final double kP = 0.08;
+    public static final double kI = 0;
+    public static final double kD = 0;
 
     public static final double kMinimumIntegral = 0;
     public static final double kMaximumIntegral = 0.7;
@@ -171,7 +171,7 @@ public final class Constants {
     public static final double kDistancePerRevolution = 0;
 
     public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
-    public static final double kElevatorAbsOffset = 0.95;
+    public static final double kElevatorAbsOffset = 0;
   }
 
   public static class OperatorConstants {
