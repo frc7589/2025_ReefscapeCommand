@@ -20,6 +20,7 @@ import frc.robot.subsystems.swerve.SwerveDrive;
 import frc.robot.utils.OpzXboxController;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,6 +58,22 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     //TODO Auto Named Commands
+    NamedCommands.registerCommand("Elevator L1", Commands.run(
+      () -> m_Elevator.setPosision(0),
+      m_Elevator));
+    NamedCommands.registerCommand("Elevator L2", Commands.run(
+      () -> m_Elevator.setPosision(0),
+      m_Elevator));
+    NamedCommands.registerCommand("Elevator L3", Commands.run(
+      () -> m_Elevator.setPosision(0),
+      m_Elevator));
+    NamedCommands.registerCommand("Elevator L4", Commands.run(
+      () -> m_Elevator.setPosision(0),
+      m_Elevator));
+    NamedCommands.registerCommand("Coral shoot", Commands.runEnd(
+      () -> m_Coral.shoot(),
+      () -> m_Coral.stop(),
+      m_Coral));
 
     m_autChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autChooser);
@@ -128,7 +145,7 @@ public class RobotContainer {
       ),
         new InstantCommand(),
         () -> !m_Coral.isReversing())
-        );
+      );
     
     m_ActionController.povUp().whileTrue(Commands.runOnce(
       () -> m_Elevator.setPosision(0),
