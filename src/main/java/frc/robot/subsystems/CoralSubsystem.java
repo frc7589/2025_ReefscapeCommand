@@ -16,14 +16,30 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class CoralSubsystem extends SubsystemBase {
 
     private SparkMax m_leftmotor, m_rightmotor;
-    private ColorSensorV3 m_ColorSensorV3 = new ColorSensorV3(I2C.Port.kOnboard);
-    private int proximity = m_ColorSensorV3.getProximity();
 
     public Boolean mode = false;
 
     private DigitalInput m_sensor;
 
     private boolean isSpining;
+
+    public static enum IntakeState {
+        kLoad("已裝載"),
+        kEmpty("空載");
+
+        private String name;
+        private IntakeState(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+
+    
+
+    private IntakeState state;
 
     public CoralSubsystem() {
         m_leftmotor = new SparkMax(CoralConstants.kLeftMotorID, MotorType.kBrushless);
@@ -34,7 +50,7 @@ public class CoralSubsystem extends SubsystemBase {
         m_rightmotor.configure(
             new SparkMaxConfig()
                 .idleMode(IdleMode.kBrake)
-                .inverted(false),
+                .inverted(true),
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters
         );
@@ -42,11 +58,24 @@ public class CoralSubsystem extends SubsystemBase {
         m_leftmotor.configure(
             new SparkMaxConfig()
                 .idleMode(IdleMode.kBrake)
-                .inverted(true),
+                .inverted(false),
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters
         );
+
+        state = this.hasCoral() ? IntakeState.kLoad : IntakeState.kEmpty;
     }
+
+    public void setRightMode(IdleMode mode) {
+        m_rightmotor.configure(
+            new SparkMaxConfig()
+                .idleMode(mode)
+                .inverted(true),
+            ResetMode.kResetSafeParameters,
+            PersistMode.kNoPersistParameters
+        );
+    }
+
     @Override
     public void periodic(){
     SmartDashboard.putBoolean("hasCoral", hasCoral());        
@@ -59,27 +88,43 @@ public class CoralSubsystem extends SubsystemBase {
 
     public void shoot(){
         if(mode){
-            m_leftmotor.set(0.2);
-            m_rightmotor.set(0.4);
+            this.setRightMode(IdleMode.kBrake);
+            m_leftmotor.set(0.1);
+            m_rightmotor.set(0.1);
         }else{
-            m_leftmotor.set(0.2);
+            this.setRightMode(IdleMode.kCoast);
+            m_leftmotor.set(0.03);
             m_rightmotor.set(0.6);
         }
     }
 
     public void stop(){
+        this.setRightMode(IdleMode.kBrake);
         m_leftmotor.set(0);
         m_rightmotor.set(0);
     }
-
 
     public boolean hasCoral(){
         return m_sensor.get();
     }
 
+    public void updateState() {
+        this.state = this.hasCoral() ? IntakeState.kLoad : IntakeState.kEmpty;
+    }
+
     public void slowMotor(){
         m_leftmotor.set(0.1);
         m_rightmotor.set(0.1);
+    }
+
+    public void intake() {
+        m_leftmotor.set(0.3);
+        m_rightmotor.set(0.3);
+    }
+
+    public void reverseMotor(){
+        m_leftmotor.set(-0.2);
+        m_rightmotor.set(-0.2);
     }
 
     public void setSpin(boolean spining){

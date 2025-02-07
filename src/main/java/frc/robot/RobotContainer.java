@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.CoralIntakeReverseCommand;
+import frc.robot.commands.CoralIntakeCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -120,8 +120,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    new Trigger(m_Coral::hasCoral)
-        .onTrue(new CoralIntakeReverseCommand(m_Coral));
         
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
@@ -131,27 +129,28 @@ public class RobotContainer {
     
     m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
 
-    m_ActionController.a().whileTrue(Commands.run(
-      () -> m_Elevator.changeSetPosistion(-5),
-      m_Elevator));
+    m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
 
     m_ActionController.y().whileTrue(Commands.run(
       () -> m_Elevator.changeSetPosistion(5), //5cm
       m_Elevator));
 
+    m_ActionController.x().whileTrue(Commands.startEnd(
+        () -> m_Coral.shoot(), 
+        () -> m_Coral.stop(),
+        m_Coral)
+        );
+  
+
+      m_ActionController.b().whileTrue(Commands.startEnd(
+      () -> m_Algea.setState(true),
+      () -> m_Algea.setState(false),
+      m_Algea
+    ));
+
     m_ActionController.start().whileTrue(Commands.runOnce(
       () -> m_Coral.changeMode(),
       m_Coral));
-
-    m_ActionController.x().whileTrue(new ConditionalCommand(
-      Commands.startEnd(
-        () -> m_Coral.shoot(), 
-        () -> m_Coral.stop(),
-        m_Coral
-      ),
-        new InstantCommand(),
-        () -> !m_Coral.isSpining())
-      );
     
     m_ActionController.povUp().whileTrue(Commands.runOnce(
       () -> m_Elevator.setPosision(0),
@@ -165,12 +164,6 @@ public class RobotContainer {
     m_ActionController.povLeft().whileTrue(Commands.runOnce(
         () -> m_Elevator.setPosision(0),
         m_Elevator));
-
-    m_ActionController.b().whileTrue(Commands.startEnd(
-      () -> m_Algea.setState(true),
-      () -> m_Algea.setState(false),
-      m_Algea
-    ));
 
     m_ActionController.rightTrigger().whileTrue(Commands.runOnce(
       () -> m_AlgeaTest.setSuckSpeed(0.4), 
