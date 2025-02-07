@@ -38,9 +38,9 @@ public class RobotContainer {
   private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
 
   private final CoralSubsystem m_Coral = new CoralSubsystem();
-  private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
+  //private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
 
-  private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
+  //private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
 
   private final SendableChooser<Command> m_autChooser;
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -96,13 +96,6 @@ public class RobotContainer {
       m_AlgeaTest
     ));*/
 
-    m_Algea.setDefaultCommand(Commands.run(
-      () -> {
-        m_Algea.setSetpoint(
-          Math.abs(m_DriveController.getRightY()) > 0.08 ? m_DriveController.getRightY() : 0
-        );
-      }, m_Algea));
-
     configureBindings();
   }
 
@@ -126,45 +119,8 @@ public class RobotContainer {
     m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
 
     m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
-
-    m_ActionController.x().whileTrue(Commands.startEnd(
-        () -> m_Coral.shoot(), 
-        () -> m_Coral.stop(),
-        m_Coral)
-        );
-  
-
-      m_ActionController.b().whileTrue(Commands.startEnd(
-      () -> m_Algea.setState(true),
-      () -> m_Algea.setState(false),
-      m_Algea
-    ));
-
-    m_ActionController.start().whileTrue(Commands.runOnce(
-      () -> m_Coral.changeMode(),
-      m_Coral));
-    
-    m_ActionController.povUp().whileTrue(Commands.runOnce(
-      () -> m_Elevator.setPosision(0),
-      m_Elevator));
-    m_ActionController.povRight().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(0),
-        m_Elevator));
-    m_ActionController.povDown().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(20),
-        m_Elevator));
-    m_ActionController.povLeft().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(0),
-        m_Elevator));
-
-    m_ActionController.rightTrigger().whileTrue(Commands.runOnce(
-      () -> m_AlgeaTest.setSuckSpeed(0.4), 
-      m_AlgeaTest));
-
-    m_ActionController.leftTrigger().whileTrue(Commands.runOnce(
-      () -> m_AlgeaTest.setReleaseSpeed(0.4),
-       m_AlgeaTest));
-    
+    m_ActionController.leftBumper().whileTrue(m_Elevator.runMotor());
+    m_ActionController.pov(0).onTrue(getAutonomousCommand())
   }
 
   public void enable() {
