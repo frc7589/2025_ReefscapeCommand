@@ -53,6 +53,9 @@ public class RobotContainer {
       OperatorConstants.kControllerMinValue);
 
 
+  private final XboxController m_Controller = 
+      new XboxController(0);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -88,14 +91,21 @@ public class RobotContainer {
       m_Swerve
     ));
     
-    m_AlgeaTest.setDefaultCommand(Commands.run(
+    /*m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
         m_AlgeaTest.setArmSpeed(
           m_ActionController.getLeftY() * 0.4
         );
       },
       m_AlgeaTest
-    ));
+    ));*/
+
+    m_Algea.setDefaultCommand(Commands.run(
+      () -> {
+        m_Algea.setSetpoint(
+          Math.abs(m_DriveController.getRightY()) > 0.08 ? m_DriveController.getRightY() : 0
+        );
+      }, m_Algea));
 
     m_Elevator.setDefaultCommand(Commands.run(
       () -> m_Elevator.setOutput(m_Elevator.getPIDOutput()),

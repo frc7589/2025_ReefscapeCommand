@@ -9,6 +9,7 @@ public class CoralIntakeReverseCommand extends Command {
     private CoralSubsystem m_intake;
     private Timer m_reverseTimer = new Timer();
     private boolean hasReversed;
+    private final double stopDistance = 200;
 
     public CoralIntakeReverseCommand(CoralSubsystem m_intake){
         this.m_intake = m_intake;
