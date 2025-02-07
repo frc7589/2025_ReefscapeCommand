@@ -23,7 +23,7 @@ public class CoralSubsystem extends SubsystemBase {
 
     private DigitalInput m_sensor;
 
-    private boolean isReversing;
+    private boolean isSpining;
 
     public CoralSubsystem() {
         m_leftmotor = new SparkMax(CoralConstants.kLeftMotorID, MotorType.kBrushless);
@@ -49,8 +49,7 @@ public class CoralSubsystem extends SubsystemBase {
     }
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("Coral Distance", getDistance());
-        
+    SmartDashboard.putBoolean("hasCoral", hasCoral());        
         SmartDashboard.putBoolean("shooterMode", mode);
     } 
 
@@ -73,24 +72,21 @@ public class CoralSubsystem extends SubsystemBase {
         m_rightmotor.set(0);
     }
 
-    public double getDistance(){
-        return m_ColorSensorV3.getProximity();
-    }
 
     public boolean hasCoral(){
-        return true ? getDistance() > 160 : false;
+        return m_sensor.get();
     }
 
-    public void reverseMotor(){
-        m_leftmotor.set(-0.1);
-        m_rightmotor.set(-0.1);
+    public void slowMotor(){
+        m_leftmotor.set(0.1);
+        m_rightmotor.set(0.1);
     }
 
-    public void setReverse(boolean reversing){
-        isReversing = reversing;
+    public void setSpin(boolean spining){
+        isSpining = spining;
     }
 
-    public boolean isReversing(){
-        return isReversing;
+    public boolean isSpining(){
+        return isSpining;
     }
 }

@@ -150,7 +150,7 @@ public class RobotContainer {
         m_Coral
       ),
         new InstantCommand(),
-        () -> !m_Coral.isReversing())
+        () -> !m_Coral.isSpining())
       );
     
     m_ActionController.povUp().whileTrue(Commands.runOnce(
