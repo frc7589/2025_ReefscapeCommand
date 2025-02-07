@@ -52,10 +52,6 @@ public class RobotContainer {
       OperatorConstants.kActionControllerPort,
       OperatorConstants.kControllerMinValue);
 
-
-  private final XboxController m_Controller = 
-      new XboxController(0);
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
