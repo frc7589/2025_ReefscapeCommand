@@ -37,8 +37,6 @@ public class CoralSubsystem extends SubsystemBase {
         }
     }
 
-    
-
     private IntakeState state;
 
     public CoralSubsystem() {

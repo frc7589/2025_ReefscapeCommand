@@ -103,10 +103,6 @@ public class RobotContainer {
         );
       }, m_Algea));
 
-    m_Elevator.setDefaultCommand(Commands.run(
-      () -> m_Elevator.setOutput(m_Elevator.getPIDOutput()),
-      m_Elevator));
-
     configureBindings();
   }
 
@@ -130,10 +126,6 @@ public class RobotContainer {
     m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
 
     m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
-
-    m_ActionController.y().whileTrue(Commands.run(
-      () -> m_Elevator.changeSetPosistion(5), //5cm
-      m_Elevator));
 
     m_ActionController.x().whileTrue(Commands.startEnd(
         () -> m_Coral.shoot(), 
@@ -159,7 +151,7 @@ public class RobotContainer {
         () -> m_Elevator.setPosision(0),
         m_Elevator));
     m_ActionController.povDown().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(0),
+        () -> m_Elevator.setPosision(20),
         m_Elevator));
     m_ActionController.povLeft().whileTrue(Commands.runOnce(
         () -> m_Elevator.setPosision(0),
@@ -173,6 +165,14 @@ public class RobotContainer {
       () -> m_AlgeaTest.setReleaseSpeed(0.4),
        m_AlgeaTest));
     
+  }
+
+  public void enable() {
+    m_Elevator.enable();
+  }
+
+  public void disable() {
+    m_Elevator.disable();
   }
 
   public Command getAutonomousCommand() {

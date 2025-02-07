@@ -153,30 +153,26 @@ public final class Constants {
 
 
   public static class ElevatorConstants {
-    public static final int kElevatorRMotorID = 47;
-    public static final int kElevatorLMotorID = 43;
+    public static final int kElevatorRMotorID = 31;
+    public static final int kElevatorLMotorID = 46;
 
     public static final int kSWitchID = 0;
 
     public static final int kEncoderID = 0;
 
-    public static final double kP = 0.4;
-    public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kP = 0.473;
+    public static final double kI = 0.006;
+    public static final double kD = 0.0001;
 
     public static final double kMinimumIntegral = 0;
     public static final double kMaximumIntegral = 0.7;
 
     public static final double kTolerance = 1;
     public static final double kDistancePerRevolution = 0;
+
+    public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
+    public static final double kElevatorAbsOffset = 0.95;
   }
-
-
-  public static class ShooterConstants {
-    public static final int kShooterRMotorID = 46;
-    public static final int kShooterLMotorID = 45;
-  }
-
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
@@ -191,7 +187,7 @@ public final class Constants {
     public static final int kLeftMotorID = 47;
     public static final int kRightMotorID = 45;
 
-    public static final int kSensorPortID = 0;
+    public static final int kSensorPortID = 5;
   }
 
 

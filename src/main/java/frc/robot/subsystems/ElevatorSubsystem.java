@@ -11,22 +11,33 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase{
     private SparkMax m_RMotor = new SparkMax(ElevatorConstants.kElevatorRMotorID, MotorType.kBrushless);
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
-    private DutyCycleEncoder m_Encoder = new DutyCycleEncoder(ElevatorConstants.kEncoderID);
+    private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(0);
+    private Encoder m_RelEncoder = new Encoder(6, 7);
 
-    private PIDController pidController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
-    private DigitalInput m_Switch = new DigitalInput(ElevatorConstants.kSWitchID);
+    private DigitalInput limitswitch = new DigitalInput(3);
 
-    private double encoderOffset = 0;
-    
+    private final PIDController pidController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+
+    private double offset;
+
+    private boolean runMotor = false;
+
+    //藍6黃7
+
     public ElevatorSubsystem() {
 
         m_RMotor.configure(
@@ -45,60 +56,61 @@ public class ElevatorSubsystem extends SubsystemBase{
             PersistMode.kPersistParameters
         );
 
-        SmartDashboard.putNumber("P", pidController.getP());
-        SmartDashboard.putNumber("I", pidController.getI());
-        SmartDashboard.putNumber("D", pidController.getD());
+        m_RelEncoder.setDistancePerPulse(ElevatorConstants.PositionConversionFactor/8192);
+        m_RelEncoder.reset();
+        m_RelEncoder.setReverseDirection(true);
+        SmartDashboard.putData(pidController);
 
-        pidController.setTolerance(ElevatorConstants.kTolerance);
-        pidController.setIntegratorRange(ElevatorConstants.kMinimumIntegral, ElevatorConstants.kMaximumIntegral);
-        encoderOffset = m_Encoder.get();
-    }
-
-    public void changeSetPosistion(double change) {
-        pidController.setSetpoint(getSetPosistion() + change);
+        offset = ElevatorConstants.PositionConversionFactor*(m_AbsEncoder.get()-ElevatorConstants.kElevatorAbsOffset);
     }
 
     public double getPosition() {
-        return (m_Encoder.get() - encoderOffset) * ElevatorConstants.kDistancePerRevolution;
-    }
-
-    public double getSetPosistion() {
-        return pidController.getSetpoint();
+        return m_RelEncoder.getDistance()-offset;
     }
 
     public void setPosision(double setpoint) {
         pidController.setSetpoint(setpoint);
     }
 
-    public double getPIDOutput() {
-        return pidController.calculate(getPosition());
-    }
-
-    public void setOutput(double output) {
-        SmartDashboard.putNumber("elevatorOutput", output);
-        m_RMotor.set(output);
-    }
-
-    public boolean geSwitch() {
-        return m_Switch.get();
-    }
-
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Elevator_SP", pidController.getSetpoint());
 
-        SmartDashboard.putNumber("height", getPosition());
-        SmartDashboard.putData("PID", pidController);
+        if(runMotor) {
+            m_RMotor.set(pidController.calculate(this.getPosition()));
+        } else {
+            m_RMotor.set(0);
+        }
 
-        pidController.setP(
-            SmartDashboard.getNumber("P", 0)
-        );
+        SmartDashboard.putNumber("Output", m_RMotor.get());
 
-        pidController.setI(
-            SmartDashboard.getNumber("I", 0)
-        );
+        SmartDashboard.putNumber("Elevator", getPosition());
+        
+        SmartDashboard.putBoolean("touch", limitswitch.get());
 
-        pidController.setD(
-            SmartDashboard.getNumber("D", 0)
-        );
+        if(limitswitch.get()) {
+            m_RMotor.set(0);
+        }
+    }
+
+    public Command runMotor() {
+        return startEnd(() ->  runMotor = true, () -> {
+            pidController.reset();
+            runMotor = false;
+        });
+    }
+
+    public void enable() {
+        pidController.reset();
+        runMotor = true;
+    }
+
+    public void disable() {
+        pidController.reset();
+        runMotor = false;
+    }
+
+    public boolean isEnabled() {
+        return runMotor;
     }
 }
