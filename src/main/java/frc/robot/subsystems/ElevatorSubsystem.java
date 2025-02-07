@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -22,6 +23,7 @@ public class ElevatorSubsystem extends SubsystemBase{
     private DutyCycleEncoder m_Encoder = new DutyCycleEncoder(ElevatorConstants.kEncoderID);
 
     private PIDController pidController = new PIDController(ElevatorConstants.kP, ElevatorConstants.kI, ElevatorConstants.kD);
+    private DigitalInput m_Switch = new DigitalInput(ElevatorConstants.kSWitchID);
 
     private double encoderOffset = 0;
     
@@ -48,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase{
         SmartDashboard.putNumber("D", pidController.getD());
 
         pidController.setTolerance(ElevatorConstants.kTolerance);
-        pidController.setIntegratorRange(0, 0.7);
+        pidController.setIntegratorRange(ElevatorConstants.kMinimumIntegral, ElevatorConstants.kMaximumIntegral);
         encoderOffset = m_Encoder.get();
     }
 
@@ -77,6 +79,9 @@ public class ElevatorSubsystem extends SubsystemBase{
         m_RMotor.set(output);
     }
 
+    public boolean geSwitch() {
+        return m_Switch.get();
+    }
 
     @Override
     public void periodic() {

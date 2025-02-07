@@ -17,7 +17,12 @@ import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
-import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.utils.OpzXboxController;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,14 +41,16 @@ public class RobotContainer {
 
   private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
 
+  private final SendableChooser<Command> m_autChooser;
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
+  private final OpzXboxController m_DriveController = new OpzXboxController(
+      OperatorConstants.kDriverControllerPort,
+      OperatorConstants.kControllerMinValue);
+    private final OpzXboxController m_ActionController = new OpzXboxController(
+      OperatorConstants.kActionControllerPort,
+      OperatorConstants.kControllerMinValue);
 
-  private final CommandXboxController m_DriveController = 
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
-  private final CommandXboxController m_ActionController = 
-      new CommandXboxController(OperatorConstants.kActionControllerPort);
 
   private final XboxController m_Controller = 
       new XboxController(0);
@@ -52,11 +59,16 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
 
+    //TODO Auto Named Commands
+
+    m_autChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(m_autChooser);
+
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
-        Math.abs(m_DriveController.getLeftY()) > 0.08 ? m_DriveController.getLeftY() : 0,
-        Math.abs(m_DriveController.getLeftX()) > 0.08 ? m_DriveController.getLeftX() : 0,
-        Math.abs(m_DriveController.getRightX()) > 0.08 ? -m_DriveController.getRightX() : 0,
+        m_DriveController.getLeftY(),
+        m_DriveController.getLeftX(),
+        m_DriveController.getRightX(),
         true
       ),
       m_Swerve
@@ -65,7 +77,7 @@ public class RobotContainer {
     /*m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
         m_AlgeaTest.setArmSpeed(
-          Math.abs(m_ActionController.getLeftY()) > 0.08 ? m_ActionController.getLeftY() * 0.4 : 0
+          m_ActionController.getLeftY() * 0.4
         );
       },
       m_AlgeaTest
@@ -157,4 +169,9 @@ public class RobotContainer {
     
   }
 
+  public Command getAutonomousCommand() {
+    //TODO Auto初始化
+    
+    return m_autChooser.getSelected();
+  }
 }
