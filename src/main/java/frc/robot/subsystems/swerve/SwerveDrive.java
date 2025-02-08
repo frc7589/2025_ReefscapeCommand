@@ -81,8 +81,6 @@ public class SwerveDrive extends SubsystemBase{
     );
     
     private final AHRS m_Imu = new AHRS(NavXComType.kMXP_SPI);
-
-    private VisionSubsystem m_limelight;
     
     private SwerveDriveOdometry m_odometry;
 
@@ -100,11 +98,12 @@ public class SwerveDrive extends SubsystemBase{
     
     private Rotation2d inputAngle;
 
-    private Pose3d inputDistance;
-
     private boolean fieldOriented = true;
+    private boolean doRejectUpdate = false;
 
     private SwerveDrivePoseEstimator m_poseEstimator;
+
+    private Pose2d inputDistance;
 
     private Pose3d m_CenterPose;
     private Pose3d m_ReefCenterPose;
@@ -245,7 +244,7 @@ public class SwerveDrive extends SubsystemBase{
     public void periodic() {
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
         inputAngle = new Rotation2d(m_Imu.getYaw());
-        inputDistance = new Pose3d(m_poseEstimator.getEstimatedPosition());
+        this.inputDistance = m_poseEstimator.getEstimatedPosition();
         
         m_odometry.update(getRotation2d, getModulePositions());
 
@@ -263,12 +262,28 @@ public class SwerveDrive extends SubsystemBase{
         SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
 
         //TODO林書宇看過了但我不知道可不可以東西好少
-        LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-        if (limelightMeasurement.tagCount >= 2) {  // Only trust measurement if we see multiple tags
+        LimelightHelpers.PoseEstimate megaTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        if(Math.abs(m_Imu.getRate()) > 720) // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+        {
+          doRejectUpdate = true;
+        }
+        if(megaTag2.tagCount == 0)
+        {
+          doRejectUpdate = true;
+        }
+        if(!doRejectUpdate)
+        {
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+          m_poseEstimator.addVisionMeasurement(
+              megaTag2.pose,
+              megaTag2.timestampSeconds);
+        }
+
+        if (megaTag2.tagCount >= 2) {  // Only trust measurement if we see multiple tags
             m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 9999999));
             m_poseEstimator.addVisionMeasurement(
-                limelightMeasurement.pose,
-                limelightMeasurement.timestampSeconds
+                megaTag2.pose,
+                megaTag2.timestampSeconds
             );
         }
 
@@ -292,7 +307,8 @@ public class SwerveDrive extends SubsystemBase{
         });
 
         reefTargetAngle.forEach((tagID, distance) -> {
-            if (inputDistance.getTranslation().getDistance(m_CenterPose.getTranslation()) < 0) {
+            if (m_ReefCenterPose.getTranslation().toTranslation2d().getDistance(m_poseEstimator.getEstimatedPosition().getTranslation()) < min_CoralDistance) {
+                this.min_CoralDistance = distance;
                 this.min_REEFtagID = tagID;
             }
         });
@@ -356,7 +372,7 @@ drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
             m_XmotionPID = new PIDController(0, 0, 0);
             m_YmotionPID = new PIDController(0, 0, 0);
             Pose2d robotpose = m_poseEstimator.getEstimatedPosition();
-            Pose2d targetpose = getTargetPose(min_REEFtagID);
+            Pose2d targetpose = getTargetPose(min_REEFtagID).toPose2d();
             double distance = robotpose.getTranslation().getDistance(targetpose.getTranslation());
             if (distance <= 1.5) {
                 drive(
@@ -371,9 +387,9 @@ drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
     //TODO 確定是幾號apriltag x y速度未定 不知道會不會被覆蓋掉
     public void autoTurnAround() {
         m_autobeinggayPID = new PIDController(0, 0, 0);
-        Pose2d targetPose = getTargetPose(min_REEFtagID);
+        Pose3d targetPose = getTargetPose(min_CoralStationtagID);
         Pose2d botPose = m_poseEstimator.getEstimatedPosition();
-        double distance = botPose.getTranslation().getDistance(targetPose.getTranslation());
+        double distance = botPose.getTranslation().getDistance(targetPose.getTranslation().toTranslation2d());
         if(distance <= 1.5){
             drive(0, 0, m_autobeinggayPID.calculate(Rotation2d.fromDegrees(m_Imu.getYaw()).minus(getRotationToTarget(min_CoralStationtagID)).getDegrees(), 0));
         }
@@ -464,8 +480,8 @@ drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
         m_RightRearModule.setstate(desiredState[3]);
     }
 
-    public Pose2d getTargetPose(int ID) {
-        return AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(ID).get().toPose2d();
+    public Pose3d getTargetPose(int ID) {
+        return AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(ID).get();
     }
 
     public Rotation2d getRotationToTarget(int ID) {
