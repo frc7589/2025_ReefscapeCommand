@@ -19,6 +19,7 @@ public class CoralIntakeCommand extends Command {
     @Override
     public void initialize(){
         stage = 0;
+        m_reverseTimer.reset();
     }
 
     @Override
