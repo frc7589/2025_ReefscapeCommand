@@ -98,9 +98,9 @@ public class ElevatorSubsystem extends SubsystemBase{
         
         SmartDashboard.putBoolean("touch", m_limitSwitchBottom.get());
 
-        //if(m_limitSwitchBottom.get()) {
-        //    m_RMotor.set(0);
-        //}
+        if(m_limitSwitchBottom.get()) {
+            m_RelEncoder.reset();
+        }
     }
 
     public Command runMotor() {
