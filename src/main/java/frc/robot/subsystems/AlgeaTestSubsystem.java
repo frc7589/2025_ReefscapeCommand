@@ -16,8 +16,8 @@ public class AlgeaTestSubsystem extends SubsystemBase{
     
 
     public AlgeaTestSubsystem(){
-        m_Armmotor = new SparkMax(AlgeaConstants.kArmMotorID, MotorType.kBrushless);
-        m_Intakemotor = new SparkMax(AlgeaConstants.kIntakeMotorID, MotorType.kBrushless);
+        /*m_Armmotor = new SparkMax(0, MotorType.kBrushless);
+        m_Intakemotor = new SparkMax(0, MotorType.kBrushless);
 
         m_Armmotor.configure(
             new SparkMaxConfig()
@@ -43,6 +43,6 @@ public class AlgeaTestSubsystem extends SubsystemBase{
     }
 
     public void setArmSpeed(double Armspeed){
-        m_Armmotor.set(Armspeed);
+        m_Armmotor.set(Armspeed);*/
     }
 }

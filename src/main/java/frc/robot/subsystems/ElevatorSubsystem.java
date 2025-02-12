@@ -35,13 +35,13 @@ public class ElevatorSubsystem extends SubsystemBase{
             PersistMode.kPersistParameters
         );
 
-        m_LMotor.configure(
+        /*m_LMotor.configure(
             new SparkMaxConfig().
             follow(m_RMotor, true).
             idleMode(IdleMode.kBrake), 
             ResetMode.kResetSafeParameters, 
             PersistMode.kPersistParameters
-        );
+        );*/
 
         SmartDashboard.putNumber("P", pidController.getP());
         SmartDashboard.putNumber("I", pidController.getI());
@@ -49,7 +49,7 @@ public class ElevatorSubsystem extends SubsystemBase{
 
         pidController.setTolerance(ElevatorConstants.kTolerance);
         pidController.setIntegratorRange(0, 0.7);
-        encoderOffset = m_Encoder.get();
+        //encoderOffset = m_Encoder.get();
     }
 
     public void changeSetPosistion(double change) {

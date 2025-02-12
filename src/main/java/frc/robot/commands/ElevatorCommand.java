@@ -23,7 +23,7 @@ public class ElevatorCommand extends Command{
     // 初始化 在呼叫的時候做
     @Override
     public void initialize() {
-
+        
     }
 
     // 一直運作

@@ -130,4 +130,7 @@ public class SwerveModule {
         return Throttle.get();
     }
 
+    public RelativeEncoder getThrottleEncoder() {
+        return Throttle.getAlternateEncoder();
+    }
 }

@@ -70,7 +70,7 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public boolean hasCoral(){
-        return m_sensor.get();
+        return !m_sensor.get();
     }
 
     public void reverseMotor(){

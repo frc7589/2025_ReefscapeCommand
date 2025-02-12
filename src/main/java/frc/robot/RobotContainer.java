@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.CoralIntakeReverseCommand;
+import frc.robot.commands.SwerveCommand;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -15,8 +16,11 @@ import frc.robot.subsystems.AlgeaSubsystem;
 import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.swerve.SwerveDrive;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,6 +30,8 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
+  private PIDController m_PID;
+
   private final SwerveDrive m_Swerve = new SwerveDrive();
 
   private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
@@ -34,6 +40,11 @@ public class RobotContainer {
   private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
 
   private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
+
+  private final SwerveCommand m_goleft = new SwerveCommand(m_Swerve, false, true, false);
+  private final SwerveCommand m_goright = new SwerveCommand(m_Swerve, false, false, true);
+  private final SwerveCommand m_alignment = new SwerveCommand(m_Swerve, true, false, false);
+
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
@@ -44,6 +55,8 @@ public class RobotContainer {
   private final CommandXboxController m_ActionController = 
       new CommandXboxController(OperatorConstants.kActionControllerPort);
 
+  
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -52,26 +65,34 @@ public class RobotContainer {
       () -> m_Swerve.drive(
         Math.abs(m_DriveController.getLeftY()) > 0.08 ? m_DriveController.getLeftY() : 0,
         Math.abs(m_DriveController.getLeftX()) > 0.08 ? m_DriveController.getLeftX() : 0,
-        Math.abs(m_DriveController.getRightX()) > 0.08 ? -m_DriveController.getRightX() : 0,
-        true
+        Math.abs(m_DriveController.getRightX()) > 0.08 ? -m_DriveController.getRightX() : 0
       ),
       m_Swerve
     ));
     
-    m_AlgeaTest.setDefaultCommand(Commands.run(
+    /*m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
         m_AlgeaTest.setArmSpeed(
           Math.abs(m_ActionController.getLeftY()) > 0.08 ? m_ActionController.getLeftY() * 0.4 : 0
         );
       },
       m_AlgeaTest
-    ));
+    ));*/
 
     m_Elevator.setDefaultCommand(Commands.run(
       () -> m_Elevator.setOutput(m_Elevator.getPIDOutput()),
       m_Elevator));
 
+    
+    configureControllerBindings();
     configureBindings();
+  }
+
+  private void configureBindings() {
+    SmartDashboard.putNumber("P", 0);
+    SmartDashboard.putNumber("I", 0);
+    SmartDashboard.putNumber("D", 0);
+
   }
 
   /**
@@ -83,9 +104,19 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
-    new Trigger(m_Coral::hasCoral)
-        .onTrue(new CoralIntakeReverseCommand(m_Coral));
+  private void configureControllerBindings() {
+    //new Trigger(m_Coral::hasCoral)
+        //.onTrue(new CoralIntakeReverseCommand(m_Coral));
+
+    m_DriveController.y().onTrue(m_Swerve.resetHeadingOffset());
+    
+    m_DriveController.a().toggleOnTrue(m_alignment);
+    m_DriveController.povLeft().toggleOnTrue(m_goleft);
+    m_DriveController.povRight().toggleOnTrue(m_goright);
+
+    /*m_DriveController.b().whileTrue(Commands.run(
+      () -> m_Swerve.autoTurnAround(-m_DriveController.getLeftX(), m_DriveController.getLeftY()),
+      m_Swerve));*/
         
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
@@ -136,7 +167,7 @@ public class RobotContainer {
       m_Algea
     ));
 
-    m_ActionController.rightTrigger().whileTrue(Commands.runOnce(
+    /*m_ActionController.rightTrigger().whileTrue(Commands.runOnce(
       () -> m_AlgeaTest.setSuckSpeed(0.4), 
       m_AlgeaTest));
 
@@ -144,6 +175,6 @@ public class RobotContainer {
       () -> m_AlgeaTest.setReleaseSpeed(0.4),
        m_AlgeaTest));
     
-  }
+  }*/
 
-}
+  }}
