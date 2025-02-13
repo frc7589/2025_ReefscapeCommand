@@ -81,6 +81,10 @@ public class SwerveDrive extends SubsystemBase{
 
     private double headingoffset = 0;
 
+    private double LeftX;
+    private double LeftY;
+    private double RightX;
+
     private boolean fieldOriented = true;
 
     private SwerveDrivePoseEstimator m_poseEstimator;
@@ -249,8 +253,11 @@ public class SwerveDrive extends SubsystemBase{
      * @param zSpeed percent power for rotation (旋轉的功率百分比)
      * @param fieldOriented configure robot movement style (設置機器運動方式) (field or robot oriented)
      */
-    public void 
-drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
+    public void drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
+        LeftY = xSpeed;
+        LeftX = ySpeed;
+        RightX = zSpeed;
+
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
 
         if (fieldOriented) {
@@ -359,6 +366,10 @@ drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
             m_LeftRearModule.getPosition(),
             m_RightRearModule.getPosition()
         };
+    }
+
+    public boolean isDriverControlling() {
+        return LeftX + LeftY + RightX > 0.0;
     }
 
     public Pose2d getPose() {
