@@ -31,9 +31,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Swerve m_Swerve = new Swerve();
 
-  private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
+  // private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
 
-  private final CoralSubsystem m_Coral = new CoralSubsystem();
+  //private final CoralSubsystem m_Coral = new CoralSubsystem();
   //private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
 
   //private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
@@ -59,10 +59,12 @@ public class RobotContainer {
       m_Swerve
     ));
 
+    /*
     m_Elevator.setDefaultCommand(Commands.run(
       () -> m_Elevator.setPosision(m_Elevator.getSetpoint() + m_ActionController.getLeftY()*0.1),
       m_Elevator
     ));
+     */
     
     /*m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
@@ -93,26 +95,29 @@ public class RobotContainer {
     m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
-    m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
+    //m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
+    m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
+    //m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
 
-    m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
+    /* 
     m_ActionController.leftBumper().whileTrue(m_Elevator.runMotor());
 
     m_ActionController.povUp().onTrue(m_Elevator.setPosisionCommand(180));
     m_ActionController.povDown().onTrue(m_Elevator.setPosisionCommand(20));
     m_ActionController.povLeft().onTrue(m_Elevator.setPosisionCommand(50));
     m_ActionController.povRight().onTrue(m_Elevator.setPosisionCommand(90));
+    */
 
-    m_ActionController.x().whileTrue(Commands.startEnd(() -> m_Coral.shoot(), () -> m_Coral.stop(), m_Coral));
+    //m_ActionController.x().whileTrue(Commands.startEnd(() -> m_Coral.shoot(), () -> m_Coral.stop(), m_Coral));
   }
 
   public void enable() {
-    m_Elevator.enable();
+    // m_Elevator.enable();
   }
 
   public void disable() {
-    m_Elevator.disable();
+    // m_Elevator.disable();
   }
 
   public Command getAutonomousCommand() {

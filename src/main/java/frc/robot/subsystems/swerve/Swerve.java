@@ -58,11 +58,11 @@ public class Swerve extends SubsystemBase{
     
     private SwerveDriveOdometry odometry;
 
-    private double maxspeed = SwerveConstants.kDefaultSpeed;
+    private double maxSpeedRatio = SwerveConstants.kDefaultSpeed;
 
     //private SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(), new SysIdRoutine.Mechanism(, null))
 
-    private double headingoffset = 0;
+    private double headingOffset = 0;
 
     private boolean fieldOriented = true;
 
@@ -73,38 +73,42 @@ public class Swerve extends SubsystemBase{
     // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
     private final MutLinearVelocity m_velocity = MetersPerSecond.mutable(0);
 
-// Create a new SysId routine for characterizing the drive.
-/*private final SysIdRoutine m_sysIdRoutine =
-    new SysIdRoutine(
-        // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-        new SysIdRoutine.Config(),
-        new SysIdRoutine.Mechanism(
-            // Tell SysId how to plumb the driving voltage to the motors.
-            voltage -> {
-                m_LeftFrontModule.setvoltage(voltage);
-                m_LeftRearModule.setvoltage(voltage);
-                m_RightFrontModule.setvoltage(voltage);
-                m_RightRearModule.setvoltage(voltage);
-            },
-            // Tell SysId how to record a frame of data for each motor on the mechanism being
-            // characterized.
-            log -> {
-                // Record a frame for the left motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            m_LeftFrontModule.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(m_LeftFrontModule.getPosition().distanceMeters, Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(m_LeftFrontModule.getState().speedMetersPerSecond, MetersPerSecond));
-            },
-            // Tell SysId to make generated commands require this subsystem, suffix test state in
-            // WPILog with this subsystem's name ("drive")
-            this));*/
-
+    public static boolean ffControl = true;
+    
+    // Create a new SysId routine for characterizing the drive.
+    /*private final SysIdRoutine m_sysIdRoutine =
+        new SysIdRoutine(
+            // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                // Tell SysId how to plumb the driving voltage to the motors.
+                voltage -> {
+                    m_LeftFrontModule.setvoltage(voltage);
+                    m_LeftRearModule.setvoltage(voltage);
+                    m_RightFrontModule.setvoltage(voltage);
+                    m_RightRearModule.setvoltage(voltage);
+                },
+                // Tell SysId how to record a frame of data for each motor on the mechanism being
+                // characterized.
+                log -> {
+                    // Record a frame for the left motors.  Since these share an encoder, we consider
+                    // the entire group to be one motor.
+                    log.motor("drive")
+                        .voltage(
+                            m_appliedVoltage.mut_replace(
+                                m_LeftFrontModule.get() * RobotController.getBatteryVoltage(), Volts))
+                        .linearPosition(m_distance.mut_replace(m_LeftFrontModule.getPosition().distanceMeters, Meters))
+                        .linearVelocity(
+                            m_velocity.mut_replace(m_LeftFrontModule.getState().speedMetersPerSecond, MetersPerSecond));
+                },
+                // Tell SysId to make generated commands require this subsystem, suffix test state in
+                // WPILog with this subsystem's name ("drive")
+                this));*/
+    
     public Swerve() {
         m_Imu.reset();       
+
+        SmartDashboard.putBoolean("swerve_ffControlled", ffControl);
     
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
         odometry = new SwerveDriveOdometry(
@@ -113,8 +117,8 @@ public class Swerve extends SubsystemBase{
             getModulePositions()
         );
     }
-
-
+    
+    
     @Override
     public void periodic() {
         Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
@@ -127,22 +131,21 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("RR", this.getModuleStates()[3].angle.getDegrees());
 
 
-        SmartDashboard.putNumber("speed", maxspeed);
+        SmartDashboard.putNumber("speed", maxSpeedRatio);
 
         SmartDashboard.putNumber("LF_speed", getModuleStates()[0].speedMetersPerSecond);
         SmartDashboard.putNumber("LR_speed", getModuleStates()[2].speedMetersPerSecond);
         SmartDashboard.putNumber("RF_speed", getModuleStates()[1].speedMetersPerSecond);
         SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
 
-        //m_LeftFrontModule.setRotorangle();
-        //m_LeftRearModule.setRotorangle();
-        //m_RightFrontModule.setRotorangle();
-        //m_RightRearModule.setRotorangle();
+
+        Swerve.ffControl = SmartDashboard.getBoolean("swerve_ffControlled", ffControl);
+
     }
 
     public Command resetHeadingOffset() {
         return runOnce(() -> {
-            this.headingoffset = m_Imu.getYaw();
+            this.headingOffset = m_Imu.getYaw();
         });
     }
 
@@ -155,27 +158,42 @@ public class Swerve extends SubsystemBase{
      * @param fieldOriented configure robot movement style (設置機器運動方式) (field or robot oriented)
      */
     public void drive(double xSpeed, double ySpeed, double zSpeed, boolean fieldOriented) {
-        Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Imu.getYaw());
+        if(Swerve.ffControl) {
+            xSpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
+            ySpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
+            zSpeed *= SwerveConstants.kMaxAngularVelocityRadPerSecond;
 
+            SmartDashboard.putNumber("x_speed_set", xSpeed);
+            SmartDashboard.putNumber("y_speed_set",  ySpeed);
+        }
         if (fieldOriented) {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed*maxspeed, -ySpeed*maxspeed, zSpeed*maxspeed, getRotation2d));
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_Imu.getYaw() - this.headingOffset)));
             setModulestate(states);
         } else {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
-                new ChassisSpeeds(-xSpeed*maxspeed, -ySpeed*maxspeed, zSpeed*maxspeed));
+                new ChassisSpeeds(xSpeed, ySpeed, zSpeed));
             setModulestate(states);
         }
     }
 
     public void drive(double xSpeed, double ySpeed, double zSpeed) {
+        if(Swerve.ffControl) {
+            xSpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
+            ySpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
+            zSpeed *= SwerveConstants.kMaxAngularVelocityRadPerSecond;
+
+            SmartDashboard.putNumber("x_speed_set", xSpeed);
+            SmartDashboard.putNumber("y_speed_set",  ySpeed);
+        }
+
         if (fieldOriented) {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed*maxspeed, -ySpeed*maxspeed, zSpeed*maxspeed, Rotation2d.fromDegrees(m_Imu.getYaw() - headingoffset)));
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_Imu.getYaw() - this.headingOffset)));
             setModulestate(states);
         } else {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
-                new ChassisSpeeds(-xSpeed*maxspeed, -ySpeed*maxspeed, zSpeed*maxspeed));
+                new ChassisSpeeds(xSpeed, ySpeed, zSpeed));
             setModulestate(states);
         }
     }
@@ -188,27 +206,27 @@ public class Swerve extends SubsystemBase{
 
     public Command increaseSpeed() {
         return runOnce(() -> {
-            if(this.maxspeed > 0.9) return;
-            this.maxspeed+=0.1;
+            if(this.maxSpeedRatio > 0.9) return;
+            this.maxSpeedRatio+=0.1;
         });
     }
 
     public Command decreaseSpeed() {
         return runOnce(() -> {
-            if(this.maxspeed < 0.2) return;
-            this.maxspeed-=0.1;
+            if(this.maxSpeedRatio < 0.2) return;
+            this.maxSpeedRatio-=0.1;
         });
     }
 
     public Command tohighSpeed() {
         return runOnce(() -> {
-            this.maxspeed = 0.8;
+            this.maxSpeedRatio = 0.8;
         });
     }
 
     public Command tolowspeed() {
         return runOnce(() -> {
-            this.maxspeed = 0.5;
+            this.maxSpeedRatio = 0.5;
         });
     }
 
@@ -232,11 +250,16 @@ public class Swerve extends SubsystemBase{
 
     //將前面返回的state最大速度限制到1再回傳回去給SwerveModuleState
     public void setModulestate (SwerveModuleState[] desiredState) {
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, 0.5);
-        m_LeftFrontModule.setstate(desiredState[0]);
-        m_RightFrontModule.setstate(desiredState[1]);
-        m_LeftRearModule.setstate(desiredState[2]);
-        m_RightRearModule.setstate(desiredState[3]);
+        if(Swerve.ffControl) {
+            SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, SwerveConstants.kMaxVelocityMetersPerSecond*this.maxSpeedRatio);
+        } else {
+            SwerveDriveKinematics.desaturateWheelSpeeds(desiredState, this.maxSpeedRatio);
+        }
+        
+        m_LeftFrontModule.setState(desiredState[0]);
+        m_RightFrontModule.setState(desiredState[1]);
+        m_LeftRearModule.setState(desiredState[2]);
+        m_RightRearModule.setState(desiredState[3]);
     }
 
     

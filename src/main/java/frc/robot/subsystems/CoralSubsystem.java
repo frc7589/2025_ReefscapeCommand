@@ -76,7 +76,7 @@ public class CoralSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-    SmartDashboard.putBoolean("hasCoral", hasCoral());        
+        SmartDashboard.putBoolean("hasCoral", hasCoral());        
         SmartDashboard.putBoolean("shooterMode", mode);
     } 
 
