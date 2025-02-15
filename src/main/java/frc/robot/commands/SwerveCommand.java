@@ -48,8 +48,9 @@ public class SwerveCommand extends Command{
     @Override
     public void initialize() {
         m_PID.setPID(
-            0,
-            0,0);
+            SmartDashboard.getNumber("P", 0),
+            SmartDashboard.getNumber("I", 0),
+            SmartDashboard.getNumber("D", 0));
         if(goLeft) {
             lTargetPosition = m_Encoder.getPosition() + 1;
         }
@@ -99,7 +100,7 @@ public class SwerveCommand extends Command{
             return true;
         }
 
-        if (alignment && targetX <= 2) {
+        if (alignment && Math.abs(targetX)<= 0.2) {
             return true;
         }
 

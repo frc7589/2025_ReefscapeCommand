@@ -51,6 +51,7 @@ public final class Constants {
     public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966;
 
     public static final double kwhatever = 0.60325;//meter
+    public static final double khowlongismyrobot = kwhatever + 0.16;
 
     //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
     public static final SwerveDriveKinematics kSwerveDriveKinematics = new SwerveDriveKinematics(

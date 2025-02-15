@@ -21,7 +21,7 @@ public class VisionSubsystem extends SubsystemBase {
     private PhotonPipelineResult cameraResult;
 
     public VisionSubsystem() {
-        this.m_Camera = new PhotonCamera("");
+        this.m_Camera = new PhotonCamera(""); // 
     }
 
     @Override
@@ -30,6 +30,7 @@ public class VisionSubsystem extends SubsystemBase {
             this.cameraResult = m_Camera.getLatestResult();
         }
     }
+    
     public boolean hasTargets() {
         return cameraResult.hasTargets();
     }

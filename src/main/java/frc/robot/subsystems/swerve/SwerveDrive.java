@@ -4,6 +4,7 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -91,17 +93,15 @@ public class SwerveDrive extends SubsystemBase{
     private SwerveDriveOdometry m_odometry;
 
     private HashMap<Integer, Rotation2d> targetAngle = new HashMap<>();
-    private HashMap<Integer, Double> testing = new HashMap<>();
-    private HashMap<Integer, Double> reefTargetAngle = new HashMap<>();
+    private HashMap<Integer, Rotation2d> coralTargetAngle = new HashMap<>();
 
     private double maxspeed = SwerveConstants.kDefaultSpeed;
     //private SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(), new SysIdRoutine.Mechanism(, null))
     private double headingoffset = 0;
     private double min_REEFangle = 360; 
-    private double min_CoralDistance = 1000;
-    private double mindistance = 1000;
-    private double headingangle = 0;
+    private double min_CoralAngle = 360;
     private double distance;
+    private double coraldistance;
 
     private Integer min_REEFtagID = 0;
     private Integer min_CoralStationtagID = 0;
@@ -116,9 +116,12 @@ public class SwerveDrive extends SubsystemBase{
     private LimelightHelpers.PoseEstimate megaTag2;
 
     private Pose2d inputDistance;
+    private Pose2d m_RobotPose;
 
-    private Pose3d m_reefCenterPose;
+    private Pose3d m_BlueReefCenterPose;
+    private Pose3d m_RedReefCenterPose;
     private Pose3d m_CoralCenterPose;
+    
 
     private RelativeEncoder m_Encoder;
 
@@ -138,42 +141,19 @@ public class SwerveDrive extends SubsystemBase{
 
     private StructArrayPublisher<Pose3d> aprilTagPoses = NetworkTableInstance.getDefault().getStructArrayTopic("AprilTags", Pose3d.struct).publish();
 
-// Create a new SysId routine for characterizing the drive.
-/*private final SysIdRoutine m_sysIdRoutine =
-    new SysIdRoutine(
-        // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-        new SysIdRoutine.Config(),
-        new SysIdRoutine.Mechanism(
-            // Tell SysId how to plumb the driving voltage to the motors.
-            voltage -> {
-                m_LeftFrontModule.setvoltage(voltage);
-                m_LeftRearModule.setvoltage(voltage);
-                m_RightFrontModule.setvoltage(voltage);
-                m_RightRearModule.setvoltage(voltage);
-            },
-            // Tell SysId how to record a frame of data for each motor on the mechanism being
-            // characterized.
-            log -> {
-                // Record a frame for the left motors.  Since these share an encoder, we consider
-                // the entire group to be one motor.
-                log.motor("drive")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            m_LeftFrontModule.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(m_LeftFrontModule.getPosition().distanceMeters, Meters))
-                    .linearVelocity(
-                        m_velocity.mut_replace(m_LeftFrontModule.getState().speedMetersPerSecond, MetersPerSecond));
-            },
-            // Tell SysId to make generated commands require this subsystem, suffix test state in
-            // WPILog with this subsystem's name ("drive")
-            this));*/
-
     public SwerveDrive() {
         m_Encoder = m_LeftFrontModule.getThrottleEncoder();
-        m_reefCenterPose = new Pose3d(
+        m_BlueReefCenterPose = new Pose3d(
             (AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(18).get().getX() + AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(21).get().getX())/2,
             (AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(18).get().getY() + AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(21).get().getY())/2,
-            0.0f,
+            0.0,
+            Rotation3d.kZero
+        );
+
+        m_RedReefCenterPose = new Pose3d(
+            (AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(10).get().getX() + AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(7).get().getX())/2,
+            (AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(10).get().getY() + AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(7).get().getY())/2,
+            0.0,
             Rotation3d.kZero
         );
 
@@ -183,38 +163,7 @@ public class SwerveDrive extends SubsystemBase{
             0.0f,
             Rotation3d.kZero
         );
-        //TODO先試試看距離可不可以
-        for(Integer tagID = 17; tagID <= 22; tagID++) {
-            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
-            Rotation2d angle = tagPose.getTranslation().minus(m_reefCenterPose.getTranslation()).toTranslation2d().getAngle();
-            targetAngle.put(tagID, angle);
-        }
-
-        for(Integer tagID = 1; tagID <= 2 ; tagID++) {
-            var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
-            double distance = tagpose.getTranslation().getDistance(m_CoralCenterPose.getTranslation());
-            reefTargetAngle.put(tagID, distance);
-        }
-
-        for(Integer tagID = 12; tagID <= 13 ; tagID++) {
-            var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
-            double distance = tagpose.getTranslation().getDistance(m_CoralCenterPose.getTranslation());
-            reefTargetAngle.put(tagID, distance);
-        }
-
-        m_Imu.reset();
-
-        m_RotationPID.enableContinuousInput(-180, 180);
-
-        m_poseEstimator = new SwerveDrivePoseEstimator(
-            SwerveConstants.kSwerveDriveKinematics,
-            m_Imu.getRotation2d(),
-            getModulePositions(),
-            Pose2d.kZero,
-            VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5)),
-            VecBuilder.fill(0.7, 0.7, 999999999)
-        );
-    
+        
         Rotation2d getRotation2d = m_Imu.getRotation2d();
         m_odometry = new SwerveDriveOdometry(
             SwerveConstants.kSwerveDriveKinematics,
@@ -255,87 +204,104 @@ public class SwerveDrive extends SubsystemBase{
                 () -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red,
                 this
             );
+        
+        if(DriverStation.getAlliance().get() == Alliance.Blue){
+            for(Integer tagID = 17; tagID <= 22; tagID++) {
+            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
+            Rotation2d angle = tagPose.getTranslation().minus(m_BlueReefCenterPose.getTranslation()).toTranslation2d().getAngle();
+            targetAngle.put(tagID, angle);
+            }
+        } else if(DriverStation.getAlliance().get() == Alliance.Red) {
+            for(Integer tagID = 6; tagID <= 11; tagID++) {
+            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
+            Rotation2d angle = tagPose.getTranslation().minus(m_RedReefCenterPose.getTranslation()).toTranslation2d().getAngle();
+            targetAngle.put(tagID, angle);
+            }
+        }
+
+        if(DriverStation.getAlliance().get() == Alliance.Blue){
+            for(Integer tagID = 12; tagID <= 13 ; tagID++) {
+                var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
+                Rotation2d angle = tagpose.getTranslation().minus(m_CoralCenterPose.getTranslation()).toTranslation2d().getAngle();
+                coralTargetAngle.put(tagID, angle);
+            }
+        } else if(DriverStation.getAlliance().get() == Alliance.Red) {
+            for(Integer tagID = 1; tagID <= 2 ; tagID++) {
+                var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
+                Rotation2d angle = tagpose.getTranslation().minus(m_CoralCenterPose.getTranslation()).toTranslation2d().getAngle();
+                coralTargetAngle.put(tagID, angle);
+            }
+        }
+        
+        m_poseEstimator = new SwerveDrivePoseEstimator(
+        SwerveConstants.kSwerveDriveKinematics,
+        m_Imu.getRotation2d(),
+        getModulePositions(),
+        Pose2d.kZero,
+        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5)),
+        VecBuilder.fill(0.7, 0.7, 999999999)
+        );
+
+        m_Imu.reset();
+
+        m_RotationPID.enableContinuousInput(-180, 180);
+    
     }
 
 
     @Override
     public void periodic() {
-        double[] targetX = LimelightHelpers.getTargetPose_CameraSpace("");
-        SmartDashboard.putNumber("0000" ,targetX[1]);   
+        Translation2d inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_BlueReefCenterPose.getTranslation().toTranslation2d());
+        Translation2d coralInputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_CoralCenterPose.getTranslation().toTranslation2d());
+        m_RobotPose = m_poseEstimator.getEstimatedPosition();
 
-
-
-        this.updateVisionPose();
-        if(m_Imu.getAngle() <= 0 ) {
-            headingangle = m_Imu.getAngle()+360;
-        } else {
-            headingangle = m_Imu.getAngle();
-        }
-        Rotation2d getRotation2d = m_Imu.getRotation2d();
-        Pose2d targetpose = getTargetPose(18).toPose2d();
-        Pose2d robotpose = m_poseEstimator.getEstimatedPosition();
-        Translation2d inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_reefCenterPose.getTranslation().toTranslation2d());
         
-        //this.inputDistance = m_poseEstimator.getEstimatedPosition();
-
-        SmartDashboard.putData("R_PID", m_RotationPID);
-        SmartDashboard.putData("X_PID", m_XmotionPID);
-        SmartDashboard.putData("Y_PID", m_YmotionPID);
-        SmartDashboard.putData("mPID", m_PID);
-
         SmartDashboard.putNumber("minREEFtag", min_REEFtagID);
-        SmartDashboard.putNumber("FHHFFHFHFHFHFHFH", inputAngle.getAngle().getDegrees());
-
-        SmartDashboard.putNumber("R_setPiont", headingangle);
-        SmartDashboard.putNumber("X_setPiont", m_poseEstimator.getEstimatedPosition().getX());
-        SmartDashboard.putNumber("Y_setPiont", m_poseEstimator.getEstimatedPosition().getY());
-        SmartDashboard.putNumber("FKINGSHIT", targetAngle.get(18).getDegrees());
         SmartDashboard.putBoolean("targetvisible", LimelightHelpers.getTV(""));
+        SmartDashboard.putData(m_field);
 
-        //TODO林書宇看過了但我不知道可不可以東西好少
-        
         m_poseEstimator.update(
             m_Imu.getRotation2d(),
             getModulePositions());
-        //TODO林書宇說抓以前她寫的但我沒有看到差異
+
+
         m_odometry.update(
             m_Imu.getRotation2d(),
             getModulePositions());
 
+        this.updateVisionPose();
+
         m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
-        SmartDashboard.putData(m_field);
+        
 
-        /*testing.forEach((tagID, angle) -> {
-            if(m < mindistance) {
-                
-            }
-        });*/
+        min_REEFangle = 5000;
+        distance = m_poseEstimator.getEstimatedPosition().getTranslation().getDistance(m_BlueReefCenterPose.getTranslation().toTranslation2d());
 
-        targetAngle.forEach((tagID, angle) -> {
-            if(inputAngle.getAngle().minus(angle).getRadians() < this.min_REEFangle) {
-                this.min_REEFangle = inputAngle.getAngle().minus(angle).getRadians();
-                this.min_REEFtagID = tagID;
-            }
-        });
+        if(distance <= 1.5) {
+            targetAngle.forEach((tagID, angle) -> {
+                System.out.println("Robot to Reef distance => " + distance);
+                System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
+                if(Math.abs(inputAngle.getAngle().minus(angle).getRadians()) < this.min_REEFangle) {
+                    this.min_REEFangle = Math.abs(inputAngle.getAngle().minus(angle).getRadians());
+                    this.min_REEFtagID = tagID;
+                }
+            });
+        }
 
-        reefTargetAngle.forEach((tagID, distance) -> {
-            if (m_CoralCenterPose.getTranslation().toTranslation2d().getDistance(m_poseEstimator.getEstimatedPosition().getTranslation()) < min_CoralDistance) {
-                this.min_CoralDistance = distance;
-                this.min_CoralStationtagID = tagID;
-            }
-        });
-
-        //m_LeftFrontModule.setRotorangle();
-        //m_LeftRearModule.setRotorangle();
-        //m_RightFrontModule.setRotorangle();
-        //m_RightRearModule.setRotorangle();
+        min_CoralAngle = 5000;
+        coraldistance = m_poseEstimator.getEstimatedPosition().getTranslation().getDistance(m_CoralCenterPose.getTranslation().toTranslation2d());
+        
+        if(coraldistance <= 1.5) {
+            coralTargetAngle.forEach((tagID, angle) -> {
+                if(Math.abs(coralInputAngle.getAngle().minus(angle).getRadians() )< this.min_CoralAngle) {
+                    this.min_CoralAngle = Math.abs(coralInputAngle.getAngle().minus(angle).getRadians());
+                    this.min_CoralStationtagID = tagID;
+                }
+            });
+        }
     }
 
-    public Command resetHeadingOffset() {
-        return runOnce(() -> {
-            this.headingoffset = m_Imu.getAngle();
-        });
-    }
+
 
     /**
      * Drives the swerve - Input range: [-1, 1]
@@ -376,88 +342,47 @@ public class SwerveDrive extends SubsystemBase{
             setModulestate(states);
         }
     }
-        //TODO林書宇說不用丟她的差值直接丟IMU的角度以及開機的時候要擺好那個問題沒有辦法解決
-        //自動對齊
+        
+    public Pose2d getRightReefPose() {
+        Pose2d targetPose = getTargetPose(min_REEFtagID).toPose2d();
+        Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2, 0.0)).rotateBy(targetPose.getRotation());
+        Translation2d tagToPillar = (new Translation2d(0.16, 0).rotateBy(targetPose.getRotation().plus(Rotation2d.fromDegrees(90))));
 
+        Pose2d position = new Pose2d(targetPose.getTranslation().plus(tagToPillar).plus(robotToEage), targetPose.getRotation().unaryMinus());
+        return position;
+    }
+
+    public Pose2d getLeftReefPose() {
+        Pose2d targetPose = getTargetPose(min_REEFtagID).toPose2d();
+        Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2, 0.0)).rotateBy(targetPose.getRotation());
+        Translation2d tagToPillar = (new Translation2d(0.16, 0).rotateBy(targetPose.getRotation().minus(Rotation2d.fromDegrees(90))));
+
+        Pose2d position = new Pose2d(targetPose.getTranslation().plus(tagToPillar).plus(robotToEage), targetPose.getRotation().unaryMinus());
+        return position;
+    }
+
+    public Pose2d getCoralSPose() {
+        Pose2d tagpose = getTargetPose(min_CoralStationtagID).toPose2d();
+        Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2, 0.0)).rotateBy(tagpose.getRotation());
+
+        Pose2d CSPosition = new Pose2d(tagpose.getTranslation().plus(robotToEage), tagpose.getRotation());
+        return CSPosition;
+    }
+
+    public Pose2d getBlueProcessorPose() {
+        Pose2d tagpose = getTargetPose(3).toPose2d();
+        Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2, 0.0)).rotateBy(tagpose.getRotation());
+
+        Pose2d BPPosition = new Pose2d(tagpose.getTranslation().plus(robotToEage), tagpose.getRotation().unaryMinus());
+        return BPPosition;
+    }
     
-    public void autoAlignment() {
-        Pose2d robotpose = m_poseEstimator.getEstimatedPosition();
-        Pose2d targetpose = getTargetPose(min_REEFtagID).toPose2d();
-        double targetX = targetpose.getX();
-        double targetY = targetpose.getY();
-        if (min_REEFtagID >= 17 && min_REEFtagID <= 19) {
-            targetX += 0;
-            targetY += 0;
-        } else {
-            targetX -= 0;
-            targetY -= 0;
-        }
-        drive(
-            m_XmotionPID.calculate(robotpose.getX(), targetX),
-            m_YmotionPID.calculate(robotpose.getY(), targetY),
-            -m_RotationPID.calculate(m_Imu.getYaw(), getTargetPose(min_REEFtagID).toPose2d().getRotation().getDegrees()));
-    }
+    public Pose2d getRedProcessorPose() {
+        Pose2d tagpose = getTargetPose(16).toPose2d();
+        Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot, 0.0)).rotateBy(tagpose.getRotation());
 
-    //TODO 確定是幾號apriltag x y速度未定 不知道會不會被覆蓋掉.
-    public void autoTurnAround(double xSpeed, double ySpeed) {
-        m_RotationPID = new PIDController(0, 0, 0);
-        Pose3d targetPose = getTargetPose(min_CoralStationtagID);
-        Pose2d botPose = m_poseEstimator.getEstimatedPosition();
-        double distance = botPose.getTranslation().getDistance(targetPose.getTranslation().toTranslation2d());
-        if(distance <= 1.5){
-            drive(
-                xSpeed,
-                ySpeed,
-                m_RotationPID.calculate(m_Imu.getYaw(), getTargetPose(min_CoralStationtagID).getRotation().toRotation2d().getDegrees()));                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-        }
-    }
-
-    public void test() {
-
-    }
-
-    public void traverseR() {
-        double TargetPosition = m_Encoder.getPosition() + 1;
-        drive(0, m_PID.calculate(m_Encoder.getPosition(), TargetPosition), 0);
-        
-    }
-
-    public void traverseL() {
-        double TargetPosition = m_Encoder.getPosition();
-        drive(0, m_PID.calculate(m_Encoder.getPosition(), TargetPosition), 0);
-        
-    }
-
-    public Command switchDriveMode() {
-        return runOnce(() -> {
-            fieldOriented = !fieldOriented;
-        });
-    }
-
-    public Command increaseSpeed() {
-        return runOnce(() -> {
-            if(this.maxspeed > 0.9) return;
-            this.maxspeed+=0.1;
-        });
-    }
-
-    public Command decreaseSpeed() {
-        return runOnce(() -> {
-            if(this.maxspeed < 0.2) return;
-            this.maxspeed-=0.1;
-        });
-    }
-
-    public Command tohighSpeed() {
-        return runOnce(() -> {
-            this.maxspeed = 0.8;
-        });
-    }
-
-    public Command tolowspeed() {
-        return runOnce(() -> {
-            this.maxspeed = 0.5;
-        });
+        Pose2d BPPosition = new Pose2d(tagpose.getTranslation().plus(robotToEage), tagpose.getRotation().unaryMinus());
+        return BPPosition;
     }
 
     public SwerveModuleState[] getModuleStates() {
@@ -476,17 +401,6 @@ public class SwerveDrive extends SubsystemBase{
             m_LeftRearModule.getPosition(),
             m_RightRearModule.getPosition()
         };
-    }
-
-    public Pose2d getPose() {
-        return m_odometry.getPoseMeters();
-    }
-
-    public void setPose(Pose2d pose) {
-        m_odometry.resetPosition(
-            m_Imu.getRotation2d(),
-            getModulePositions(),
-            pose);
     }
 
     public void updateVisionPose() {
@@ -535,7 +449,56 @@ public class SwerveDrive extends SubsystemBase{
         return AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(ID).get().getRotation().toRotation2d();
     }
 
+    public Pose2d getPose() {
+        return m_poseEstimator.getEstimatedPosition();
+    }
+
+    public void setPose(Pose2d pose) {
+        m_odometry.resetPosition(
+            m_Imu.getRotation2d(),
+            getModulePositions(),
+            pose);
+    }
+
     public RelativeEncoder getEncoder() {
         return m_LeftFrontModule.getThrottleEncoder();
+    }
+
+    public Command switchDriveMode() {
+        return runOnce(() -> {
+            fieldOriented = !fieldOriented;
+        });
+    }
+
+    public Command increaseSpeed() {
+        return runOnce(() -> {
+            if(this.maxspeed > 0.9) return;
+            this.maxspeed+=0.1;
+        });
+    }
+
+    public Command decreaseSpeed() {
+        return runOnce(() -> {
+            if(this.maxspeed < 0.2) return;
+            this.maxspeed-=0.1;
+        });
+    }
+
+    public Command tohighSpeed() {
+        return runOnce(() -> {
+            this.maxspeed = 0.8;
+        });
+    }
+
+    public Command tolowspeed() {
+        return runOnce(() -> {
+            this.maxspeed = 0.5;
+        });
+    }
+
+    public Command resetHeadingOffset() {
+        return runOnce(() -> {
+            this.headingoffset = m_Imu.getAngle();
+        });
     }
 }

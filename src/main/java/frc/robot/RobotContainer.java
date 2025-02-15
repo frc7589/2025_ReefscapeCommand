@@ -110,7 +110,7 @@ public class RobotContainer {
 
     m_DriveController.y().onTrue(m_Swerve.resetHeadingOffset());
     
-    m_DriveController.a().toggleOnTrue(m_alignment);
+    m_DriveController.a().whileTrue(m_alignment);
     m_DriveController.povLeft().toggleOnTrue(m_goleft);
     m_DriveController.povRight().toggleOnTrue(m_goright);
 
