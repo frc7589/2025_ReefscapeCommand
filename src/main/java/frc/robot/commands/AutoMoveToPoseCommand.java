@@ -8,11 +8,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveDrive;
 
-public class MoveToPoseCommand extends Command{
+public class AutoMoveToPoseCommand extends Command{
     private Pose2d targetPose2d;
     private SwerveDrive m_driverSubsystem;
     private Command pathfindingCommand;
-    public MoveToPoseCommand(SwerveDrive driverSubsystem, Pose2d targetPose2d) {
+    public AutoMoveToPoseCommand(SwerveDrive driverSubsystem, Pose2d targetPose2d) {
         this.targetPose2d = targetPose2d;
         this.m_driverSubsystem = driverSubsystem;
         addRequirements(m_driverSubsystem);

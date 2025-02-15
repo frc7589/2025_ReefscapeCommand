@@ -5,11 +5,13 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoMoveToPoseCommand;
 import frc.robot.commands.CoralIntakeCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.AlgeaSubsystem;
@@ -120,6 +122,14 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    /*
+    m_DriveController.a().whileTrue(new RunCommand(
+      () -> {
+        double rightX = m_DriveController.getRightX();
+        if (rightX > 0) new AutoMoveToPoseCommand(m_Swerve, m_Swerve.getRightReefPose());
+        else if (rightX < 0) new AutoMoveToPoseCommand(m_Swerve, m_Swerve.getLeftReefPose());
+      }, m_Swerve));
+    */
         
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
