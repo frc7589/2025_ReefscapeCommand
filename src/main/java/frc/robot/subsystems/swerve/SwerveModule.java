@@ -115,7 +115,7 @@ public class SwerveModule {
         //比較目前角度與目標角度利用PID控制器計算出馬達需要輸出多少
         double rotorOutput = rotorPID.calculate(getState().angle.getDegrees(), state.angle.getDegrees());
 
-        if(Swerve.ffControl) {
+        if(Swerve.ffControl) {  
             m_throttle.setVoltage(ff_throttleMotor.calculateWithVelocities(this.getState().speedMetersPerSecond, state.speedMetersPerSecond));
         } else {
             m_throttle.set(state.speedMetersPerSecond);

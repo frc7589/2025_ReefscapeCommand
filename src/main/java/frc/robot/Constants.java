@@ -191,7 +191,7 @@ public final class Constants {
     public static final int kLeftMotorID = 47;
     public static final int kRightMotorID = 45;
 
-    public static final int kSensorPortID = 5;
+    public static final int kSensorPortID = 3;
   }
 
 
