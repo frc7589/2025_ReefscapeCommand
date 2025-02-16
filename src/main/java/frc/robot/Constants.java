@@ -70,8 +70,9 @@ public final class Constants {
     public static final double kSpeed = 0.6;
 
     //Swerve最大速度。加速度
-    public static final double kMaxVelocityMeterspersecond = 5.0;
+    public static final double kMaxVelocityMetersPerSecond = 5.0;
     public static final double kMaxAccelerationMetersPersecond = 3.0;
+    public static final double kMaxAngularVelocityRadPerSecond = 4.3;
 
     //輪徑
     public static final double kwheeldiameterMeter = 0.1016;
@@ -86,7 +87,7 @@ public final class Constants {
     public static final double ThrottlePositionConversionFactor =
       (Math.PI * kwheeldiameterMeter) / kThrottleGearRatio;
 
-    public static final double kDefaultSpeed = 0.5;
+    public static final double kDefaultSpeed = 1;
     
     //電壓最大值
     public static final double kVoltagecompensation = 12.0;
@@ -95,9 +96,12 @@ public final class Constants {
     public static final double kLongtimeoutMs = 100.0;
 
     public static final boolean kRotorMotorInverted = true;
-    public static final boolean kThrottleMotorInverted = true;
+    public static final boolean kThrottleMotorInverted = false;
+
+    public static final double kThottleFF_kV = 2.35;
+    public static final double kThottleFF_kA = 0.07; //0.48;
     
-    
+  
     public static final double kPath_kP = 0;
     public static final double kPath_kI = 0;
     public static final double kPath_kD = 0;
@@ -141,7 +145,7 @@ public final class Constants {
         kMOI,
         new ModuleConfig(
           kwheeldiameterMeter,
-          kMaxVelocityMeterspersecond,
+          kMaxVelocityMetersPerSecond,
           kWheelCOF,
           DCMotor.getNEO(kNumMotors),
           kdriveCurrentLimit,
@@ -153,14 +157,14 @@ public final class Constants {
 
 
   public static class ElevatorConstants {
-    public static final int kElevatorRMotorID = 47;
-    public static final int kElevatorLMotorID = 43;
+    public static final int kElevatorRMotorID = 31;
+    public static final int kElevatorLMotorID = 46;
 
     public static final int kSWitchID = 0;
 
     public static final int kEncoderID = 0;
 
-    public static final double kP = 0.4;
+    public static final double kP = 0.08;
     public static final double kI = 0;
     public static final double kD = 0;
 
@@ -169,14 +173,10 @@ public final class Constants {
 
     public static final double kTolerance = 1;
     public static final double kDistancePerRevolution = 0;
+
+    public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
+    public static final double kElevatorAbsOffset = 0;
   }
-
-
-  public static class ShooterConstants {
-    public static final int kShooterRMotorID = 46;
-    public static final int kShooterLMotorID = 45;
-  }
-
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
@@ -191,7 +191,7 @@ public final class Constants {
     public static final int kLeftMotorID = 47;
     public static final int kRightMotorID = 45;
 
-    public static final int kSensorPortID = 0;
+    public static final int kSensorPortID = 3;
   }
 
 

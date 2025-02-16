@@ -19,6 +19,7 @@ import com.revrobotics.RelativeEncoder;
 //import com.revrobotics.sim.SparkRelativeEncoderSim;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -26,22 +27,24 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants.SwerveConstants;
 
 public class SwerveModule {
-    private SparkMax Rotor;
-    private SparkMax Throttle;
+    private SparkMax m_rotorMotor;
+    private SparkMax m_throttle;
 
     private RelativeEncoder encoder;
     private CANcoder RotorCancoder;
 
-    private PIDController RotorPID;//沒董
+    private PIDController rotorPID;//沒董
+
+    private static final SimpleMotorFeedforward ff_throttleMotor = new SimpleMotorFeedforward(0, SwerveConstants.kThottleFF_kV, SwerveConstants.kThottleFF_kA);
 
     public SwerveModule(int ThrottleID, int RotorID, int intRotorEncoderID, double RotorEncoderOffsetAngleDeg) {
-        Throttle = new SparkMax(ThrottleID, MotorType.kBrushless);
+        m_throttle = new SparkMax(ThrottleID, MotorType.kBrushless);
 
-        Rotor = new SparkMax(RotorID, MotorType.kBrushless);
+        m_rotorMotor = new SparkMax(RotorID, MotorType.kBrushless);
 
         RotorCancoder = new CANcoder(intRotorEncoderID);
 
-        Throttle.configure(
+        m_throttle.configure(
             new SparkMaxConfig()
                 .inverted(SwerveConstants.kThrottleMotorInverted)
                 .idleMode(IdleMode.kBrake)
@@ -52,7 +55,7 @@ public class SwerveModule {
             ResetMode.kNoResetSafeParameters,
             PersistMode.kNoPersistParameters
         );
-        Rotor.configure(
+        m_rotorMotor.configure(
             new SparkMaxConfig()
                 .inverted(SwerveConstants.kRotorMotorInverted)
                 .idleMode(IdleMode.kBrake),
@@ -60,7 +63,7 @@ public class SwerveModule {
             PersistMode.kNoPersistParameters
         );
 
-        encoder = Throttle.getEncoder();
+        encoder = m_throttle.getEncoder();
         //encoder = new SparkRelativeEncoderSim(Throttle);
 
         
@@ -73,7 +76,7 @@ public class SwerveModule {
         );
 
         //根據Constants裡設的常數設置Rotor PID
-        RotorPID = new PIDController(
+        rotorPID = new PIDController(
             SwerveConstants.kRotor_P,
             SwerveConstants.kRotor_I,
             SwerveConstants.kRotor_D
@@ -81,7 +84,7 @@ public class SwerveModule {
 
 
         //啟用自動計算從當前值到目標值的最短路徑 180，-180視為同一個點不會嘗試轉一整圈
-        RotorPID.enableContinuousInput(-180, 180);
+        rotorPID.enableContinuousInput(-180, 180);
     }
     
     //取得目前swerve模組得狀態(速度、旋轉角度)
@@ -106,28 +109,32 @@ public class SwerveModule {
     }
     
     //設定Swerve模組如何運作
-    public void setstate(SwerveModuleState state) {
+    public void setState(SwerveModuleState state) {
         state.optimize(this.getState().angle);
 
         //比較目前角度與目標角度利用PID控制器計算出馬達需要輸出多少
-        double RotorOutput = RotorPID.calculate(getState().angle.getDegrees(), state.angle.getDegrees());
+        double rotorOutput = rotorPID.calculate(getState().angle.getDegrees(), state.angle.getDegrees());
 
-        Rotor.set(RotorOutput);
-        Throttle.set(state.speedMetersPerSecond);
+        if(Swerve.ffControl) {  
+            m_throttle.setVoltage(ff_throttleMotor.calculateWithVelocities(this.getState().speedMetersPerSecond, state.speedMetersPerSecond));
+        } else {
+            m_throttle.set(state.speedMetersPerSecond);
+        }
+        m_rotorMotor.set(rotorOutput);
     
     }
 
-    public void setvoltage(Voltage voltage) {
-        Throttle.setVoltage(voltage);
+    public void setVoltage(Voltage voltage) {
+        m_throttle.setVoltage(voltage);
     }
 
     public void setRotorangle() {
-        double RotorOutput = RotorPID.calculate(getState().angle.getDegrees(), 90);
-        Rotor.set(RotorOutput);
+        double rotorOutput = rotorPID.calculate(getState().angle.getDegrees(), 90);
+        m_rotorMotor.set(rotorOutput);
     }
 
     public double get() {
-        return Throttle.get();
+        return m_throttle.get();
     }
 
 }

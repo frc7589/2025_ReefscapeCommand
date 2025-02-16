@@ -16,14 +16,10 @@ import frc.robot.subsystems.AlgeaSubsystem;
 import frc.robot.subsystems.AlgeaTestSubsystem;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.swerve.SwerveDrive;
+import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.OpzXboxController;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,16 +29,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final SwerveDrive m_Swerve = new SwerveDrive();
+  private final Swerve m_Swerve = new Swerve();
 
-  private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
+  //private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
 
-  private final CoralSubsystem m_Coral = new CoralSubsystem();
-  private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
+  //private final CoralSubsystem m_Coral = new CoralSubsystem();
+  //private final AlgeaSubsystem m_Algea = new AlgeaSubsystem();
 
-  private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
-
-  private final SendableChooser<Command> m_autChooser;
+  //private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
   private final OpzXboxController m_DriveController = new OpzXboxController(
@@ -54,28 +48,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
-
-    //TODO Auto Named Commands
-    NamedCommands.registerCommand("Elevator L1", Commands.run(
-      () -> m_Elevator.setPosision(0),
-      m_Elevator));
-    NamedCommands.registerCommand("Elevator L2", Commands.run(
-      () -> m_Elevator.setPosision(0),
-      m_Elevator));
-    NamedCommands.registerCommand("Elevator L3", Commands.run(
-      () -> m_Elevator.setPosision(0),
-      m_Elevator));
-    NamedCommands.registerCommand("Elevator L4", Commands.run(
-      () -> m_Elevator.setPosision(0),
-      m_Elevator));
-    NamedCommands.registerCommand("Coral shoot", Commands.runEnd(
-      () -> m_Coral.shoot(),
-      () -> m_Coral.stop(),
-      m_Coral));
-
-    m_autChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData(m_autChooser);
 
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
@@ -86,6 +58,13 @@ public class RobotContainer {
       ),
       m_Swerve
     ));
+
+    /*
+    m_Elevator.setDefaultCommand(Commands.run(
+      () -> m_Elevator.setPosision(m_Elevator.getSetpoint() + m_ActionController.getLeftY()*0.1),
+      m_Elevator
+    ));
+     */
     
     /*m_AlgeaTest.setDefaultCommand(Commands.run(
       () -> {
@@ -95,17 +74,6 @@ public class RobotContainer {
       },
       m_AlgeaTest
     ));*/
-
-    m_Algea.setDefaultCommand(Commands.run(
-      () -> {
-        m_Algea.setSetpoint(
-          Math.abs(m_DriveController.getRightY()) > 0.08 ? m_DriveController.getRightY() : 0
-        );
-      }, m_Algea));
-
-    m_Elevator.setDefaultCommand(Commands.run(
-      () -> m_Elevator.setOutput(m_Elevator.getPIDOutput()),
-      m_Elevator));
 
     configureBindings();
   }
@@ -127,57 +95,34 @@ public class RobotContainer {
     m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
-    m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
+    //m_DriveController.start().onTrue(m_Swerve.switchDriveMode());
+    m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
-    m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
+    //m_ActionController.a().whileTrue(new CoralIntakeCommand(m_Coral));
 
-    m_ActionController.y().whileTrue(Commands.run(
-      () -> m_Elevator.changeSetPosistion(5), //5cm
-      m_Elevator));
+    /* 
+    m_ActionController.leftBumper().whileTrue(m_Elevator.runMotor());
 
-    m_ActionController.x().whileTrue(Commands.startEnd(
-        () -> m_Coral.shoot(), 
-        () -> m_Coral.stop(),
-        m_Coral)
-        );
-  
+    m_ActionController.povUp().onTrue(m_Elevator.setPosisionCommand(180));
+    m_ActionController.povDown().onTrue(m_Elevator.setPosisionCommand(20));
+    m_ActionController.povLeft().onTrue(m_Elevator.setPosisionCommand(50));
+    m_ActionController.povRight().onTrue(m_Elevator.setPosisionCommand(90));
+    */
 
-      m_ActionController.b().whileTrue(Commands.startEnd(
-      () -> m_Algea.setState(true),
-      () -> m_Algea.setState(false),
-      m_Algea
-    ));
+    //m_ActionController.x().whileTrue(Commands.startEnd(() -> m_Coral.shoot(), () -> m_Coral.stop(), m_Coral));
+  }
 
-    m_ActionController.start().whileTrue(Commands.runOnce(
-      () -> m_Coral.changeMode(),
-      m_Coral));
-    
-    m_ActionController.povUp().whileTrue(Commands.runOnce(
-      () -> m_Elevator.setPosision(0),
-      m_Elevator));
-    m_ActionController.povRight().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(0),
-        m_Elevator));
-    m_ActionController.povDown().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(0),
-        m_Elevator));
-    m_ActionController.povLeft().whileTrue(Commands.runOnce(
-        () -> m_Elevator.setPosision(0),
-        m_Elevator));
+  public void enable() {
+    // m_Elevator.enable();
+  }
 
-    m_ActionController.rightTrigger().whileTrue(Commands.runOnce(
-      () -> m_AlgeaTest.setSuckSpeed(0.4), 
-      m_AlgeaTest));
-
-    m_ActionController.leftTrigger().whileTrue(Commands.runOnce(
-      () -> m_AlgeaTest.setReleaseSpeed(0.4),
-       m_AlgeaTest));
-    
+  public void disable() {
+    // m_Elevator.disable();
   }
 
   public Command getAutonomousCommand() {
     //TODO Auto初始化
     
-    return m_autChooser.getSelected();
+    return Commands.runOnce(null, null);
   }
 }
