@@ -1,6 +1,7 @@
 package frc.robot.utils;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /** 經過讀數大小優化的XboxController Class */
 public class OpzXboxController extends CommandXboxController {
@@ -89,5 +90,10 @@ public class OpzXboxController extends CommandXboxController {
     @Override
     public double getRightTriggerAxis() {
         return opzAxisValue(super.getRightTriggerAxis());
+    }
+
+    @Override
+    public Trigger a() {
+        return super.a();
     }
 }

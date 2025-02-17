@@ -33,7 +33,7 @@ public final class Constants {
 
     //動力馬達ID
     public static final int kRightFrontThrottleID = 61;
-    public static final int kRightRearThrottleID = 56;
+    public static final int kRightRearThrottleID = 32;
     public static final int kLeftFrontThrottleID = 57;
     public static final int kLeftRearThrottleID = 59;
 
@@ -53,6 +53,8 @@ public final class Constants {
     public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966;
 
     public static final double kwhatever = 0.60325;//meter
+
+    public static final double khowlongismyrobot = kwhatever + 0.20;
 
     //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
     public static final SwerveDriveKinematics kSwerveDriveKinematics = new SwerveDriveKinematics(
@@ -118,13 +120,13 @@ public final class Constants {
     };
 
     //質量KG
-    public static final double kMass = 0;
+    public static final double kMass = 50;
     //轉動動量
     public static final double kMOI = calculateMOI(kMass, kModuleoffsets);
     //輪子摩擦係數
-    public static final double kWheelCOF = 1; //文檔說不會測，就寫1 :) -> If you are unsure, just use a placeholder value of 1.0.
+    public static final double kWheelCOF = 1.2;
     //馬達電流限制
-    public static final double kdriveCurrentLimit = 0;
+    public static final double kdriveCurrentLimit = 40;
     //每個輪子馬德數量
     public static final int kNumMotors = 1;
 
@@ -144,7 +146,7 @@ public final class Constants {
         kMass,
         kMOI,
         new ModuleConfig(
-          kwheeldiameterMeter,
+          kwheeldiameterMeter / 2,
           kMaxVelocityMetersPerSecond,
           kWheelCOF,
           DCMotor.getNEO(kNumMotors),

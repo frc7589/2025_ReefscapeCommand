@@ -5,11 +5,13 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoAlignmentCommand;
 import frc.robot.commands.CoralIntakeCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.AlgeaSubsystem;
@@ -48,16 +50,42 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
-    m_Swerve.setDefaultCommand(Commands.run(
+  
+  m_DriveController.a().whileFalse(Commands.runOnce(
+    () -> m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
         m_DriveController.getLeftY(),
         m_DriveController.getLeftX(),
-        m_DriveController.getRightX(),
-        true
+        m_DriveController.getRightX()
       ),
-      m_Swerve
-    ));
+      m_Swerve))
+  ));
+  
+  m_DriveController.a().onTrue(Commands.runOnce(
+    () -> m_Swerve.removeDefaultCommand(),
+    m_Swerve));
+
+  m_DriveController.a().and(() -> m_DriveController.getLeftX() < 0).whileTrue(new AutoAlignmentCommand(0,m_Swerve, m_DriveController));
+  m_DriveController.a().and(() -> m_DriveController.getLeftX() > 0).whileTrue(new AutoAlignmentCommand(1,m_Swerve, m_DriveController));
+  //m_DriveController.a().and(() -> m_DriveController.getLeftX() < 0).whileTrue(new AutoAlignmentCommand(0, m_Swerve, m_DriveController));
+  
+
+    /*m_Swerve.setDefaultCommand(new ConditionalCommand(
+      new ConditionalCommand(
+        new AutoAlignmentCommand(
+          1,m_Swerve, m_DriveController),
+        new AutoAlignmentCommand(
+          0,m_Swerve, m_DriveController),
+      () -> m_DriveController.getLeftX() > 0),
+      Commands.run(
+      () -> m_Swerve.drive(
+        m_DriveController.getLeftY(), 
+        m_DriveController.getLeftX(),
+        m_DriveController.getRightX()),
+      m_Swerve),
+    () -> m_DriveController.a().getAsBoolean())
+    );*/
+    
 
     /*
     m_Elevator.setDefaultCommand(Commands.run(
