@@ -416,7 +416,7 @@ public class Swerve extends SubsystemBase{
         this.drive(
             m_XmotionPID.calculate(m_RobotPose.getX(), position.getX()), 
             m_YmotionPID.calculate(m_RobotPose.getY(), position.getY()), 
-            m_RotationPID.calculate(m_RobotPose.getRotation().getDegrees(), position.getRotation().unaryMinus().getDegrees()));
+            m_RotationPID.calculate(m_RobotPose.getRotation().getDegrees(), position.getRotation().getDegrees()));
         }                      
     }
 
