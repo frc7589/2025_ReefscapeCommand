@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.pathfinding.LocalADStar;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     Pathfinding.setPathfinder(new LocalADStar());
+    FollowPathCommand.warmupCommand().schedule();
   }
 
   /**

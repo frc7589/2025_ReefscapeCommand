@@ -122,25 +122,13 @@ public final class Constants {
     //質量KG
     public static final double kMass = 50;
     //轉動動量
-    public static final double kMOI = calculateMOI(kMass, kModuleoffsets);
+    public static final double kMOI = 6.883;
     //輪子摩擦係數
     public static final double kWheelCOF = 1.2;
     //馬達電流限制
     public static final double kdriveCurrentLimit = 40;
     //每個輪子馬德數量
     public static final int kNumMotors = 1;
-
-    public static double calculateMOI(double mass, Translation2d[] moduleOffsets) {
-      double moi = 0.0;
-      double massPerModule = mass / moduleOffsets.length;
-  
-      for (Translation2d offset : moduleOffsets) {
-          double radius = offset.getNorm();
-          moi += massPerModule * radius * radius;
-      }
-  
-      return moi;
-  }
 
     public static final RobotConfig kconfig = new RobotConfig(
         kMass,

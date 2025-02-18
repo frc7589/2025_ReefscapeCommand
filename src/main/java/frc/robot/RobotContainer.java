@@ -21,7 +21,10 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.OpzXboxController;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -32,6 +35,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Swerve m_Swerve = new Swerve();
+
+  private final SendableChooser<Command> m_autChooser;
 
   //private final ElevatorSubsystem m_Elevator = new ElevatorSubsystem();
 
@@ -44,12 +49,17 @@ public class RobotContainer {
   private final OpzXboxController m_DriveController = new OpzXboxController(
       OperatorConstants.kDriverControllerPort,
       OperatorConstants.kControllerMinValue);
-    private final OpzXboxController m_ActionController = new OpzXboxController(
+  private final OpzXboxController m_ActionController = new OpzXboxController(
       OperatorConstants.kActionControllerPort,
       OperatorConstants.kControllerMinValue);
+  
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+  
+    m_autChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData(m_autChooser);
   
   m_DriveController.a().whileFalse(Commands.runOnce(
     () -> m_Swerve.setDefaultCommand(Commands.run(
@@ -151,6 +161,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     //TODO Auto初始化
     
-    return Commands.runOnce(null, null);
+    return m_autChooser.getSelected();
   }
 }

@@ -5,9 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": null
+            "pathName": "Reef_SP1_UR"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef_UR_to_Processor"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Processor_to_CoralStaionD"
           }
         }
       ]
