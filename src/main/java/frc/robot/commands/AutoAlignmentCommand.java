@@ -26,6 +26,7 @@ public class AutoAlignmentCommand extends Command{
         this.m_Swerve = swerve;
         this.controller = opzXboxController;
         this.state = autoState.kIDLE;
+        addRequirements(swerve);
     }
 
     @Override
@@ -59,6 +60,6 @@ public class AutoAlignmentCommand extends Command{
 
     @Override
     public boolean isFinished() {
-        return state == autoState.kFinish || !controller.a().getAsBoolean();
+        return state == autoState.kFinish || !controller.a().getAsBoolean() || !(Math.abs(controller.getLeftX()) > 0);
     }
 }

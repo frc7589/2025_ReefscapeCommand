@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.501,
-        "y": 6.648
+        "x": 1.4235000000000002,
+        "y": 6.725750000000001
       },
       "prevControl": {
-        "x": 2.6013319672131145,
-        "y": 6.440522540983607
+        "x": 2.5238319672131144,
+        "y": 6.518272540983608
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 126.0
   },
   "reversed": false,
-  "folder": "Reef_to_CoralStaion",
+  "folder": "R_to_C",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

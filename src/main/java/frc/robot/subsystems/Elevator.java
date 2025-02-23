@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -24,11 +25,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
-public class ElevatorSubsystem extends SubsystemBase{
+public class Elevator extends SubsystemBase{
     private SparkMax m_RMotor = new SparkMax(ElevatorConstants.kElevatorRMotorID, MotorType.kBrushless);
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
     private RelativeEncoder m_Encoder;
-    private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(0);
+    private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(3);
     private Encoder m_RelEncoder = new Encoder(6, 7);
 
     //private DigitalInput limitswitch = new DigitalInput(3);
@@ -36,12 +37,13 @@ public class ElevatorSubsystem extends SubsystemBase{
     private PIDController pidController = new PIDController(0.08, 0, 0);
 
     private double offset;
+    private double  defultposition;
 
     private boolean runMotor = false;
 
     //藍6黃7
 
-    public ElevatorSubsystem() {
+    public Elevator() {
 
         m_RMotor.configure(
             new SparkMaxConfig().
@@ -59,60 +61,31 @@ public class ElevatorSubsystem extends SubsystemBase{
             PersistMode.kPersistParameters
         );
 
-        //m_Encoder = m_RMotor.getEncoder();
-        //m_Encoder.setPosition(0);
+        pidController.setSetpoint(getDistance());
+        defultposition = this.getDistance();
+        m_AbsEncoder.setInverted(false);
 
         m_RelEncoder.setDistancePerPulse(ElevatorConstants.PositionConversionFactor/8192);
         m_RelEncoder.reset();
         m_RelEncoder.setReverseDirection(true);
 
-        SmartDashboard.putData(pidController);
-        pidController.setSetpoint(getSetpoint());
+        defultposition = this.getDistance();
 
-        offset = 0;//ElevatorConstants.PositionConversionFactor*(m_AbsEncoder.get()-ElevatorConstants.kElevatorAbsOffset);
-
-
-    }
-
-    public double getSetpoint() {
-        return m_RelEncoder.getDistance()-offset;
-    }
-
-    public void setSetpoint(double setpoint) {
-        pidController.setSetpoint(setpoint);
-    }
-
-    public void setOutput(double output) {
-        m_RMotor.set(-0.7*output);
-        /*if(Math.abs(output) > 0.08){
-            m_RMotor.set(0.7*output);
-        } else if(Math.abs(output) > 0 && output < 0.08){
-            m_RMotor.set(0.03375);
-        }*/
-    }
-
-    public void stay() {       
-        m_RMotor.set(0);
-        // TODO Stay
+        SmartDashboard.putData("Eevator", pidController);
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Elevator_SP", pidController.getSetpoint());                                                                                       
 
-        SmartDashboard.putBoolean("runMotor", isEnabled());
 
         /*if(runMotor) {
             m_RMotor.set(pidController.calculate(this.getPosition()));
         } else {
             m_RMotor.set(0);
         }*/
-        m_RMotor.set(pidController.calculate(this.getSetpoint()));
+        m_RMotor.set(pidController.calculate(this.getDistance()));
 
-        SmartDashboard.putNumber("Output", m_RMotor.get())  ;
-
-        SmartDashboard.putNumber("Elevator", getSetpoint());
-        SmartDashboard.putNumber("Elevator_ABS", m_AbsEncoder.get()-ElevatorConstants.kElevatorAbsOffset);    
+    
     
         
         //SmartDashboard.putBoolean("touch", limitswitch.get());
@@ -122,11 +95,27 @@ public class ElevatorSubsystem extends SubsystemBase{
             m_RelEncoder.reset();
         }
         */
-
+        SmartDashboard.putNumber("Elevator_SP", pidController.getSetpoint());
+        SmartDashboard.putNumber("Output", m_RMotor.get());
+        //SmartDashboard.putNumber("Elevator", getPosition());
+        SmartDashboard.putNumber("ABS_encoder", m_AbsEncoder.get());
+        SmartDashboard.putNumber("Elevator_Height", getABSPosition());
+        SmartDashboard.putNumber("E_height", this.getDistance());
+          
+        SmartDashboard.putBoolean("runMotor", isEnabled());
+        this.elevatorAlert();
     }
 
     public BooleanSupplier pidOnPoint() {
         return () -> pidController.getSetpoint() - m_RelEncoder.getDistance() < 0.5;
+    }
+
+    public boolean isEnabled() {
+        return runMotor;
+    }
+
+    public boolean atSetpoint() {
+        return pidController.atSetpoint();
     }
 
     public Command runMotor() {
@@ -136,20 +125,8 @@ public class ElevatorSubsystem extends SubsystemBase{
         });
     }
 
-    public Command setPosisionCommand(double setpoint) {
-        return run(() -> {
-            pidController.reset();
-            pidController.setSetpoint(setpoint);   
-        });
-               
-    }
-
     public void resetPID() {
         pidController.reset();
-    }
-
-    public double getEncoder() {
-        return m_RelEncoder.getDistance();
     }
 
     public void enable() {
@@ -162,7 +139,37 @@ public class ElevatorSubsystem extends SubsystemBase{
         runMotor = false;
     }
 
-    public boolean isEnabled() {
-        return runMotor;
+    public void moving() {
+        //m_RMotor.set(pidController.calculate(getPosition()));
+    }
+
+    public double getABSPosition() {
+
+        return m_AbsEncoder.get() - ElevatorConstants.kElevatorAbsOffset;
+    }
+
+    public double getDistance() {
+    double limitrange = this.getABSPosition() * ElevatorConstants.PositionConversionFactor * 5/4;
+    
+        return limitrange;
+    }
+
+    public double getSetpoint() {
+        return pidController.getSetpoint();
+    }
+    
+    public void setSetpoint(double setpoint) {
+        setpoint = MathUtil.clamp(setpoint, 0, (0.95 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
+        pidController.setSetpoint(setpoint);
+    }
+
+    public void setPosisionCommand(double setpoint) {
+        pidController.reset();
+        //setpoint = MathUtil.clamp(setpoint, 0, 1 - ElevatorConstants.kElevatorAbsOffset);
+        pidController.setSetpoint(setpoint);    
+    }
+
+    public void elevatorAlert() {
+        SmartDashboard.putBoolean("Elevator_Alert", this.getABSPosition() < 0.1);
     }
 }

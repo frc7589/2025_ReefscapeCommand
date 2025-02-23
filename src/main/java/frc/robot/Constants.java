@@ -26,13 +26,13 @@ public final class Constants {
 
   public final class SwerveConstants {
     //轉向馬達ID
-    public static final int kRightFrontRotorID = 62;
+    public static final int kRightFrontRotorID = 53;
     public static final int kRightRearRotorID = 55;
     public static final int kLeftFrontRotorID = 33;
     public static final int kLeftRearRotorID = 34;
 
     //動力馬達ID
-    public static final int kRightFrontThrottleID = 61;
+    public static final int kRightFrontThrottleID = 43;
     public static final int kRightRearThrottleID = 32;
     public static final int kLeftFrontThrottleID = 57;
     public static final int kLeftRearThrottleID = 59;
@@ -47,14 +47,14 @@ public final class Constants {
     public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
 
     //Rotor Encode 偏移量    
-    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152;
-    public static final double kLeftRearRotorEncoderOffset = -82.793 - 0.08729 + 0.8;
-    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175;
-    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966;
+    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152 + 6.4  ;
+    public static final double kLeftRearRotorEncoderOffset = -82.793 - 0.08729 + 0.8 - 3.69;
+    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175 - 1.58;
+    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966 + 2.2 - 4.5;
 
     public static final double kwhatever = 0.60325;//meter
 
-    public static final double khowlongismyrobot = kwhatever + 0.20;
+    public static final double khowlongismyrobot = kwhatever + 0.3;
 
     //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
     public static final SwerveDriveKinematics kSwerveDriveKinematics = new SwerveDriveKinematics(
@@ -63,6 +63,7 @@ public final class Constants {
        new Translation2d(kwhatever/-2, kwhatever/2),
        new Translation2d(kwhatever/-2, kwhatever/-2)
     );
+  
 
     //Rotor PID constants(還沒搞懂要幹嘛)
     public static final double kRotor_P = 0.008181818182;//0.00585;
@@ -146,53 +147,54 @@ public final class Constants {
     }
 
 
-  public static class ElevatorConstants {
-    public static final int kElevatorRMotorID = 31;
-    public static final int kElevatorLMotorID = 46;
-
-    public static final int kSWitchID = 0;
-
-    public static final int kEncoderID = 0;
-
-    public static final double kP = 0.08;
-    public static final double kI = 0;
-    public static final double kD = 0;
-
-    public static final double kMinimumIntegral = 0;
-    public static final double kMaximumIntegral = 0.7;
-
-    public static final double kTolerance = 1;
-    public static final double kDistancePerRevolution = 0;
-
-    public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
-    public static final double kElevatorAbsOffset = 0;
-  }
+    public static class ElevatorConstants {
+      public static final int kElevatorRMotorID = 31;
+      public static final int kElevatorLMotorID = 46;
+  
+      public static final double kP = 0.08;
+      public static final double kI = 0;
+      public static final double kD = 0;
+  
+      //看下面轉多少 上面轉多少
+      public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
+      public static final double kElevatorAbsOffset = 0.0273015;
+  
+    }
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final int kActionControllerPort = 1;
 
     //Xbox控制器數值忽略基準值
-    public static final double kControllerMinValue = 0.08;
+    public static final double kControllerMinValue = 0.12;
   }
 
 
   public static class CoralConstants {
     public static final int kLeftMotorID = 47;
-    public static final int kRightMotorID = 45;
+    public static final int kRightMotorID = 44;
 
-    public static final int kSensorPortID = 3;
+    public static final int kSensorPortID = 1;
   }
 
 
   public static class AlgeaConstants {
-    public static final int kArmMotorID = 30;
+    public static final int kArmMotorID = 50;
     public static final int kIntakeMotorID = 52;
 
     public static final int kEncoderID = 1;
+    public static final double kEncoderOffset = 0.190794;
 
-    public static final double kP = 0;
-    public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kP = 0.53;
+    public static final double kI = 0.35;
+    public static final double kD = 0.00000305;
+
+    public static final double kG = 2.04;
+    public static final double kA = 0.08;
+    public static final double kV = 0.08;
+    
+    public static final double gearRatio = 0;
+    public static final double kArmVelocityConversionFactor = (2 * Math.PI / 60) / gearRatio;
+
   }
 }

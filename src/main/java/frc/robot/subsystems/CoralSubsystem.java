@@ -15,9 +15,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoralSubsystem extends SubsystemBase {
 
-    private SparkMax m_leftmotor, m_rightmotor;
+    private SparkMax m_leftmotor;
+    private SparkMax m_rightmotor;
 
-    public Boolean mode = false;
+    public Boolean mode = true;
 
     private DigitalInput m_sensor;
 
@@ -47,7 +48,7 @@ public class CoralSubsystem extends SubsystemBase {
 
         m_rightmotor.configure(
             new SparkMaxConfig()
-                .idleMode(IdleMode.kBrake)
+                .idleMode(IdleMode.kCoast)
                 .inverted(true),
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters
@@ -55,7 +56,7 @@ public class CoralSubsystem extends SubsystemBase {
         
         m_leftmotor.configure(
             new SparkMaxConfig()
-                .idleMode(IdleMode.kBrake)
+                .idleMode(IdleMode.kCoast)
                 .inverted(false),
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters
@@ -86,13 +87,13 @@ public class CoralSubsystem extends SubsystemBase {
 
     public void shoot(){
         if(mode){
-            this.setRightMode(IdleMode.kBrake);
-            m_leftmotor.set(0.1);
-            m_rightmotor.set(0.1);
-        }else{
             this.setRightMode(IdleMode.kCoast);
-            m_leftmotor.set(0.03);
+            m_leftmotor.set(0.6);
             m_rightmotor.set(0.6);
+        }else{ 
+            this.setRightMode(IdleMode.kCoast);
+            m_leftmotor.set(0.1);
+            m_rightmotor.set(0.5);
         }
     }
 
@@ -111,18 +112,18 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void slowMotor(){
-        m_leftmotor.set(0.1);
-        m_rightmotor.set(0.1);
+        m_leftmotor.set(0.2);
+        m_rightmotor.set(0.2);
     }
 
     public void intake() {
-        m_leftmotor.set(0.3);
-        m_rightmotor.set(0.3);
+        m_leftmotor.set(0.4);
+        m_rightmotor.set(0.4);
     }
 
     public void reverseMotor(){
-        m_leftmotor.set(-0.2);
-        m_rightmotor.set(-0.2);
+        m_leftmotor.set(-0.3);
+        m_rightmotor.set(-0.3);
     }
 
     public void setSpin(boolean spining){

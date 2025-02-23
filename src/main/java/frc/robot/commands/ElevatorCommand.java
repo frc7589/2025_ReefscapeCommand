@@ -1,42 +1,44 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ElevatorSubsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.Elevator;
 
 public class ElevatorCommand extends Command{
-
-    //TODO 記得加時間的那個
-
-    private ElevatorSubsystem m_elevator;
-
-    private double speed;
-    private double waitTime;
-
-    public ElevatorCommand(ElevatorSubsystem elevator, double height, double waitTime) {
-        this.speed = speed;
-        this.m_elevator = elevator;
-        this.waitTime = waitTime;
-
-        addRequirements(m_elevator);
+    private Elevator m_Elevator;
+    private double height;
+    private CommandXboxController controller;
+    public ElevatorCommand(Elevator elevator, double height, CommandXboxController controller) {
+        this.m_Elevator = elevator;
+        this.height = height;
+        this.controller = controller;
+        
+        addRequirements(m_Elevator);
     }
 
-    // 初始化 在呼叫的時候做
+        // Called when the command is initially scheduled.  
     @Override
     public void initialize() {
-
+        m_Elevator.setSetpoint(m_Elevator.getDistance());
+        System.out.println("elevator moving");
     }
 
-    // 一直運作
+    // Called every time the scheduler runs while the command is scheduled.
     @Override
-    public void execute() {}
+    public void execute() {
+        m_Elevator.setSetpoint(height);
+        //m_Elevator.moving();
+    }
 
-    // 結束之後要做什麼
+    // Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        m_Elevator.resetPID();
+    }
 
-    // 什麼時候結束
+    // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return m_Elevator.atSetpoint() || Math.abs(controller.getRightY()) > 0.1 ? true : false;
     }
 }

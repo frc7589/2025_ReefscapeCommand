@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.2845,
-        "y": 5.36075
+        "x": 5.29425,
+        "y": 5.34125
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.9799180327868857,
-        "y": 5.709272540983607
+        "x": 3.989665534760487,
+        "y": 5.689763190291334
       },
       "isLocked": false,
       "linkedName": "Reef_UR"
     },
     {
       "anchor": {
-        "x": 1.501,
-        "y": 6.648
+        "x": 1.4235000000000002,
+        "y": 6.725750000000001
       },
       "prevControl": {
-        "x": 2.7931352459016394,
-        "y": 6.092879098360654
+        "x": 2.7156352459016393,
+        "y": 6.170629098360655
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "CoralStaion_U"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.16,
+      "rotationDegrees": -119.99999999999999
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -45,7 +50,7 @@
     "rotation": 126.0
   },
   "reversed": false,
-  "folder": "Reef_to_CoralStaion",
+  "folder": "R_to_C",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -119.99999999999999

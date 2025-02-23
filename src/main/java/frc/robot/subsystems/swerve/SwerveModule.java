@@ -42,7 +42,7 @@ public class SwerveModule {
 
         m_rotorMotor = new SparkMax(RotorID, MotorType.kBrushless);
 
-        RotorCancoder = new CANcoder(intRotorEncoderID);
+        RotorCancoder = new CANcoder(intRotorEncoderID, "SwerveCancoder");
 
         m_throttle.configure(
             new SparkMaxConfig()
@@ -100,7 +100,7 @@ public class SwerveModule {
     //取得目前swerve模組的狀態(位置、旋轉角度)
     public SwerveModulePosition getPosition() {
         //encoder.setPositionConversionFactor(SwerveConstants.ThrottlePositionConversionFactor);
-        double ThrottlePosition = encoder.getPosition();
+        double ThrottlePosition = -encoder.getPosition();
 
         return new SwerveModulePosition(
             ThrottlePosition,

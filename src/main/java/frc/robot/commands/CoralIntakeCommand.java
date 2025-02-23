@@ -8,6 +8,7 @@ import frc.robot.subsystems.CoralSubsystem;
 
 public class CoralIntakeCommand extends Command {
     private CoralSubsystem m_intake;
+    private Timer m_Isfinished = new Timer();
     private Timer m_reverseTimer = new Timer();
     private int stage = 0;
 
@@ -18,6 +19,7 @@ public class CoralIntakeCommand extends Command {
 
     @Override
     public void initialize(){
+        m_Isfinished.start();
         stage = 0;
     }
 
@@ -49,11 +51,12 @@ public class CoralIntakeCommand extends Command {
     public void end(boolean interrupted) {
         m_intake.stop();
         m_reverseTimer.reset();
+        m_Isfinished.reset();
         m_intake.updateState();
     }
 
     @Override
     public boolean isFinished(){
-        return stage == 4;
+        return stage == 4 || m_Isfinished.get() < 10;
     }
 }            

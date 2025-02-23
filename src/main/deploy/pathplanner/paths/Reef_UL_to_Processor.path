@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.7342500000000003,
-        "y": 5.38025
+        "y": 5.3705
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.6233606557342415,
-        "y": 3.503534836072849
+        "y": 3.4937848360728485
       },
       "isLocked": false,
       "linkedName": "Reef_UL"
@@ -45,7 +45,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Reef_to_Processor",
+  "folder": "R_to_C",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -59.99999999999999
