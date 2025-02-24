@@ -18,7 +18,7 @@ public class CoralSubsystem extends SubsystemBase {
     private SparkMax m_leftmotor;
     private SparkMax m_rightmotor;
 
-    public Boolean mode = true;
+    public Boolean isDifferentSpeed = true;
 
     private DigitalInput m_sensor;
 
@@ -74,30 +74,43 @@ public class CoralSubsystem extends SubsystemBase {
             PersistMode.kNoPersistParameters
         );
     }
+    public void setLeftMode(IdleMode mode) {
+        m_leftmotor.configure(
+            new SparkMaxConfig()
+                .idleMode(mode)
+                .inverted(false),
+            ResetMode.kResetSafeParameters,
+            PersistMode.kNoPersistParameters
+        );
+    }
 
     @Override
     public void periodic(){
         SmartDashboard.putBoolean("hasCoral", hasCoral());        
-        SmartDashboard.putBoolean("shooterMode", mode);
+        SmartDashboard.putBoolean("shooterMode", isDifferentSpeed);
     } 
 
     public void changeMode(){
-        mode = !mode;
+        isDifferentSpeed = !isDifferentSpeed;
     }
 
     public void shoot(){
-        if(mode){
+        if(isDifferentSpeed){
             this.setRightMode(IdleMode.kCoast);
-            m_leftmotor.set(0.6);
-            m_rightmotor.set(0.6);
+            this.setLeftMode(IdleMode.kCoast);
+            m_rightmotor.set(0.5);
+            m_leftmotor.set(0.5);
+            
         }else{ 
             this.setRightMode(IdleMode.kCoast);
-            m_leftmotor.set(0.1);
-            m_rightmotor.set(0.5);
+            this.setLeftMode(IdleMode.kCoast);
+            m_leftmotor.set(0.6);
+            m_rightmotor.set(0.1);
         }
     }
 
     public void stop(){
+        this.setRightMode(IdleMode.kBrake);
         this.setRightMode(IdleMode.kBrake);
         m_leftmotor.set(0);
         m_rightmotor.set(0);

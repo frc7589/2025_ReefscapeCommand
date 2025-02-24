@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.504303278688524,
-        "y": 6.1648053278688515
+        "x": 7.506,
+        "y": 6.133
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.357,
-        "y": 5.789750000000001
+        "x": 6.3586967213114765,
+        "y": 5.757944672131119
       },
       "isLocked": false,
       "linkedName": "SP1"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 5.29425,
-        "y": 5.34125
+        "y": 5.321046
       },
       "prevControl": {
         "x": 6.36675,
-        "y": 5.80925
+        "y": 5.789046
       },
       "nextControl": null,
       "isLocked": false,

@@ -33,7 +33,8 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     //private double defultposition;
 
     private PIDController m_PidController = new PIDController(AlgeaConstants.kP, AlgeaConstants.kI, AlgeaConstants.kD);
-    private PIDController m_fuckyouwholefamily = new PIDController(AlgeaConstants.kP, AlgeaConstants.kI, AlgeaConstants.kD);
+    private PIDController m_fuckyourwholefamily = new PIDController(AlgeaConstants.kP, AlgeaConstants.kI, AlgeaConstants.kD);
+    private PIDController m_fuckyouwholefamily = new PIDController(0, 0, 0);
     private boolean runMotor = false;;
 
     public AlgeaArmSubsystem() {
@@ -48,12 +49,12 @@ public class AlgeaArmSubsystem extends SubsystemBase{
 
         encoder = m_Armmotor.getEncoder();
 
-        m_fuckyouwholefamily.setSetpoint(fuckyou);
+        m_PidController.setTolerance(0.1);
 
         m_EEncoder.setInverted(true);
-        
+        m_fuckyourwholefamily.setSetpoint(m_EEncoder.get());
         //filter.reset();
-        SmartDashboard.putData("fuckyou", m_fuckyouwholefamily);
+        SmartDashboard.putData("ji", m_fuckyourwholefamily);
 
         SmartDashboard.putNumber("Algea", m_EEncoder.get());
 
@@ -63,7 +64,7 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
        
-       // m_Armmotor.set(m_fuckyouwholefamily.calculate(m_EEncoder.get()));
+       //m_Armmotor.set(m_fuckyouwholefamily.calculate(m_EEncoder.get()));
 
         //filteredAngle = filter.calculate(Math.toRadians(m_EEncoder.get()));
 
@@ -73,7 +74,7 @@ public class AlgeaArmSubsystem extends SubsystemBase{
         //m_Armmotor.setVoltage(pidOutput + feedforwardVoltage);
 
         SmartDashboard.putNumber("Algea", m_EEncoder.get());
-
+        System.out.println(m_fuckyourwholefamily.getSetpoint());
     }
 
     public void setArmSpeed(double ArmSpeed) {
@@ -89,17 +90,22 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     }
 
     public void setSetpoint(double setpoint) {
-        setpoint = MathUtil.clamp(setpoint, setpoint, 0.72);
+        setpoint = MathUtil.clamp(setpoint, AlgeaConstants.kEncoderOffset, 0.72);
         m_fuckyouwholefamily.setSetpoint(setpoint);
     }
 
-    public void stay() {
-        m_Armmotor.set(0.046);
+    public boolean atSetpoint() {
+        return m_PidController.atSetpoint();
     }
+
     
-    /*public Command setPosisionCommand(double setpoint) {
-        return runOnce(() -> m_fuckyouwholefamily.setSetpoint(setpoint));
-    }*/
+    public void setPosisionCommand(double setpoint) {
+        this.setSetpoint(setpoint);
+    }
+
+    public void resetPID() {
+        m_PidController.reset();
+    }
     
 }   
 

@@ -5,25 +5,23 @@ import frc.robot.subsystems.Algea.AlgeaArmSubsystem;
 import frc.robot.subsystems.Algea.AlgeaTestSubsystem;
 
 public class AlageArmCommand extends Command{
-    /*private double height;
+    private double height;
     private double init;
     private double controllerOutput;
-    private AlgeaTestSubsystem m_Arm;
-    public AlageArmCommand(AlgeaTestSubsystem arm, double output, double height) {
+    private AlgeaArmSubsystem m_Arm;
+    public AlageArmCommand(AlgeaArmSubsystem arm, double output, double height) {
         this.m_Arm = arm;
         this.controllerOutput = output;
         this.height = height;
     }
 
-    @Override
-    public void initialize() {
-        this.init = m_Arm.getEncoder();
-    }
+    /*@Override
+    public void initialize() {}
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        m_Arm.setPosisionCommand(height);
+       m_Arm.setPosisionCommand(height);
     }
 
     // Called once the command ends or is interrupted.
@@ -35,6 +33,6 @@ public class AlageArmCommand extends Command{
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_Arm.atSetpoint();
+       return m_Arm.atSetpoint();
     }*/
 }

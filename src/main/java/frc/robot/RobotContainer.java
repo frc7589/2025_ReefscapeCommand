@@ -25,6 +25,10 @@ import frc.robot.utils.OpzXboxController;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -45,6 +49,7 @@ public class RobotContainer {
   private final AlgeaIntakeSubsystem m_AlgeaIntake;
   private final CoralSubsystem m_Shooter;
 
+  private DoubleLogEntry elevatorHighLog;
 
   //private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -60,6 +65,11 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    DataLogManager.start();
+    DataLog log = DataLogManager.getLog();
+    DriverStation.startDataLog(log);
+    elevatorHighLog = new DoubleLogEntry(log, "ElevatorHigh");
+
     this.m_Shooter = new CoralSubsystem();
     this.m_Elevator = new Elevator();
     this.m_AlgeaArm = new AlgeaArmSubsystem();
@@ -90,15 +100,15 @@ public class RobotContainer {
       },
       m_Elevator
     ));
-    /*
-    m_AlgeaArm.setDefaultCommand(Commands.run(() -> {
-      m_AlgeaArm.setArmSpeed(m_ActionController.getLeftY() * 0.1);
+    
+    /*m_AlgeaArm.setDefaultCommand(Commands.run(() -> {
+      m_AlgeaArm.setSetpoint(m_AlgeaArm.getSetpoint() - m_ActionController.getLeftY()*0.05);
     }, 
     m_AlgeaArm
     ));
     */
     
-    /*
+    
     m_DriveController.a().whileFalse(Commands.runOnce(
       () -> m_Swerve.setDefaultCommand(Commands.run(
         () -> m_Swerve.drive(
@@ -115,7 +125,7 @@ public class RobotContainer {
 
     m_DriveController.a().and(() -> m_DriveController.getLeftX() < 0).whileTrue(new AutoAlignmentCommand(0,m_Swerve, m_DriveController));
     m_DriveController.a().and(() -> m_DriveController.getLeftX() > 0).whileTrue(new AutoAlignmentCommand(1,m_Swerve, m_DriveController));
-    */
+    
 
 
     configureBindings();
@@ -166,16 +176,20 @@ public class RobotContainer {
       () -> m_Shooter.changeMode(),
       m_Shooter));
 
+    m_ActionController.rightTrigger().onTrue(Commands.runOnce(
+      () -> elevatorHighLog.append(m_Elevator.getDistance()),
+      m_Elevator));
+
     /*new Trigger(() -> m_ActionController.getLeftY() != 0).whileFalse(Commands.startEnd(
       () -> m_AlgeaArm.stay(),
       () -> m_AlgeaArm.getDefaultCommand(),
       m_AlgeaArm));*/
-/*
+
     m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
     m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
     m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
     m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
-*/
+
   }
 
   public void enable() {

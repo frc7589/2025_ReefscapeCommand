@@ -37,6 +37,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.MutDistance;
 import edu.wpi.first.units.measure.MutLinearVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -125,6 +126,7 @@ public class Swerve extends SubsystemBase{
 
     private Field2d m_field = new Field2d();
 
+    private DigitalInput m_Test = new DigitalInput(5);
 
     RobotConfig config;{
         try{
@@ -319,6 +321,8 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("X Position", m_poseEstimator.getEstimatedPosition().getX());
         SmartDashboard.putNumber("Y Position", m_poseEstimator.getEstimatedPosition().getY());
         SmartDashboard.putNumber("Ange", m_Imu.getAngle());
+
+        SmartDashboard.putBoolean("Switch Test", m_Test.get());
 
         //HttpCamera limelight = new HttpCamera("limelight", "http://10.75.89.200:5800");
         //CameraServer.startAutomaticCapture(limelight);
