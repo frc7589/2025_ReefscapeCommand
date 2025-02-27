@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,8 +32,7 @@ public class Elevator extends SubsystemBase{
     private RelativeEncoder m_Encoder;
     private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(3);
     private Encoder m_RelEncoder = new Encoder(6, 7);
-
-    //private DigitalInput limitswitch = new DigitalInput(3);
+    private DigitalInput m_limitSwitch = new DigitalInput(5);
 
     private PIDController pidController = new PIDController(0.08, 0, 0);
 
@@ -40,6 +40,8 @@ public class Elevator extends SubsystemBase{
     private double  defultposition;
 
     private boolean runMotor = false;
+
+    private Timer m_Timer = new Timer();
 
     //藍6黃7
 
@@ -71,6 +73,8 @@ public class Elevator extends SubsystemBase{
 
         defultposition = this.getDistance();
 
+        pidController.setTolerance(1);
+
         SmartDashboard.putData("Eevator", pidController);
     }
 
@@ -95,22 +99,25 @@ public class Elevator extends SubsystemBase{
             m_RelEncoder.reset();
         }
         */
+        SmartDashboard.putString("Elevator_Level", "base");
+
         SmartDashboard.putNumber("Elevator_SP", pidController.getSetpoint());
         SmartDashboard.putNumber("Output", m_RMotor.get());
-        //SmartDashboard.putNumber("Elevator", getPosition());
         SmartDashboard.putNumber("ABS_encoder", m_AbsEncoder.get());
         SmartDashboard.putNumber("Elevator_Height", getABSPosition());
         SmartDashboard.putNumber("E_height", this.getDistance());
-          
+        SmartDashboard.putBoolean("Elevator_LimitSwitch", m_limitSwitch.get());
         SmartDashboard.putBoolean("runMotor", isEnabled());
         this.elevatorAlert();
+
+        
     }
 
     public BooleanSupplier pidOnPoint() {
         return () -> pidController.getSetpoint() - m_RelEncoder.getDistance() < 0.5;
     }
 
-    public boolean isEnabled() {
+    public boolean isEnabled() {    
         return runMotor;
     }
 
@@ -154,6 +161,7 @@ public class Elevator extends SubsystemBase{
         return limitrange;
     }
 
+    
     public double getSetpoint() {
         return pidController.getSetpoint();
     }
@@ -162,14 +170,16 @@ public class Elevator extends SubsystemBase{
         setpoint = MathUtil.clamp(setpoint, 0, (0.95 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
         pidController.setSetpoint(setpoint);
     }
-
+    
     public void setPosisionCommand(double setpoint) {
         pidController.reset();
         //setpoint = MathUtil.clamp(setpoint, 0, 1 - ElevatorConstants.kElevatorAbsOffset);
-        pidController.setSetpoint(setpoint);    
+        this.setSetpoint(setpoint);    
     }
 
     public void elevatorAlert() {
         SmartDashboard.putBoolean("Elevator_Alert", this.getABSPosition() < 0.1);
     }
+
+    
 }

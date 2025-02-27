@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.5,
-        "y": 6.132576
+        "x": 7.576229508196722,
+        "y": 1.938499999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.5275864830700945,
-        "y": 6.132575999999955
+        "x": 6.197822654182609,
+        "y": 1.5166549931466344
       },
       "isLocked": false,
       "linkedName": "SP1"
     },
     {
       "anchor": {
-        "x": 3.7342500000000003,
-        "y": 5.37
+        "x": 4.0055852456593275,
+        "y": 5.189137653938664
       },
       "prevControl": {
-        "x": 5.19675,
-        "y": 6.072
+        "x": 5.590025136001661,
+        "y": 6.192154062168878
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef_UL"
+      "linkedName": "Reef_UL_L"
     }
   ],
   "rotationTargets": [],

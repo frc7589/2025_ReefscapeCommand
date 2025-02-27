@@ -98,8 +98,8 @@ public class CoralSubsystem extends SubsystemBase {
         if(isDifferentSpeed){
             this.setRightMode(IdleMode.kCoast);
             this.setLeftMode(IdleMode.kCoast);
-            m_rightmotor.set(0.5);
-            m_leftmotor.set(0.5);
+            m_rightmotor.set(0.25);
+            m_leftmotor.set(0.25);
             
         }else{ 
             this.setRightMode(IdleMode.kCoast);
@@ -125,8 +125,8 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void slowMotor(){
-        m_leftmotor.set(0.2);
-        m_rightmotor.set(0.2);
+        m_leftmotor.set(0.15);
+        m_rightmotor.set(0.15);
     }
 
     public void intake() {
@@ -135,8 +135,8 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void reverseMotor(){
-        m_leftmotor.set(-0.3);
-        m_rightmotor.set(-0.3);
+        m_leftmotor.set(-0.13);
+        m_rightmotor.set(-0.13);
     }
 
     public void setSpin(boolean spining){

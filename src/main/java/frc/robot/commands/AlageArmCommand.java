@@ -15,7 +15,7 @@ public class AlageArmCommand extends Command{
         this.height = height;
     }
 
-    /*@Override
+    @Override
     public void initialize() {}
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -34,5 +34,5 @@ public class AlageArmCommand extends Command{
     @Override
     public boolean isFinished() {
        return m_Arm.atSetpoint();
-    }*/
+    }
 }

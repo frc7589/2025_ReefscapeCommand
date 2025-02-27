@@ -6,9 +6,11 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoAlignmentCommand;
+import frc.robot.commands.AutoMoveToPoseCommand;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -27,6 +29,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -50,6 +55,9 @@ public class RobotContainer {
   private final CoralSubsystem m_Shooter;
 
   private DoubleLogEntry elevatorHighLog;
+
+  private AllianceStationID m_location;
+  private Pose2d initialPose;
 
   //private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -87,26 +95,31 @@ public class RobotContainer {
     NamedCommands.registerCommand("AutoAlignment_L", new AutoAlignmentCommand(0, m_Swerve, m_DriveController));
     NamedCommands.registerCommand("AutoAlignment_R", new AutoAlignmentCommand(1, m_Swerve, m_DriveController));
     */
+    
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
         m_DriveController.getLeftY(),
         m_DriveController.getLeftX(),
         m_DriveController.getRightX()
         ),
-        m_Swerve));
+        m_Swerve).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    
+    
     m_Elevator.setDefaultCommand(Commands.run(
       () -> {
-        m_Elevator.setSetpoint(m_Elevator.getSetpoint() - m_ActionController.getRightY()*0.5);
+        m_Elevator.setSetpoint(m_Elevator.getSetpoint() - m_ActionController.getRightY()*1);
       },
       m_Elevator
     ));
-    
-    /*m_AlgeaArm.setDefaultCommand(Commands.run(() -> {
-      m_AlgeaArm.setSetpoint(m_AlgeaArm.getSetpoint() - m_ActionController.getLeftY()*0.05);
+
+    /*
+    m_AlgeaArm.setDefaultCommand(Commands.run(() -> {
+      m_AlgeaArm.setArmSpeed(m_ActionController.getLeftY()*0.15);
     }, 
     m_AlgeaArm
     ));
     */
+    
     
     
     m_DriveController.a().whileFalse(Commands.runOnce(
@@ -148,6 +161,9 @@ public class RobotContainer {
     m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
+    m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, "L", m_DriveController));
+    m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, "R", m_DriveController));
+
     m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
     m_ActionController.back().onTrue(new CoralIntakeCommand(m_Shooter));
@@ -161,7 +177,7 @@ public class RobotContainer {
       () -> m_Shooter.reverseMotor(),
       () -> m_Shooter.stop(),
       m_Shooter));
-/*
+    /*
     m_ActionController.y().whileTrue(Commands.startEnd(
       () -> m_AlgeaIntake.setSpeed(0.3),
       () -> m_AlgeaIntake.setSpeed(0),
@@ -171,7 +187,7 @@ public class RobotContainer {
       () -> m_AlgeaIntake.setSpeed(-0.3),
       () -> m_AlgeaIntake.setSpeed(0),
       m_AlgeaIntake));
-*/
+    */
     m_ActionController.start().onTrue(Commands.runOnce(
       () -> m_Shooter.changeMode(),
       m_Shooter));
@@ -179,21 +195,51 @@ public class RobotContainer {
     m_ActionController.rightTrigger().onTrue(Commands.runOnce(
       () -> elevatorHighLog.append(m_Elevator.getDistance()),
       m_Elevator));
+    
+    m_ActionController.leftTrigger().onTrue(Commands.runOnce(
+      () -> CommandScheduler.getInstance().cancelAll()));
 
     /*new Trigger(() -> m_ActionController.getLeftY() != 0).whileFalse(Commands.startEnd(
       () -> m_AlgeaArm.stay(),
       () -> m_AlgeaArm.getDefaultCommand(),
       m_AlgeaArm));*/
 
-    m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
-    m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
-    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
-    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, 0, m_ActionController));
+    m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, "L4", () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, "L1", () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, "L3", () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, "L2", () -> Math.abs(m_ActionController.getRightY() )> 0));
 
   }
 
   public void enable() {
+    m_location = DriverStation.getRawAllianceStation();
 
+    switch (m_location) {
+      case Blue1:
+          initialPose = new Pose2d(7.506, 5.370, Rotation2d.fromDegrees(180));
+          break;
+      case Blue2:
+          initialPose = new Pose2d(7.506, 4.0259, Rotation2d.fromDegrees(180));
+          break;
+      case Blue3:
+          initialPose = new Pose2d(7.506, 1.910, Rotation2d.fromDegrees(180));
+          break;
+      case Red1:
+          initialPose = new Pose2d(10.206944, 5.370, Rotation2d.fromDegrees(0));
+          break;
+      case Red2:
+          initialPose = new Pose2d(10.206944, 4.0259, Rotation2d.fromDegrees(0));
+          break;
+      case Red3:
+          initialPose = new Pose2d(10.206944, 1.910, Rotation2d.fromDegrees(0));
+          break;
+      default:
+          initialPose = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+          break;
+      }
+      m_Swerve.resetAllinace();
+      m_Swerve.reserImu();
+      m_Swerve.resetPoseEstimator(m_Swerve.getImuARotation2d(), initialPose);
   }
 
   public void disable() {

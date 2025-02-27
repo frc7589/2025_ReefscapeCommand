@@ -43,7 +43,8 @@ public class CoralIntakeCommand extends Command {
                 }
                 break;
             case 3:
-                if(m_reverseTimer.get() >= 0.1) stage++;
+                if(m_reverseTimer.get() >= 0.12) stage++;
+                break;
         }
     }
 
@@ -57,6 +58,6 @@ public class CoralIntakeCommand extends Command {
 
     @Override
     public boolean isFinished(){
-        return stage == 4 || m_Isfinished.get() < 10;
+        return stage == 4 || m_Isfinished.get() > 10;
     }
 }            
