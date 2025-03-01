@@ -1,0 +1,68 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Reef_SP1_UR_L"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "e2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "e4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "cs"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "e1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef_UR_R_to_CoralStation_U"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ci"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

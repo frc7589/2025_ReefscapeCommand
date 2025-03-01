@@ -35,16 +35,16 @@ public class ElevatorCommand extends Command{
     public void execute() {
         switch (level) {
             case "L1":
-                height = 0;
+                height = 5;
                 break;
             case "L2":
                 height = 28;
                 break;
             case "L3":
-                height = 76;
+                height = 83;
                 break;
             case "L4":
-                height = 170;
+                height = 167;
                 break;
             default:
                 break;

@@ -5,10 +5,11 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AutoAlignmentCommand;
 import frc.robot.commands.AutoMoveToPoseCommand;
+import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorCommand;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -82,20 +83,31 @@ public class RobotContainer {
     this.m_Elevator = new Elevator();
     this.m_AlgeaArm = new AlgeaArmSubsystem();
     this.m_AlgeaIntake = new AlgeaIntakeSubsystem();
-  
+    
+    NamedCommands.registerCommand("e1", new ElevatorCommand(m_Elevator, "L1", () -> false));
+    NamedCommands.registerCommand("e2", new ElevatorCommand(m_Elevator, "L2", () -> false));
+    NamedCommands.registerCommand("e3", new ElevatorCommand(m_Elevator, "L3", () -> false));
+    NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, "L4", () -> false));
+    NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter));
+    NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter));
+    NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
+    NamedCommands.registerCommand("AA_R", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
+    NamedCommands.registerCommand("AA_C", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
+    System.out.println("checking command:");
+    System.out.println("elevator L1 =>" + NamedCommands.hasCommand("e1"));
+    System.out.println("elevator L2 =>" + NamedCommands.hasCommand("e2"));
+    System.out.println("elevator L3 =>" + NamedCommands.hasCommand("e3"));
+    System.out.println("elevator L4 =>" + NamedCommands.hasCommand("e4"));
+    System.out.println("coralIntake =>" + NamedCommands.hasCommand("ci"));
+    System.out.println("coralShoot =>" + NamedCommands.hasCommand("cs"));
+    System.out.println("autoAlignment_L =>" + NamedCommands.hasCommand("AA_L"));
+    System.out.println("autoAlignment_R =>" + NamedCommands.hasCommand("AA_R"));
+    System.out.println("autoAlignment_C =>" + NamedCommands.hasCommand("AA_C"));
+
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autoChooser);
-    /*
-    NamedCommands.registerCommand("Elevator_L1", );
-    NamedCommands.registerCommand("Elevator_L2", );
-    NamedCommands.registerCommand("Elevator_L3", );
-    NamedCommands.registerCommand("Elevator_L4", );
-    NamedCommands.registerCommand("CoralIntake", new CoralIntakeCommand(m_Coral));
-    NamedCommands.registerCommand("CoralShoot", Commands.startEnd(() -> m_Coral.shoot(), () -> m_Coral.stop(), m_Coral));
-    NamedCommands.registerCommand("AutoAlignment_L", new AutoAlignmentCommand(0, m_Swerve, m_DriveController));
-    NamedCommands.registerCommand("AutoAlignment_R", new AutoAlignmentCommand(1, m_Swerve, m_DriveController));
-    */
-    
+    SmartDashboard.putData(CommandScheduler.getInstance());
+
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
         m_DriveController.getLeftY(),
@@ -110,15 +122,15 @@ public class RobotContainer {
         m_Elevator.setSetpoint(m_Elevator.getSetpoint() - m_ActionController.getRightY()*1);
       },
       m_Elevator
-    ));
+    ).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
-    /*
+    
     m_AlgeaArm.setDefaultCommand(Commands.run(() -> {
       m_AlgeaArm.setArmSpeed(m_ActionController.getLeftY()*0.15);
     }, 
     m_AlgeaArm
-    ));
-    */
+    ).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    
     
     
     
@@ -135,11 +147,6 @@ public class RobotContainer {
     m_DriveController.a().onTrue(Commands.runOnce(
       () -> m_Swerve.removeDefaultCommand(),
       m_Swerve));
-
-    m_DriveController.a().and(() -> m_DriveController.getLeftX() < 0).whileTrue(new AutoAlignmentCommand(0,m_Swerve, m_DriveController));
-    m_DriveController.a().and(() -> m_DriveController.getLeftX() > 0).whileTrue(new AutoAlignmentCommand(1,m_Swerve, m_DriveController));
-    
-
 
     configureBindings();
   }
@@ -161,9 +168,10 @@ public class RobotContainer {
     m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
-    m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, "L", m_DriveController));
-    m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, "R", m_DriveController));
-
+    m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
+    m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
+    m_DriveController.y().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
+    
     m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
     m_ActionController.back().onTrue(new CoralIntakeCommand(m_Shooter));
@@ -177,17 +185,18 @@ public class RobotContainer {
       () -> m_Shooter.reverseMotor(),
       () -> m_Shooter.stop(),
       m_Shooter));
-    /*
+    
     m_ActionController.y().whileTrue(Commands.startEnd(
-      () -> m_AlgeaIntake.setSpeed(0.3),
+      () -> m_AlgeaIntake.setSpeed(0.4),
       () -> m_AlgeaIntake.setSpeed(0),
       m_AlgeaIntake));
 
     m_ActionController.a().whileTrue(Commands.startEnd(
-      () -> m_AlgeaIntake.setSpeed(-0.3),
+      () -> m_AlgeaIntake.setSpeed(-0.4),
+
       () -> m_AlgeaIntake.setSpeed(0),
       m_AlgeaIntake));
-    */
+    
     m_ActionController.start().onTrue(Commands.runOnce(
       () -> m_Shooter.changeMode(),
       m_Shooter));
@@ -240,6 +249,8 @@ public class RobotContainer {
       m_Swerve.resetAllinace();
       m_Swerve.reserImu();
       m_Swerve.resetPoseEstimator(m_Swerve.getImuARotation2d(), initialPose);
+      m_Swerve.resetReefcoralTargetAngle();
+      m_Elevator.setSetpoint(m_Elevator.getDistance());
   }
 
   public void disable() {

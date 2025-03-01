@@ -47,14 +47,14 @@ public final class Constants {
     public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
 
     //Rotor Encode 偏移量    
-    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152 + 6.4  + 0.6;
-    public static final double kLeftRearRotorEncoderOffset = -82.793 - 0.08729 + 0.8 - 3.69 + 0.7 -0.1;
-    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175 - 1.58 + 0.79;
-    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966 + 2.2 - 4.5 + 0.6 - 0.36;
+    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152 + 6.4  + 0.6 - 0.08 - 0.26;
+    public static final double kLeftRearRotorEncoderOffset = -82.793 - 0.08729 + 0.8 - 3.69 + 0.7 -0.1 - 0.52 -0.35;
+    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175 - 1.58 + 0.79 - 0.087 + 1.83;
+    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966 + 2.2 - 4.5 + 0.6 - 0.36 + 3.16 -2.37;
 
     public static final double kwhatever = 0.60325;//meter
 
-    public static final double khowlongismyrobot = kwhatever + 0.3;
+    public static final double khowlongismyrobot = kwhatever + 0.2;
 
     //swerve kinematics 四輪位置順序(LF,RF,LR,RR)
     public static final SwerveDriveKinematics kSwerveDriveKinematics = new SwerveDriveKinematics(
@@ -105,13 +105,13 @@ public final class Constants {
     public static final double kThottleFF_kA = 0.07; //0.48;
     
   
-    public static final double kPath_kP = 0.53;
-    public static final double kPath_kI = 0;
-    public static final double kPath_kD = 0.001;
+    public static final double kPath_kP = 0.65;//0.537;
+    public static final double kPath_kI = 0.3;//0.15;
+    public static final double kPath_kD = 0.0064;//0.005;
 
-    public static final double kPathZ_kP = 1.22497;
-    public static final double kPathZ_kI = 0;
-    public static final double kPathZ_kD = 0.001;
+    public static final double kPathZ_kP = 1.297;//1.29;
+    public static final double kPathZ_kI = 0.1;//0.1;
+    public static final double kPathZ_kD = 0.001;//0.0025;
 
     public static final Translation2d[] kModuleoffsets = {
       new Translation2d(kwhatever/2, kwhatever/2),
@@ -174,7 +174,7 @@ public final class Constants {
     public static final int kLeftMotorID = 47;
     public static final int kRightMotorID = 44;
 
-    public static final int kSensorPortID = 1;
+    public static final int kSensorPortID = 0;
   }
 
 

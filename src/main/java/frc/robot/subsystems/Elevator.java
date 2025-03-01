@@ -63,19 +63,13 @@ public class Elevator extends SubsystemBase{
             PersistMode.kPersistParameters
         );
 
-        pidController.setSetpoint(getDistance());
-        defultposition = this.getDistance();
+        
         m_AbsEncoder.setInverted(false);
-
-        m_RelEncoder.setDistancePerPulse(ElevatorConstants.PositionConversionFactor/8192);
-        m_RelEncoder.reset();
-        m_RelEncoder.setReverseDirection(true);
-
-        defultposition = this.getDistance();
 
         pidController.setTolerance(1);
 
         SmartDashboard.putData("Eevator", pidController);
+        pidController.setSetpoint(getDistance());
     }
 
     @Override
@@ -151,13 +145,11 @@ public class Elevator extends SubsystemBase{
     }
 
     public double getABSPosition() {
-
         return m_AbsEncoder.get() - ElevatorConstants.kElevatorAbsOffset;
     }
 
     public double getDistance() {
     double limitrange = this.getABSPosition() * ElevatorConstants.PositionConversionFactor * 5/4;
-    
         return limitrange;
     }
 

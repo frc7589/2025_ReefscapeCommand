@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 7.576229508196722,
-        "y": 1.938499999999999
+        "y": 6.152817622950819
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.184808714607931,
-        "y": 0.7245178520125599
+        "x": 5.897658362448093,
+        "y": 5.344616320472715
       },
       "isLocked": false,
       "linkedName": "SP1"
     },
     {
       "anchor": {
-        "x": 4.980434105123917,
-        "y": 5.162558458074723
+        "x": 5.274590163934427,
+        "y": 5.025973360655737
       },
       "prevControl": {
-        "x": 5.748746465672743,
-        "y": 5.921276841461909
+        "x": 6.244801215116828,
+        "y": 5.512061543730424
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef_UR_R"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

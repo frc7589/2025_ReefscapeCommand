@@ -1,6 +1,11 @@
 package frc.robot.subsystems.Algea;
 
 import com.revrobotics.spark.SparkMax;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Radians;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -23,14 +28,15 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     private SparkMax m_Armmotor = new SparkMax(AlgeaConstants.kArmMotorID, MotorType.kBrushless);
 
     private RelativeEncoder encoder;
-    private DutyCycleEncoder m_EEncoder = new DutyCycleEncoder(0);
+    private DutyCycleEncoder m_EEncoder = new DutyCycleEncoder(1);
     private double offset; //前饋要用 讓他0度的時候水平於地面 要用弧度
 
-    //private ArmFeedforward m_ff = new ArmFeedforward(0, AlgeaConstants.kG, AlgeaConstants.kV, AlgeaConstants.kA);
+    private ArmFeedforward m_ff = new ArmFeedforward(0, AlgeaConstants.kG, AlgeaConstants.kV, AlgeaConstants.kA);
 
-    //private LinearFilter filter = LinearFilter.movingAverage(5);
-    //private double filteredAngle;
-    //private double defultposition;
+    private LinearFilter filter = LinearFilter.movingAverage(5);
+    private double filteredAngle;
+    private double defultposition;
+    private double targetAngel;
 
     private PIDController m_PidController = new PIDController(AlgeaConstants.kP, AlgeaConstants.kI, AlgeaConstants.kD);
     private boolean runMotor = false;;
@@ -51,7 +57,6 @@ public class AlgeaArmSubsystem extends SubsystemBase{
 
         m_EEncoder.setInverted(true);
         m_PidController.setSetpoint(m_EEncoder.get());
-        //filter.reset();
         SmartDashboard.putData("ji", m_PidController);
 
         SmartDashboard.putNumber("Algea", m_EEncoder.get());
@@ -61,21 +66,19 @@ public class AlgeaArmSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-       
-        //m_Armmotor.set(m_PidController.calculate(m_EEncoder.get()));
-
         //filteredAngle = filter.calculate(Math.toRadians(m_EEncoder.get()));
 
-        //double feedforwardVoltage = m_ff.calculate(m_PidController.getSetpoint(), encoder.getVelocity());
-        //double pidOutput = m_PidController.calculate(filteredAngle);
+        double feedforwardVoltage = m_ff.calculate(Math.toRadians(-30), encoder.getVelocity());
+        double pidOutput = m_PidController.calculate(filteredAngle);
+        m_Armmotor.set(m_PidController.calculate(m_EEncoder.get()));
 
-        //m_Armmotor.setVoltage(pidOutput + feedforwardVoltage);
+        
 
         SmartDashboard.putNumber("Algea", m_EEncoder.get());
     }
 
     public void setArmSpeed(double ArmSpeed) {
-        if(m_EEncoder.get() < 0.73) {
+        if(m_EEncoder.get() < 0.75) {
             m_Armmotor.set(-ArmSpeed);
         } else {
             m_Armmotor.set(0);
@@ -87,7 +90,7 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     }
 
     public void setSetpoint(double setpoint) {
-        setpoint = MathUtil.clamp(setpoint, AlgeaConstants.kEncoderOffset, 0.72);
+        setpoint = MathUtil.clamp(setpoint, AlgeaConstants.kEncoderOffset, 0.75);
         m_PidController.setSetpoint(setpoint);
     }
 

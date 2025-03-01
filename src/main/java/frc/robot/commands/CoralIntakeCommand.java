@@ -19,6 +19,7 @@ public class CoralIntakeCommand extends Command {
 
     @Override
     public void initialize(){
+        System.out.println("CoralIntakeCommand scucess");
         m_Isfinished.start();
         stage = 0;
     }

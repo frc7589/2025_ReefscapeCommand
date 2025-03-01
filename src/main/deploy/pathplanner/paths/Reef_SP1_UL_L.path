@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 7.576229508196722,
-        "y": 1.938499999999999
+        "y": 6.152817622950819
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.197822654182609,
-        "y": 1.5166549931466344
+        "x": 6.2336065573770485,
+        "y": 6.212756147540984
       },
       "isLocked": false,
       "linkedName": "SP1"
@@ -20,8 +20,8 @@
         "y": 5.189137653938664
       },
       "prevControl": {
-        "x": 5.590025136001661,
-        "y": 6.192154062168878
+        "x": 5.4903688524590155,
+        "y": 6.0928790983606556
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

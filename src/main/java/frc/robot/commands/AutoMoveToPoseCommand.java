@@ -4,6 +4,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.Swerve;
@@ -14,8 +16,17 @@ public class AutoMoveToPoseCommand extends Command{
     private Swerve m_driverSubsystem;
     private Command pathfindingCommand;
     private OpzXboxController controller;
-    private String direction;
-    public AutoMoveToPoseCommand(Swerve driverSubsystem, String direction, OpzXboxController controller) {
+    private autoState direction;
+
+    public static enum autoState{
+        kIDLE,
+        KLeft,
+        kRight,
+        kCoral,
+        kFinish
+    }
+
+    public AutoMoveToPoseCommand(Swerve driverSubsystem, autoState direction, OpzXboxController controller) {
         this.direction = direction;
         this.m_driverSubsystem = driverSubsystem;
         this.controller = controller;
@@ -24,29 +35,36 @@ public class AutoMoveToPoseCommand extends Command{
     @Override
     public void initialize() {
             switch (direction) {
-                case "L":
+                case KLeft:
                     targetPose2d = m_driverSubsystem.autoalignmentL();
                     break;
-                case "R":
+                case kRight:
                     targetPose2d = m_driverSubsystem.autoalignmentR();
                     break;
+                case kCoral:
+                    targetPose2d = m_driverSubsystem.getCoralSPose();
                 default:
                     break;
             }
         if(targetPose2d != null) {
             pathfindingCommand = AutoBuilder.pathfindToPose(
             targetPose2d,
-            PathConstraints.unlimitedConstraints(SwerveConstants.kVoltagecompensation),
+            new PathConstraints(3, 3, 540, 720, 12),
             0.0
             );
-        pathfindingCommand.schedule();
+            m_driverSubsystem.setAutoalignmentFieldOriented(targetPose2d);
+            SmartDashboard.putNumber("targetX", targetPose2d.getX());
+            SmartDashboard.putNumber("targetY", targetPose2d.getY());
+            SmartDashboard.putNumber("targetAngle", targetPose2d.getRotation().getDegrees());
+            pathfindingCommand.schedule();
         } else System.out.println("target null");
 
     }
 
     @Override
     public void end(boolean interrupted) {
-        targetPose2d = m_driverSubsystem.getPose();
+        targetPose2d = null;
+        //m_driverSubsystem.setAutoalignmentFieldOriented(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 
     @Override

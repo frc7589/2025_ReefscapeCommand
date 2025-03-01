@@ -1,30 +1,19 @@
+
 package frc.robot.subsystems.swerve;
 
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.HashMap;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.util.FlippingUtil;
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.VideoSource;
-import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -36,10 +25,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.MutDistance;
-import edu.wpi.first.units.measure.MutLinearVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -82,16 +67,15 @@ public class Swerve extends SubsystemBase{
         SwerveConstants.kRightRearRotorEncoderOffset
     );
     
-    private final AHRS m_AHRS = new AHRS(NavXComType.kMXP_SPI);
+    private final Pigeon2 m_Pigeon = new Pigeon2(5, "SwerveCancoder");
 
-    private HashMap<Integer, Rotation2d> targetAngle = new HashMap<>();
+    private HashMap<Integer, Rotation2d> ReefTargetAngle = new HashMap<>();
     private HashMap<Integer, Rotation2d> coralTargetAngle = new HashMap<>();
 
-    private double headingoffset = 0;
     private double min_REEFangle = 360; 
     private double min_CoralAngle = 360;
     private double distance;
-    private double coraldistance;
+
     private double maxSpeedRatio = SwerveConstants.kDefaultSpeed;
     private double headingOffset = 0;
     
@@ -104,9 +88,6 @@ public class Swerve extends SubsystemBase{
     private SwerveDrivePoseEstimator m_poseEstimator;
     private SwerveDriveOdometry odometry;
 
-    private LimelightHelpers.PoseEstimate limelightMeasurement;
-
-
     private boolean fieldOriented = true;
     private boolean cameraGotSomething = false;
 
@@ -117,12 +98,6 @@ public class Swerve extends SubsystemBase{
     private Pose3d m_CoralCenterPose;
 
     private Pose2d m_RobotPose;
-
-    private PIDController m_RotationPID =  new PIDController(0, 0, 0);
-    private PIDController m_XmotionPID = new PIDController(0, 0, 0);
-    private PIDController m_YmotionPID = new PIDController(0, 0, 0);
-
-    private LinearFilter m_Filter = LinearFilter.singlePoleIIR(distance, coraldistance);
 
     private Translation2d inputAngle;
 
@@ -138,57 +113,24 @@ public class Swerve extends SubsystemBase{
         }
 }
     
-    // Create a new SysId routine for characterizing the drive.
-    /*private final SysIdRoutine m_sysIdRoutine =
-        new SysIdRoutine(
-            // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-            new SysIdRoutine.Config(),
-            new SysIdRoutine.Mechanism(
-                // Tell SysId how to plumb the driving voltage to the motors.
-                voltage -> {
-                    m_LeftFrontModule.setvoltage(voltage);
-                    m_LeftRearModule.setvoltage(voltage);
-                    m_RightFrontModule.setvoltage(voltage);
-                    m_RightRearModule.setvoltage(voltage);
-                },
-                // Tell SysId how to record a frame of data for each motor on the mechanism being
-                // characterized.
-                log -> {
-                    // Record a frame for the left motors.  Since these share an encoder, we consider
-                    // the entire group to be one motor.
-                    log.motor("drive")
-                        .voltage(
-                            m_appliedVoltage.mut_replace(
-                                m_LeftFrontModule.get() * RobotController.getBatteryVoltage(), Volts))
-                        .linearPosition(m_distance.mut_replace(m_LeftFrontModule.getPosition().distanceMeters, Meters))
-                        .linearVelocity(
-                            m_velocity.mut_replace(m_LeftFrontModule.getState().speedMetersPerSecond, MetersPerSecond));
-                },
-                // Tell SysId to make generated commands require this subsystem, suffix test state in
-                // WPILog with this subsystem's name ("drive")
-                this));*/
-    
     public Swerve() {
-        m_RotationPID.setTolerance(3);
-        
-
         var alliance = DriverStation.getAlliance();
         if(alliance.isPresent()) {
             m_alliance = alliance.get();
         }
-        m_AHRS.reset();       
+        m_Pigeon.reset();       
 
         SmartDashboard.putBoolean("swerve_ffControlled", ffControl);
         SmartDashboard.putData(m_field);
     
-        Rotation2d getRotation2d = Rotation2d.fromDegrees(m_AHRS.getYaw());
+        Rotation2d getRotation2d = Rotation2d.fromDegrees(m_Pigeon.getYaw().getValueAsDouble());
         odometry = new SwerveDriveOdometry(
             SwerveConstants.kSwerveDriveKinematics,
             getRotation2d,
             getModulePositions()
         );
 
-         m_BlueReefCenterPose = new Pose3d(
+        m_BlueReefCenterPose = new Pose3d(
             (AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(18).get().getX() + AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(21).get().getX())/2,
             (AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(18).get().getY() + AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(21).get().getY())/2,
             0.0,
@@ -208,36 +150,8 @@ public class Swerve extends SubsystemBase{
             0.0f,
             Rotation3d.kZero
         );
-
-        if(alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue){
-            for(Integer tagID = 17; tagID <= 22; tagID++) {
-                System.out.println("inputTagID =>" + tagID);
-            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
-            Rotation2d angle = tagPose.getTranslation().minus(m_BlueReefCenterPose.getTranslation()).toTranslation2d().getAngle();
-            targetAngle.put(tagID, angle);
-            }
-        } else if(alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-            for(Integer tagID = 6; tagID <= 11; tagID++) {
-                System.out.println("inputTagID =>" + tagID);
-            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
-            Rotation2d angle = tagPose.getTranslation().minus(m_RedReefCenterPose.getTranslation()).toTranslation2d().getAngle();
-            targetAngle.put(tagID, angle);
-            }
-        }
-
-        if(m_alliance == Alliance.Blue){
-            for(Integer tagID = 12; tagID <= 13 ; tagID++) {
-                var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
-                Rotation2d angle = tagpose.getTranslation().minus(m_CoralCenterPose.getTranslation()).toTranslation2d().getAngle();
-                coralTargetAngle.put(tagID, angle);
-            }
-        } else if(m_alliance == Alliance.Red) {
-            for(Integer tagID = 1; tagID <= 2 ; tagID++) {
-                var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
-                Rotation2d angle = tagpose.getTranslation().minus(m_CoralCenterPose.getTranslation()).toTranslation2d().getAngle();
-                coralTargetAngle.put(tagID, angle);
-            }
-        }
+        
+        resetReefcoralTargetAngle();
         
         m_poseEstimator = new SwerveDrivePoseEstimator(
         SwerveConstants.kSwerveDriveKinematics,
@@ -248,9 +162,7 @@ public class Swerve extends SubsystemBase{
         VecBuilder.fill(0.7, 0.7, 999999999)
         );
 
-        m_AHRS.reset();
-
-        m_RotationPID.enableContinuousInput(-180, 180);
+        m_Pigeon.reset();
 
         AutoBuilder.configure(
             this::getPose,
@@ -314,18 +226,17 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("RF_speed", getModuleStates()[1].speedMetersPerSecond);
         SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
 
-        SmartDashboard.putData("X_PID", m_XmotionPID);
-        SmartDashboard.putData("Y_PID", m_YmotionPID);
-        SmartDashboard.putData("R_PID", m_RotationPID);
-        SmartDashboard.putNumber("minREEFID", min_REEFtagID);
-        SmartDashboard.putNumber("X Position", m_poseEstimator.getEstimatedPosition().getX());
-        SmartDashboard.putNumber("Y Position", m_poseEstimator.getEstimatedPosition().getY());
-        SmartDashboard.putNumber("Ange", m_AHRS.getRotation2d().getDegrees());
-        SmartDashboard.putNumber("InvertedAnge", m_AHRS.getRotation2d().unaryMinus().getDegrees());
 
-        //HttpCamera limelight = new HttpCamera("limelight", "http://10.75.89.200:5800");
-        //CameraServer.startAutomaticCapture(limelight);
-        //limelight.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen);
+        SmartDashboard.putNumber("minREEFID", min_REEFtagID);
+        SmartDashboard.putNumber("min_CoraStation", min_CoralStationtagID);
+        /*SmartDashboard.putNumber("X Position", m_poseEstimator.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("Y Position", m_poseEstimator.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Ange", getImuARotation2d().getDegrees());
+        SmartDashboard.putNumber("getAnge", m_Pigeon.getYaw().getValueAsDouble());
+        SmartDashboard.putNumber("EFTFRONTSPEED", m_LeftFrontModule.get());
+        SmartDashboard.putNumber("EFTREARSPEED", m_LeftRearModule.get());
+        SmartDashboard.putNumber("RFSPEED", m_RightFrontModule.get());
+        SmartDashboard.putNumber("RRSPEED", m_RightRearModule.get());*/
      
         Swerve.ffControl = SmartDashboard.getBoolean("swerve_ffControlled", ffControl);
 
@@ -352,8 +263,8 @@ public class Swerve extends SubsystemBase{
 
 
         min_REEFangle = 5000;
-        if(distance <= 3) {
-            targetAngle.forEach((tagID, angle) -> {
+        if(distance <= 5) {
+            ReefTargetAngle.forEach((tagID, angle) -> {
                 //System.out.println("Robot to Reef distance => " + distance);
                 //System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
                 if(Math.abs(inputAngle.getAngle().minus(angle).getRadians()) < this.min_REEFangle) {
@@ -364,7 +275,6 @@ public class Swerve extends SubsystemBase{
         }
 
         min_CoralAngle = 5000;
-        coraldistance = m_poseEstimator.getEstimatedPosition().getTranslation().getDistance(m_CoralCenterPose.getTranslation().toTranslation2d());
         
  
             coralTargetAngle.forEach((tagID, angle) -> {
@@ -377,8 +287,42 @@ public class Swerve extends SubsystemBase{
     }
 
     public Rotation2d getImuARotation2d() {
-        if (m_alliance == Alliance.Blue) return m_AHRS.getRotation2d().unaryMinus().plus(Rotation2d.fromDegrees(180));
-        return m_AHRS.getRotation2d().unaryMinus();
+        if (m_alliance == Alliance.Blue) return m_Pigeon.getRotation2d().plus(Rotation2d.fromDegrees(180));
+        return m_Pigeon.getRotation2d();
+    }
+
+    public void resetReefcoralTargetAngle() {
+        ReefTargetAngle.clear();
+        coralTargetAngle.clear();
+        if(m_alliance == Alliance.Blue){
+            for(Integer tagID = 17; tagID <= 22; tagID++) {
+                System.out.println("inputTagID =>" + tagID);
+            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
+            Rotation2d angle = tagPose.getTranslation().minus(m_BlueReefCenterPose.getTranslation()).toTranslation2d().getAngle();
+            ReefTargetAngle.put(tagID, angle);
+            }
+        } else if(m_alliance == Alliance.Red) {
+            for(Integer tagID = 6; tagID <= 11; tagID++) {
+                System.out.println("inputTagID =>" + tagID);
+            var tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
+            Rotation2d angle = tagPose.getTranslation().minus(m_RedReefCenterPose.getTranslation()).toTranslation2d().getAngle();
+            ReefTargetAngle.put(tagID, angle);
+            }
+        }
+
+        if(m_alliance == Alliance.Blue){
+            for(Integer tagID = 12; tagID <= 13 ; tagID++) {
+                var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
+                Rotation2d angle = tagpose.getTranslation().minus(m_CoralCenterPose.getTranslation()).toTranslation2d().getAngle();
+                coralTargetAngle.put(tagID, angle);
+            }
+        } else if(m_alliance == Alliance.Red) {
+            for(Integer tagID = 1; tagID <= 2 ; tagID++) {
+                var tagpose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(tagID).get();
+                Rotation2d angle = tagpose.getTranslation().minus(m_CoralCenterPose.getTranslation()).toTranslation2d().getAngle();
+                coralTargetAngle.put(tagID, angle);
+            }
+        }
     }
 
     public void resetPoseEstimator(Rotation2d rotation, Pose2d pose) {
@@ -386,7 +330,7 @@ public class Swerve extends SubsystemBase{
     }
 
     public void reserImu() {
-        m_AHRS.reset();
+        m_Pigeon.reset();
     }
 
     public void resetAllinace() {
@@ -395,7 +339,7 @@ public class Swerve extends SubsystemBase{
     
     public Command resetHeadingOffset() {
         return runOnce(() -> {
-            this.headingOffset = m_AHRS.getYaw();
+            this.headingOffset = m_Pigeon.getYaw().getValueAsDouble();
         });
     }
 
@@ -422,7 +366,7 @@ public class Swerve extends SubsystemBase{
         }
         if (fieldOriented) {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_AHRS.getYaw() - this.headingOffset)));
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_Pigeon.getYaw().getValueAsDouble() - this.headingOffset)));
             setModulestate(states);
         } else {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
@@ -443,7 +387,7 @@ public class Swerve extends SubsystemBase{
 
         if (fieldOriented) {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_AHRS.getYaw() - this.headingOffset)));
+                ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_Pigeon.getYaw().getValueAsDouble() - this.headingOffset)));
             setModulestate(states);
         } else {
             SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
@@ -465,38 +409,6 @@ public class Swerve extends SubsystemBase{
             System.out.println("target Y => " + position.getY());
 
             return position;
-            /*this.setHeadingAngle(0);
-
-            m_XmotionPID.setSetpoint(position.getX());
-            m_YmotionPID.setSetpoint(position.getY());
-            //if(getAlliance() == Alliance.Blue) {
-                this.drive(
-                    m_XmotionPID.calculate(m_RobotPose.getX()),// * (m_RobotPose.getX() - position.getX()) < 0 ? -1 : 1,
-                    m_YmotionPID.calculate(m_RobotPose.getY()),// * (m_RobotPose.getY() - position.getY()) < 0 ? -1 : 1, 
-                    0,
-                    true);//m_Filter.calculate(m_RotationPID.calculate(m_Imu.getYaw(), position.getRotation().getDegrees())));
-
-                    SmartDashboard.putNumber("XPID_output", m_XmotionPID.calculate(m_RobotPose.getX(), position.getX()));// * (m_RobotPose.getX() - position.getX()) < 0 ? -1 : 1);
-                    SmartDashboard.putNumber("YPID_output", m_XmotionPID.calculate(m_RobotPose.getY(), position.getY()));// * (m_RobotPose.getX() - position.getX()) < 0 ? -1 : 1);
-                    SmartDashboard.putNumber("check this", m_RobotPose.getX());   
-                    SmartDashboard.putNumber("X", robotToEage.getX());
-                    if(AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(min_REEFtagID).isPresent()){
-                        System.out.println(min_REEFtagID +" => " + AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(min_REEFtagID).get().getX());
-                        System.out.println(min_REEFtagID +" => " + AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark).getTagPose(min_REEFtagID).get().getRotation().toRotation2d().getDegrees());
-                        System.out.println("tag x position =>" + position.getX() + "\nXPID_setpoint =>" + m_XmotionPID.getSetpoint());
-                        System.out.println("tag y position =>" + position.getY() + "\nYPID_setpoint =>" + m_YmotionPID.getSetpoint());
-                    }*/
-
-                    
-           // } else {
-                /*this.drive(
-                    -m_XmotionPID.calculate(m_RobotPose.getX(), position.getX()), 
-                    -m_YmotionPID.calculate(m_RobotPose.getY(), position.getY()), 
-                    0,
-                    false);//m_Filter.calculate(m_RotationPID.calculate(m_Imu.getYaw(), position.getRotation().getDegrees())));
-                    SmartDashboard.putNumber("output", m_XmotionPID.calculate(m_XmotionPID.calculate(m_RobotPose.getX(), position.getX())));
-                    SmartDashboard.putNumber("check this", m_RobotPose.getX());*/           
-         //   }
         }
          
        return m_RobotPose;
@@ -515,64 +427,12 @@ public class Swerve extends SubsystemBase{
             System.out.println("target Y => " + position.getY());
 
             return position;
-            /*this.setHeadingAngle(0);
-
-            m_XmotionPID.setSetpoint(position.getX());
-            m_YmotionPID.setSetpoint(position.getY());
-            //if(getAlliance() == Alliance.Blue) {
-                this.drive( 
-                    m_XmotionPID.calculate(m_RobotPose.getX()),
-                    m_YmotionPID.calculate(m_RobotPose.getY()),
-                    0, 
-                    true );//m_Filter.calculate(m_RotationPID.calculate(m_Imu.getYaw(), position.getRotation().getDegrees())));
-                    SmartDashboard.putNumber("XPID_output", m_XmotionPID.calculate(m_RobotPose.getX(), position.getX()));
-                    SmartDashboard.putNumber("YPID_output", m_YmotionPID.calculate(m_RobotPose.getY(), position.getY()));
-                    SmartDashboard.putNumber("check this", position.getX());*/
-            //} else {
-                /*this.drive(
-                    -m_XmotionPID.calculate(m_RobotPose.getX(), position.getX()), 
-                    -m_YmotionPID.calculate(m_RobotPose.getY(), position.getY()), 
-                    0,
-                    false);//m_Filter.calculate(m_RotationPID.calculate(m_Imu.getYaw(), position.getRotation().getDegrees())));
-                    SmartDashboard.putNumber("output", m_XmotionPID.calculate(m_XmotionPID.calculate(m_RobotPose.getX(), position.getX())));
-                    SmartDashboard.putNumber("check this", m_RobotPose.getX());      */     
-           //}   
+            
         }
 
         return m_RobotPose;
     } 
 
-    public boolean atSetpoint() {
-        return (m_XmotionPID.atSetpoint() && m_YmotionPID.atSetpoint() && m_RotationPID.atSetpoint());
-    }
-
-    /*ublic Pose2d getRightReefPose() {
-        Pose3d targetPose = getTargetPose(min_REEFtagID);
-        Pose2d targetpose2d;
-        if(targetPose != null) {
-            targetpose2d = targetPose.toPose2d();
-            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2, 0.0)).rotateBy(targetpose2d.getRotation());
-            Pose2d targetPose2d = targetPose.toPose2d();
-            Translation2d tagToPillar = (new Translation2d(0.16, 0).rotateBy(targetpose2d.getRotation().plus(Rotation2d.fromDegrees(90))));
-
-            Pose2d position = new Pose2d(targetpose2d.getTranslation().plus(tagToPillar).plus(robotToEage), targetpose2d.getRotation().unaryMinus());
-            return position;
-        }
-        return null;
-    }
-
-    public Pose2d getLeftReefPose() {
-        Pose3d targetPose = getTargetPose(min_REEFtagID);
-        if(targetPose != null) {
-            Pose2d targetPose2d = getTargetPose(min_REEFtagID).toPose2d();
-            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2, 0.0)).rotateBy(targetPose2d.getRotation());
-            Translatiov              n2d tagToPillar = (new Translation2d(0.16, 0).rotateBy(targetPose2d.getRotation().minus(Rotation2d.fromDegrees(90))));
-
-            Pose2d position = new Pose2d(targetPose2d.getTranslation().plus(tagToPillar).plus(robotToEage), targetPose2d.getRotation().unaryMinus());
-            return position;
-        }
-        return null;
-    }
 
     public Pose2d getCoralSPose() {
         Pose3d targetPose = getTargetPose(min_CoralStationtagID);
@@ -583,7 +443,7 @@ public class Swerve extends SubsystemBase{
             Pose2d CSPosition = new Pose2d(tagpose.getTranslation().plus(robotToEage), tagpose.getRotation());
             return CSPosition;
         }
-        return null;
+        return m_RobotPose;
     }
 
     public Pose2d getBlueProcessorPose() {
@@ -595,7 +455,7 @@ public class Swerve extends SubsystemBase{
             Pose2d BPPosition = new Pose2d(tagpose.getTranslation().plus(robotToEage), tagpose.getRotation().unaryMinus());
             return BPPosition;
         }
-        return null;
+        return m_RobotPose;
     }
     
     public Pose2d getRedProcessorPose() {
@@ -607,8 +467,8 @@ public class Swerve extends SubsystemBase{
             Pose2d BPPosition = new Pose2d(tagpose.getTranslation().plus(robotToEage), tagpose.getRotation().unaryMinus());
             return BPPosition;
         }
-        return null;
-    }*/
+        return m_RobotPose;
+    }
 
     public Command switchDriveMode() {
         return runOnce(() -> {
@@ -674,10 +534,8 @@ public class Swerve extends SubsystemBase{
         m_RightRearModule.setState(desiredState[3]);
     }
 
-    public void updateVisionPose() {
-        //double robotheading = m_alliance == Alliance.Blue ? m_AHRS.getRotation2d().getDegrees() + 180 : m_AHRS.getRotation2d().getDegrees();
-        
-        LimelightHelpers.SetRobotOrientation("limelight", this.getImuARotation2d().getDegrees(), 0, 0, 0, 0, 0);
+    public void updateVisionPose() {        
+        LimelightHelpers.SetRobotOrientation("limelight", this.getImuARotation2d().getDegrees(), m_Pigeon.getAngularVelocityZWorld().getValueAsDouble(), 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
         cameraGotSomething = LimelightHelpers.getTV("");
 
@@ -734,12 +592,6 @@ public class Swerve extends SubsystemBase{
         return null;
     }
 
-    public void resetPID() {
-        m_XmotionPID.reset();
-        m_YmotionPID.reset();
-        m_RotationPID.reset();
-    }
-
     public Alliance getAlliance() {
         var alliance = DriverStation.getAlliance();
         if(alliance != null ) {
@@ -747,4 +599,9 @@ public class Swerve extends SubsystemBase{
         }
         return null;
     }
+
+    public void setAutoalignmentFieldOriented(Pose2d targetPsoe) {
+        m_field.getObject("Autoalignment").setPose(targetPsoe);
+    }
+    
 }
