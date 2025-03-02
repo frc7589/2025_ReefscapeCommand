@@ -5,15 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "e4"
+            "pathName": "New New Path"
           }
         }
       ]

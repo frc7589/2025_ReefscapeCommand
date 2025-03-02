@@ -35,13 +35,13 @@ public class ElevatorCommand extends Command{
     public void execute() {
         switch (level) {
             case "L1":
-                height = 5;
+                height = 0;
                 break;
             case "L2":
                 height = 28;
                 break;
             case "L3":
-                height = 83;
+                height = 85;
                 break;
             case "L4":
                 height = 167;
@@ -50,7 +50,7 @@ public class ElevatorCommand extends Command{
                 break;
         }
         m_Elevator.setPosisionCommand(height);
-
+        
         SmartDashboard.putString("Elevator_Level", level);
         //m_Elevator.moving();
     }
@@ -58,6 +58,7 @@ public class ElevatorCommand extends Command{
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        System.out.println("E atsetpoint" + m_Elevator.atSetpoint());
         m_Elevator.resetPID();
         m_TimeLimit.stop();
         m_TimeLimit.reset();
@@ -67,6 +68,6 @@ public class ElevatorCommand extends Command{
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return m_Elevator.atSetpoint() || leftY.getAsBoolean() || m_TimeLimit.get() > 5;
+        return  m_Elevator.atSetpoint() || leftY.getAsBoolean() || m_TimeLimit.get() > 3;
     }
 }

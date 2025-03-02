@@ -49,7 +49,7 @@ public class AutoMoveToPoseCommand extends Command{
         if(targetPose2d != null) {
             pathfindingCommand = AutoBuilder.pathfindToPose(
             targetPose2d,
-            new PathConstraints(3, 3, 540, 720, 12),
+            new PathConstraints(3, 3, 180, 360, 12),
             0.0
             );
             m_driverSubsystem.setAutoalignmentFieldOriented(targetPose2d);
@@ -58,7 +58,6 @@ public class AutoMoveToPoseCommand extends Command{
             SmartDashboard.putNumber("targetAngle", targetPose2d.getRotation().getDegrees());
             pathfindingCommand.schedule();
         } else System.out.println("target null");
-
     }
 
     @Override
@@ -69,6 +68,6 @@ public class AutoMoveToPoseCommand extends Command{
 
     @Override
     public boolean isFinished() {
-        return !(controller.x().getAsBoolean() || controller.b().getAsBoolean());
+        return !(controller.x().getAsBoolean() || controller.b().getAsBoolean()) || AutoBuilder.isPathfindingConfigured();
     }
 }

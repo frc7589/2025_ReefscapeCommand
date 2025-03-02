@@ -20,6 +20,8 @@ public class CoralIntakeCommand extends Command {
     @Override
     public void initialize(){
         System.out.println("CoralIntakeCommand scucess");
+        m_reverseTimer.reset();
+        m_Isfinished.reset();
         m_Isfinished.start();
         stage = 0;
     }
@@ -52,8 +54,6 @@ public class CoralIntakeCommand extends Command {
     @Override
     public void end(boolean interrupted) {
         m_intake.stop();
-        m_reverseTimer.reset();
-        m_Isfinished.reset();
         m_intake.updateState();
     }
 

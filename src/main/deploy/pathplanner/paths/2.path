@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8946959013935687,
-        "y": 3.3124224900115125
+        "x": 4.647325966767719,
+        "y": 4.665679610128409
       },
       "isLocked": false,
-      "linkedName": "Reef_UL"
+      "linkedName": "Reef_UL_L"
     },
     {
       "anchor": {
-        "x": 5.99625,
-        "y": 0.670999999999999
+        "x": 1.10175,
+        "y": 7.593500000000001
       },
       "prevControl": {
-        "x": 5.370491803278217,
-        "y": 0.4466700819618779
+        "x": 0.6305195076543573,
+        "y": 7.9811872230274785
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Processor"
+      "linkedName": "CoralStaion_U"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -54.0
   },
   "reversed": false,
-  "folder": "R_to_C",
+  "folder": "New Folder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -59.99999999999999

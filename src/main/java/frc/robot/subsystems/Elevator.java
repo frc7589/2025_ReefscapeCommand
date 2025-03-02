@@ -116,7 +116,7 @@ public class Elevator extends SubsystemBase{
     }
 
     public boolean atSetpoint() {
-        return pidController.atSetpoint();
+        return Math.abs(getSetpoint() - getDistance()) < 3;
     }
 
     public Command runMotor() {
@@ -159,7 +159,7 @@ public class Elevator extends SubsystemBase{
     }
     
     public void setSetpoint(double setpoint) {
-        setpoint = MathUtil.clamp(setpoint, 0, (0.95 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
+        setpoint = MathUtil.clamp(setpoint, 0, (0.96 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
         pidController.setSetpoint(setpoint);
     }
     

@@ -27,6 +27,7 @@ import frc.robot.utils.OpzXboxController;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -90,19 +91,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, "L4", () -> false));
     NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter));
     NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter));
+    NamedCommands.registerCommand("ch", Commands.runOnce(() -> m_Shooter.changeMode(),m_Shooter));
     NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
     NamedCommands.registerCommand("AA_R", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
     NamedCommands.registerCommand("AA_C", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
-    System.out.println("checking command:");
-    System.out.println("elevator L1 =>" + NamedCommands.hasCommand("e1"));
-    System.out.println("elevator L2 =>" + NamedCommands.hasCommand("e2"));
-    System.out.println("elevator L3 =>" + NamedCommands.hasCommand("e3"));
-    System.out.println("elevator L4 =>" + NamedCommands.hasCommand("e4"));
-    System.out.println("coralIntake =>" + NamedCommands.hasCommand("ci"));
-    System.out.println("coralShoot =>" + NamedCommands.hasCommand("cs"));
-    System.out.println("autoAlignment_L =>" + NamedCommands.hasCommand("AA_L"));
-    System.out.println("autoAlignment_R =>" + NamedCommands.hasCommand("AA_R"));
-    System.out.println("autoAlignment_C =>" + NamedCommands.hasCommand("AA_C"));
 
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autoChooser);
@@ -193,7 +185,6 @@ public class RobotContainer {
 
     m_ActionController.a().whileTrue(Commands.startEnd(
       () -> m_AlgeaIntake.setSpeed(-0.4),
-
       () -> m_AlgeaIntake.setSpeed(0),
       m_AlgeaIntake));
     

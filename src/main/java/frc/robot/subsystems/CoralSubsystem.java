@@ -135,8 +135,8 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void reverseMotor(){
-        m_leftmotor.set(-0.13);
-        m_rightmotor.set(-0.13);
+        m_leftmotor.set(-0.1);
+        m_rightmotor.set(-0.1);
     }
 
     public void setSpin(boolean spining){

@@ -13,26 +13,8 @@
                 "data": {
                   "pathName": "Reef_SP1_UR_R"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "e3"
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "e4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "cs"
           }
         },
         {
@@ -44,20 +26,8 @@
                 "data": {
                   "pathName": "Reef_UR_L_to_CoralStation_U"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "e1"
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ci"
           }
         }
       ]

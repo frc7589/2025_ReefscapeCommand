@@ -15,7 +15,9 @@ public class AutoShootCommand extends Command {
 
     @Override
     public void initialize() {
+        m_Timer.reset();
         m_Timer.start();
+        stage = 0;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class AutoShootCommand extends Command {
         switch (stage) {
             case 0:
                 mCoral.shoot();
-                if (m_Timer.get() >= 1) {
+                if (m_Timer.get() >= 0.4) {
                     stage++;
                 }
                 break;
@@ -35,13 +37,10 @@ public class AutoShootCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        stage = 0;
-        m_Timer.reset();
-    }
+    public void end(boolean interrupted) {}
 
     @Override
     public boolean isFinished() {
-        return stage == 2;
+        return stage == 2 || m_Timer.get() >= 3;
     }
 }

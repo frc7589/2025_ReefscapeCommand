@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.0055852456593275,
-        "y": 5.189137653938664
+        "x": 5.2065,
+        "y": 4.931749999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8946959013935687,
-        "y": 3.3124224900115125
+        "x": 4.455909836065573,
+        "y": 5.715026639344262
       },
       "isLocked": false,
-      "linkedName": "Reef_UL"
+      "linkedName": "Reef_UR_R"
     },
     {
       "anchor": {
-        "x": 5.99625,
-        "y": 0.670999999999999
+        "x": 1.10175,
+        "y": 7.593500000000001
       },
       "prevControl": {
-        "x": 5.370491803278217,
-        "y": 0.4466700819618779
+        "x": 2.319381147540983,
+        "y": 6.914116803278691
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Processor"
+      "linkedName": "CoralStaion_U"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.16,
+      "rotationDegrees": -119.99999999999999
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -54.0
   },
   "reversed": false,
   "folder": "R_to_C",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -59.99999999999999
+    "rotation": -119.99999999999999
   },
   "useDefaultConstraints": true
 }

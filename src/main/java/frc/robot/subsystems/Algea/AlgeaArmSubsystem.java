@@ -70,7 +70,7 @@ public class AlgeaArmSubsystem extends SubsystemBase{
 
         double feedforwardVoltage = m_ff.calculate(Math.toRadians(-30), encoder.getVelocity());
         double pidOutput = m_PidController.calculate(filteredAngle);
-        m_Armmotor.set(m_PidController.calculate(m_EEncoder.get()));
+        //m_Armmotor.set(m_PidController.calculate(m_EEncoder.get()));
 
         
 
@@ -78,7 +78,7 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     }
 
     public void setArmSpeed(double ArmSpeed) {
-        if(m_EEncoder.get() < 0.75) {
+        if(m_EEncoder.get() < 0.9) {
             m_Armmotor.set(-ArmSpeed);
         } else {
             m_Armmotor.set(0);
@@ -90,7 +90,7 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     }
 
     public void setSetpoint(double setpoint) {
-        setpoint = MathUtil.clamp(setpoint, AlgeaConstants.kEncoderOffset, 0.75);
+        setpoint = MathUtil.clamp(setpoint, AlgeaConstants.kEncoderOffset, 0.9);
         m_PidController.setSetpoint(setpoint);
     }
 
