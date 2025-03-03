@@ -166,7 +166,6 @@ public class Swerve extends SubsystemBase{
 
         m_Pigeon.reset();
 
-
         AutoBuilder.configure(
             this::getPose,
             this::setPose,
