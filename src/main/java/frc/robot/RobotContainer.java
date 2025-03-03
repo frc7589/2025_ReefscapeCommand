@@ -100,7 +100,7 @@ public class RobotContainer {
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autoChooser);
     SmartDashboard.putData(CommandScheduler.getInstance());
-
+    
     m_Swerve.setDefaultCommand(Commands.run(
       () -> m_Swerve.drive(
         m_DriveController.getLeftY(),
@@ -123,23 +123,6 @@ public class RobotContainer {
     }, 
     m_AlgeaArm
     ).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    
-    
-    
-    
-    m_DriveController.a().whileFalse(Commands.runOnce(
-      () -> m_Swerve.setDefaultCommand(Commands.run(
-        () -> m_Swerve.drive(
-          m_DriveController.getLeftY(),
-          m_DriveController.getLeftX(),
-          m_DriveController.getRightX()
-        ),
-        m_Swerve))
-    ));
-    
-    m_DriveController.a().onTrue(Commands.runOnce(
-      () -> m_Swerve.removeDefaultCommand(),
-      m_Swerve));
 
     configureBindings();
   }
@@ -162,14 +145,7 @@ public class RobotContainer {
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
     m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
-    /*m_DriveController.x().onTrue(Commands.sequence(
-      new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController),
-      new AutoAlignmentPID(m_Swerve, AutoAlignmentPID.autoState.KLeft, m_DriveController)
-    ));
-    m_DriveController.b().onTrue(Commands.sequence(
-      new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController),
-      new AutoAlignmentPID(m_Swerve, AutoAlignmentPID.autoState.kRight, m_DriveController)
-    ));*/
+    
     m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
     m_DriveController.y().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
     
@@ -233,13 +209,13 @@ public class RobotContainer {
       case Blue3:
           initialPose = new Pose2d(7.506, 1.910, Rotation2d.fromDegrees(180));
           break;
-      case Red1:
+      case Red3:
           initialPose = new Pose2d(10.206944, 5.370, Rotation2d.fromDegrees(0));
           break;
       case Red2:
           initialPose = new Pose2d(10.206944, 4.0259, Rotation2d.fromDegrees(0));
           break;
-      case Red3:
+      case Red1:
           initialPose = new Pose2d(10.206944, 1.910, Rotation2d.fromDegrees(0));
           break;
       default:

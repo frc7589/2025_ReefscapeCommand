@@ -47,10 +47,10 @@ public final class Constants {
     public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
 
     //Rotor Encode 偏移量    
-    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152 + 6.4  + 0.6 - 0.08 - 0.26 + 0.43 - 36.386;
-    public static final double kLeftRearRotorEncoderOffset = -82.793 - 0.08729 + 0.8 - 3.69 + 0.7 -0.1 - 0.52 -0.35 + 0.17;
-    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175 - 1.58 + 0.79 - 0.087 + 1.83 - 0.2636 + 0.52;
-    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966 + 2.2 - 4.5 + 0.6 - 0.36 + 3.16 -2.37 - 0.26;
+    public static final double kLeftFrontRotorEncoderOffset = -39.814453125;
+    public static final double kLeftRearRotorEncoderOffset = 95.185546875 + 180;
+    public static final double kRightFrontRotorEncoderOffset = -41.66015625 + 180;
+    public static final double kRightRearRotorEncoderOffset = -39.814453125;
 
     public static final double kwhatever = 0.60325;//meter
 
@@ -102,7 +102,7 @@ public final class Constants {
     public static final boolean kThrottleMotorInverted = false;
 
     public static final double kThottleFF_kV = 2.35;
-    public static final double kThottleFF_kA = 0.07; //0.48;
+    public static final double kThottleFF_kA = 0.055;//0.07; //0.48;
     
   
     public static final double kPath_kP = 0.001;//0.558;//0.537;

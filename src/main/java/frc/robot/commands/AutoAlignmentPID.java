@@ -57,7 +57,7 @@ public class AutoAlignmentPID extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return !m_Controller.x().getAsBoolean() || !m_Controller.b().getAsBoolean() ||m_Swerve.isPathfindingAtTarget();
+        return !m_Controller.x().getAsBoolean() || !m_Controller.b().getAsBoolean() || m_Swerve.isPathfindingAtTarget();
     }
     
 }

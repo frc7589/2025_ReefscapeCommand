@@ -9,6 +9,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.util.DriveFeedforwards;
+import com.pathplanner.lib.util.swerve.SwerveSetpoint;
+import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -103,7 +106,10 @@ public class Swerve extends SubsystemBase{
     private Translation2d inputAngle;
 
     private Field2d m_field = new Field2d();
-
+    
+    private final SwerveSetpointGenerator setpointGenerator;
+    private SwerveSetpoint previousSetpoint;
+    
     private PIDController m_XPidController = new PIDController(0, 0, 0);
     private PIDController m_YPidController = new PIDController(0, 0, 0);
     private PIDController m_ZPidController = new PIDController(0, 0, 0);
@@ -120,6 +126,9 @@ public class Swerve extends SubsystemBase{
 }
     
     public Swerve() {
+        m_XPidController.setTolerance(0.01);
+        m_YPidController.setTolerance(0.01);
+        m_ZPidController.setTolerance(3);
         var alliance = DriverStation.getAlliance();
         if(alliance.isPresent()) {
             m_alliance = alliance.get();
@@ -169,12 +178,17 @@ public class Swerve extends SubsystemBase{
         );
 
         m_Pigeon.reset();
-
+        
+        setpointGenerator = new SwerveSetpointGenerator(config, SwerveConstants.kMaxAngularVelocityRadPerSecond);
+        ChassisSpeeds currentSpeeds = getSpeeds();
+        SwerveModuleState[] currentStates = getModuleStates();
+        previousSetpoint = new SwerveSetpoint(currentSpeeds, currentStates, DriveFeedforwards.zeros(config.numModules));
+        
         AutoBuilder.configure(
             this::getPose,
             this::setPose,
             this::getSpeeds,
-            this::driveChassis,
+            this::driveChassis,//driveRobotRelative,
             new PPHolonomicDriveController(
                     /* */
                     new PIDConstants(
@@ -327,7 +341,18 @@ public class Swerve extends SubsystemBase{
             }
         }
     }
-
+    
+    public void driveRobotRelative(ChassisSpeeds speeds) {
+        // Note: it is important to not discretize speeds before or after
+        // using the setpoint generator, as it will discretize them for you
+        previousSetpoint = setpointGenerator.generateSetpoint(
+            previousSetpoint, // The previous setpoint
+            speeds.unaryMinus(), // The desired target speeds
+            0.02 // The loop time of the robot code, in seconds
+        );
+        setModulestate(previousSetpoint.moduleStates()); // Method that will drive the robot given target module states
+    }
+    
     public void resetPoseEstimator(Rotation2d rotation, Pose2d pose) {
         m_poseEstimator.resetPosition(rotation, getModulePositions(), pose);
     }
@@ -418,17 +443,20 @@ public class Swerve extends SubsystemBase{
     }
 
     public void autoAlignmentL2(Pose2d position) {
+        setAutoalignmentFieldOriented(position);
         this.setSetpoint(position);
         if((min_REEFtagID >= 17 && min_REEFtagID <= 19) || (min_REEFtagID >= 9 && min_REEFtagID <= 11)){
             drive(
             -m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
             -m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
-           0);
+           m_ZPidController.atSetpoint() ? 0 : -m_ZPidController.calculate(m_RobotPose.getRotation().getDegrees()),
+           true);
         } else {
             drive(
             m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
             m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
-           0);
+            m_ZPidController.atSetpoint() ? 0 : -m_ZPidController.calculate(m_RobotPose.getRotation().getDegrees()),
+           true);
         }
         
     }
@@ -453,17 +481,20 @@ public class Swerve extends SubsystemBase{
     } 
 
     public void autoAlignmentR2(Pose2d position) {
+        setAutoalignmentFieldOriented(position);
         this.setSetpoint(position);
         if((min_REEFtagID >= 17 && min_REEFtagID <= 19) || (min_REEFtagID >= 9 && min_REEFtagID <= 11)) {
                 drive(
                 -m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
                 -m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
-               0);
+                m_ZPidController.atSetpoint() ? 0 : -m_ZPidController.calculate(m_RobotPose.getRotation().getDegrees()),
+               true);
             } else {
                 drive(
                 m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
                 m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
-               0);
+                m_ZPidController.atSetpoint() ? 0 : -m_ZPidController.calculate(m_RobotPose.getRotation().getDegrees()),
+               true);
             }
     }
 
