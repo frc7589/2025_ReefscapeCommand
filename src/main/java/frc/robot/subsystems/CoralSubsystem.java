@@ -98,8 +98,8 @@ public class CoralSubsystem extends SubsystemBase {
         if(isDifferentSpeed){
             this.setRightMode(IdleMode.kCoast);
             this.setLeftMode(IdleMode.kCoast);
-            m_rightmotor.set(0.25);
-            m_leftmotor.set(0.25);
+            m_rightmotor.set(0.4);
+            m_leftmotor.set(0.4);
             
         }else{ 
             this.setRightMode(IdleMode.kCoast);

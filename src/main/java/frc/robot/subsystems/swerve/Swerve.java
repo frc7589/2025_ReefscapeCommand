@@ -104,6 +104,10 @@ public class Swerve extends SubsystemBase{
 
     private Field2d m_field = new Field2d();
 
+    private PIDController m_XPidController = new PIDController(0, 0, 0);
+    private PIDController m_YPidController = new PIDController(0, 0, 0);
+    private PIDController m_ZPidController = new PIDController(0, 0, 0);
+
 
     RobotConfig config;{
         try{
@@ -232,14 +236,10 @@ public class Swerve extends SubsystemBase{
 
         SmartDashboard.putNumber("minREEFID", min_REEFtagID);
         SmartDashboard.putNumber("min_CoraStation", min_CoralStationtagID);
-        /*SmartDashboard.putNumber("X Position", m_poseEstimator.getEstimatedPosition().getX());
-        SmartDashboard.putNumber("Y Position", m_poseEstimator.getEstimatedPosition().getY());
-        SmartDashboard.putNumber("Ange", getImuARotation2d().getDegrees());
-        SmartDashboard.putNumber("getAnge", m_Pigeon.getYaw().getValueAsDouble());
-        SmartDashboard.putNumber("EFTFRONTSPEED", m_LeftFrontModule.get());
-        SmartDashboard.putNumber("EFTREARSPEED", m_LeftRearModule.get());
-        SmartDashboard.putNumber("RFSPEED", m_RightFrontModule.get());
-        SmartDashboard.putNumber("RRSPEED", m_RightRearModule.get());*/
+
+        SmartDashboard.putData("x_PID", m_XPidController);
+        SmartDashboard.putData("y_PID", m_YPidController);
+        SmartDashboard.putData("z_PID", m_ZPidController);
      
         Swerve.ffControl = SmartDashboard.getBoolean("swerve_ffControlled", ffControl);
 
@@ -417,6 +417,22 @@ public class Swerve extends SubsystemBase{
        return m_RobotPose;
     }
 
+    public void autoAlignmentL2(Pose2d position) {
+        this.setSetpoint(position);
+        if((min_REEFtagID >= 17 && min_REEFtagID <= 19) || (min_REEFtagID >= 9 && min_REEFtagID <= 11)){
+            drive(
+            -m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
+            -m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
+           0);
+        } else {
+            drive(
+            m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
+            m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
+           0);
+        }
+        
+    }
+
     public Pose2d autoalignmentR() {
         Pose3d targetPose = getTargetPose(min_REEFtagID);
         Pose2d targetpose2d;
@@ -435,6 +451,21 @@ public class Swerve extends SubsystemBase{
 
         return m_RobotPose;
     } 
+
+    public void autoAlignmentR2(Pose2d position) {
+        this.setSetpoint(position);
+        if((min_REEFtagID >= 17 && min_REEFtagID <= 19) || (min_REEFtagID >= 9 && min_REEFtagID <= 11)) {
+                drive(
+                -m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
+                -m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
+               0);
+            } else {
+                drive(
+                m_XPidController.calculate(m_RobotPose.getX(), position.getX()),
+                m_YPidController.calculate(m_RobotPose.getY(), position.getY()),
+               0);
+            }
+    }
 
 
     public Pose2d getCoralSPose() {
@@ -605,6 +636,20 @@ public class Swerve extends SubsystemBase{
 
     public void setAutoalignmentFieldOriented(Pose2d targetPsoe) {
         m_field.getObject("Autoalignment").setPose(targetPsoe);
+    }
+
+    public boolean isPathfindingAtTarget() {
+        return this.autoalignmentL().getX() - m_RobotPose.getX() < 0.1 && this.autoalignmentL().getY() - m_RobotPose.getY() < 0.1 && this.autoalignmentL().getRotation().getDegrees() - m_RobotPose.getRotation().getDegrees() < 0.1;
+    }
+
+    public void resetPID() {
+        m_XPidController.reset();
+        m_YPidController.reset();
+    }
+
+    public void setSetpoint(Pose2d setPose2d) {
+        m_XPidController.setSetpoint(setPose2d.getX());
+        m_YPidController.setSetpoint(setPose2d.getY());
     }
     
 }
