@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -58,11 +59,14 @@ public class AutoMoveToPoseCommand extends Command{
             SmartDashboard.putNumber("targetAngle", targetPose2d.getRotation().getDegrees());
             pathfindingCommand.schedule();
         } else System.out.println("target null");
+
     }
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("FUCK");
         targetPose2d = null;
+        pathfindingCommand.cancel();
         //m_driverSubsystem.setAutoalignmentFieldOriented(new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     }
 

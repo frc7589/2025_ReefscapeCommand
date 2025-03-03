@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoAlignmentPID;
 import frc.robot.commands.AutoMoveToPoseCommand;
 import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.CoralIntakeCommand;
@@ -161,6 +162,14 @@ public class RobotContainer {
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
     m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
+    /*m_DriveController.x().onTrue(Commands.sequence(
+      new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController),
+      new AutoAlignmentPID(m_Swerve, AutoAlignmentPID.autoState.KLeft, m_DriveController)
+    ));
+    m_DriveController.b().onTrue(Commands.sequence(
+      new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController),
+      new AutoAlignmentPID(m_Swerve, AutoAlignmentPID.autoState.kRight, m_DriveController)
+    ));*/
     m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
     m_DriveController.y().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
     
