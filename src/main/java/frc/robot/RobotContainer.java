@@ -9,7 +9,7 @@ import frc.robot.commands.AutoMoveToPoseCommand;
 import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorCommand;
-
+import frc.robot.commands.Stop;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -95,6 +95,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
     NamedCommands.registerCommand("AA_R", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
     NamedCommands.registerCommand("AA_C", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
+    NamedCommands.registerCommand("Stop", new Stop(m_Swerve));
 
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autoChooser);
@@ -196,7 +197,7 @@ public class RobotContainer {
       () -> elevatorHighLog.append(m_Elevator.getDistance()),
       m_Elevator));
     
-    m_ActionController.leftTrigger().onTrue(Commands.runOnce(
+    m_DriveController.povDown().onTrue(Commands.runOnce(
       () -> CommandScheduler.getInstance().cancelAll()));
 
     /*new Trigger(() -> m_ActionController.getLeftY() != 0).whileFalse(Commands.startEnd(
@@ -238,7 +239,6 @@ public class RobotContainer {
           break;
       }
       m_Swerve.resetAllinace();
-      m_Swerve.reserImu();
       m_Swerve.resetPoseEstimator(m_Swerve.getImuARotation2d(), initialPose);
       m_Swerve.resetReefcoralTargetAngle();
       m_Elevator.setSetpoint(m_Elevator.getDistance());

@@ -102,14 +102,14 @@ public final class Constants {
     public static final boolean kThrottleMotorInverted = false;
 
     public static final double kThottleFF_kV = 2.35;
-    public static final double kThottleFF_kA = 0.07; //0.48;
+    public static final double kThottleFF_kA = 0.055; //0.48;
     
   
-    public static final double kPath_kP = 0.001;//0.558;//0.537;
-    public static final double kPath_kI = 0.5;//0.22;//0.12;//0.15;
+    public static final double kPath_kP = 0.008;//0.558;//0.537;
+    public static final double kPath_kI = 0.6;//0.22;//0.12;//0.15;
     public static final double kPath_kD = 0;//0.00722;//0.1;//0.005;
 
-    public static final double kPathZ_kP = 0.65;//1.297;//1.25;//1.29;
+    public static final double kPathZ_kP = 0.66;//1.297;//1.25;//1.29;
     public static final double kPathZ_kI = 0;//0;//0.05;//0.1;
     public static final double kPathZ_kD = 0;//0.001;//0.0025;
 
@@ -121,7 +121,7 @@ public final class Constants {
     };
 
     //質量KG
-    public static final double kMass = 50;
+    public static final double kMass = 55;
     //轉動動量
     public static final double kMOI = 6.883;
     //輪子摩擦係數

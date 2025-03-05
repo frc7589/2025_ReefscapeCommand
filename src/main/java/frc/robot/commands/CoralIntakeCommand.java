@@ -59,6 +59,6 @@ public class CoralIntakeCommand extends Command {
 
     @Override
     public boolean isFinished(){
-        return stage == 4 || m_Isfinished.get() > 10;
+        return stage == 4 || m_Isfinished.get() > 5;
     }
 }            

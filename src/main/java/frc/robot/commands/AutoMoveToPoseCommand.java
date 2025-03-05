@@ -68,6 +68,6 @@ public class AutoMoveToPoseCommand extends Command{
 
     @Override
     public boolean isFinished() {
-        return !(controller.x().getAsBoolean() || controller.b().getAsBoolean()) || AutoBuilder.isPathfindingConfigured();
+        return !(controller.x().getAsBoolean() || controller.b().getAsBoolean());
     }
 }

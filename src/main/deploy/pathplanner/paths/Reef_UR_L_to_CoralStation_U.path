@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.2065,
-        "y": 4.931749999999999
+        "x": 5.04075,
+        "y": 5.1365
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.455909836065573,
-        "y": 5.715026639344262
+        "x": 4.290159836065573,
+        "y": 5.919776639344263
       },
       "isLocked": false,
       "linkedName": "Reef_UR_R"
     },
     {
       "anchor": {
-        "x": 1.10175,
-        "y": 7.593500000000001
+        "x": 1.3455000000000001,
+        "y": 7.369249999999999
       },
       "prevControl": {
-        "x": 2.319381147540983,
-        "y": 6.914116803278691
+        "x": 2.5631311475409833,
+        "y": 6.689866803278689
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,7 +50,7 @@
     "rotation": -54.0
   },
   "reversed": false,
-  "folder": "R_to_C",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -119.99999999999999

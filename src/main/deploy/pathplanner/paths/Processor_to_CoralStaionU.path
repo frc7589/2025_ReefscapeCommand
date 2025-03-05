@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.10175,
-        "y": 7.593500000000001
+        "x": 1.3455000000000001,
+        "y": 7.369249999999999
       },
       "prevControl": {
-        "x": 1.3989057377049183,
-        "y": 6.283153688524591
+        "x": 1.6426557377049185,
+        "y": 6.058903688524589
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": -54.0
   },
   "reversed": false,
-  "folder": "P_to_C",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0

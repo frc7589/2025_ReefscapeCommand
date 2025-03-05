@@ -103,19 +103,14 @@ public class Swerve extends SubsystemBase{
     private Translation2d inputAngle;
 
     private Field2d m_field = new Field2d();
-
-
-    RobotConfig config;{
-        try{
-        config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-        // Handle exception as needed
-        config = SwerveConstants.kconfig;
-        e.printStackTrace();
-        }
-}
     
+    private PIDController m_XmotionPID = new PIDController(0.1, 0, 0);
+    private PIDController m_YmotionPID = new PIDController(0.1, 0, 0);
+    private PIDController m_RotationPID = new PIDController(0.1, 0, 0);
+
     public Swerve() {
+        m_RotationPID.setTolerance(3);
+        m_RotationPID.enableContinuousInput(-180, 180);
         var alliance = DriverStation.getAlliance();
         if(alliance.isPresent()) {
             m_alliance = alliance.get();
@@ -166,6 +161,15 @@ public class Swerve extends SubsystemBase{
 
         m_Pigeon.reset();
 
+        RobotConfig config;{
+            try{
+                config = RobotConfig.fromGUISettings();
+            } catch (Exception e) {
+                // Handle exception as needed
+                config = SwerveConstants.kconfig;
+                e.printStackTrace();
+            }
+        }
 
         AutoBuilder.configure(
             this::getPose,
@@ -173,7 +177,6 @@ public class Swerve extends SubsystemBase{
             this::getSpeeds,
             this::driveChassis,
             new PPHolonomicDriveController(
-                    /* */
                     new PIDConstants(
                             SwerveConstants.kPath_kP,
                             SwerveConstants.kPath_kI,
@@ -241,7 +244,10 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("EFTREARSPEED", m_LeftRearModule.get());
         SmartDashboard.putNumber("RFSPEED", m_RightFrontModule.get());
         SmartDashboard.putNumber("RRSPEED", m_RightRearModule.get());*/
-     
+        SmartDashboard.putData("X_PID", m_XmotionPID);
+        SmartDashboard.putData("Y_PID", m_YmotionPID);
+        SmartDashboard.putData("Z_PID", m_RotationPID);
+
         Swerve.ffControl = SmartDashboard.getBoolean("swerve_ffControlled", ffControl);
 
         m_poseEstimator.update(
@@ -437,6 +443,23 @@ public class Swerve extends SubsystemBase{
         return m_RobotPose;
     } 
 
+    public void autoAlignmentLPID() {
+        this.setHeadingAngle(180);
+        drive(
+            m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()),
+            m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()),
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(this.getImuARotation2d().getDegrees(), this.autoalignmentL().getRotation().getDegrees())
+        );
+    }
+
+    public void autoAlignmentRPID() {
+        this.setHeadingAngle(180);
+        drive(
+            m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()),
+            m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()),
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(this.getImuARotation2d().getDegrees(), this.autoalignmentR().getRotation().getDegrees())
+        );
+    }
 
     public Pose2d getCoralSPose() {
         Pose3d targetPose = getTargetPose(min_CoralStationtagID);
@@ -569,14 +592,22 @@ public class Swerve extends SubsystemBase{
     }
 
     public void driveChassis(ChassisSpeeds speeds) {
-        driveChassis(
-            -speeds.vxMetersPerSecond,
-            -speeds.vyMetersPerSecond,
-            -speeds.omegaRadiansPerSecond
-        );
+        if (speeds.vxMetersPerSecond != 0 || speeds.vyMetersPerSecond != 0) {
+            driveChassis(
+                -speeds.vxMetersPerSecond,
+                -speeds.vyMetersPerSecond,
+                -speeds.omegaRadiansPerSecond
+            );
+        } else {
+            driveChassis(
+                0,
+                0,
+                0
+            );
+        }
     }
 
-    public void driveChassis(double xSpeed, double ySpeed, double zSpeed) {
+    public void driveChassis(double xSpeed, double ySpeed, double zSpeed) { 
         SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
             new ChassisSpeeds(
                 xSpeed,
@@ -586,6 +617,20 @@ public class Swerve extends SubsystemBase{
         );
 
         setModulestate(states);
+    }
+
+    public void autoDriver(double xSpeed, double ySpeed, double zSpeed) {
+        if(Swerve.ffControl) {
+            xSpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
+            ySpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
+            zSpeed *= SwerveConstants.kMaxAngularVelocityRadPerSecond;
+
+            SmartDashboard.putNumber("x_speed_set", xSpeed);
+            SmartDashboard.putNumber("y_speed_set",  ySpeed);
+        }
+            SwerveModuleState[] states = SwerveConstants.kSwerveDriveKinematics.toSwerveModuleStates(
+            ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, Rotation2d.fromDegrees(m_Pigeon.getYaw().getValueAsDouble())));
+            setModulestate(states);
     }
 
     public Pose3d getTargetPose(int ID) {
@@ -606,6 +651,16 @@ public class Swerve extends SubsystemBase{
 
     public void setAutoalignmentFieldOriented(Pose2d targetPsoe) {
         m_field.getObject("Autoalignment").setPose(targetPsoe);
+    }
+
+    public boolean atSetpoint() {
+        return m_RotationPID.atSetpoint() && m_XmotionPID.atSetpoint() && m_YmotionPID.atSetpoint();
+    }
+
+    public void resetPID() {
+        m_RotationPID.reset();
+        m_XmotionPID.reset();
+        m_YmotionPID.reset();
     }
     
 }

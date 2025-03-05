@@ -96,22 +96,22 @@ public class CoralSubsystem extends SubsystemBase {
 
     public void shoot(){
         if(isDifferentSpeed){
-            this.setRightMode(IdleMode.kCoast);
+            this.setRightMode(IdleMode.kBrake);
             this.setLeftMode(IdleMode.kCoast);
             m_rightmotor.set(0.25);
             m_leftmotor.set(0.25);
-            
         }else{ 
-            this.setRightMode(IdleMode.kCoast);
+            this.setRightMode(IdleMode.kBrake);
             this.setLeftMode(IdleMode.kCoast);
             m_leftmotor.set(0.6);
-            m_rightmotor.set(0.1);
+            m_rightmotor.set(0.05);
         }
     }
 
     public void stop(){
         this.setRightMode(IdleMode.kBrake);
         this.setRightMode(IdleMode.kBrake);
+
         m_leftmotor.set(0);
         m_rightmotor.set(0);
     }

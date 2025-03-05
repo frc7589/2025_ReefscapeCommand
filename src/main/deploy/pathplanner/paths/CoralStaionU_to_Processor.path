@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.10175,
-        "y": 7.593500000000001
+        "x": 1.3455000000000001,
+        "y": 7.369249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1711393442622955,
-        "y": 4.425059426229509
+        "x": 1.4148893442622956,
+        "y": 4.200809426229507
       },
       "isLocked": false,
       "linkedName": "CoralStaion_U"
@@ -45,7 +45,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "C_to_P",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -54.0

@@ -3,11 +3,13 @@
   "robotLength": 0.763,
   "holonomicMode": true,
   "pathFolders": [
+    "1",
     "2",
+    "3",
+    "A3",
     "C_to_P",
     "C_to_R",
     "New Folder",
-    "3",
     "P_to_C",
     "R_to_C",
     "R_to_P",
@@ -39,6 +41,6 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Line\",\"type\":\"line\",\"data\":{\"start\":{\"x\":0.0,\"y\":0.0},\"end\":{\"x\":0.37,\"y\":0.0},\"strokeWidth\":0.02}}"
+    "{\"name\":\"Line\",\"type\":\"line\",\"data\":{\"start\":{\"x\":0.0,\"y\":0.0},\"end\":{\"x\":0.7,\"y\":0.0},\"strokeWidth\":0.02}}"
   ]
 }

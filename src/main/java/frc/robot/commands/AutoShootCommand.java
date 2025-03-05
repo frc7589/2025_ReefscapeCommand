@@ -30,6 +30,7 @@ public class AutoShootCommand extends Command {
                 }
                 break;
             case 1:
+            
                 mCoral.stop();
                 stage++;
                 break;

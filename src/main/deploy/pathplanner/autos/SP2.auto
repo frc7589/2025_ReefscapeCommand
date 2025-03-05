@@ -17,9 +17,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "deadline",
           "data": {
-            "name": "cs"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "cs"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop"
+                }
+              }
+            ]
           }
         },
         {

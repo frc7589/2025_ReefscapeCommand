@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.10175,
-        "y": 7.593500000000001
+        "x": 1.3455000000000001,
+        "y": 7.369249999999999
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.276545081967213,
-        "y": 7.090016393442625
+        "x": 2.5202950819672134,
+        "y": 6.865766393442623
       },
       "isLocked": false,
       "linkedName": "CoralStaion_U"
     },
     {
       "anchor": {
-        "x": 5.2065,
-        "y": 4.931749999999999
+        "x": 5.04075,
+        "y": 5.1365
       },
       "prevControl": {
-        "x": 4.331397540983606,
-        "y": 5.555110655737704
+        "x": 4.165647540983606,
+        "y": 5.759860655737705
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,7 +50,7 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "C_to_R",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -54.0
