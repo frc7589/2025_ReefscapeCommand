@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AlgeaConstants;
 
 public class AlgeaArmSubsystem extends SubsystemBase{
-   
+    /*
     private SparkMax m_Armmotor = new SparkMax(AlgeaConstants.kArmMotorID, MotorType.kBrushless);
 
     private RelativeEncoder encoder;
@@ -106,6 +106,6 @@ public class AlgeaArmSubsystem extends SubsystemBase{
     public void resetPID() {
         m_PidController.reset();
     }
-    
+    */
 }   
 

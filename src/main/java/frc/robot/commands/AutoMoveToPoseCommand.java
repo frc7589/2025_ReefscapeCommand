@@ -5,8 +5,10 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.OpzXboxController;
@@ -49,13 +51,11 @@ public class AutoMoveToPoseCommand extends Command{
         if(targetPose2d != null) {
             pathfindingCommand = AutoBuilder.pathfindToPose(
             targetPose2d,
-            new PathConstraints(3, 3, 180, 360, 12),
+            new PathConstraints(5, 3, Units.degreesToRadians(360), Units.degreesToRadians(540), 12),
             0.0
-            );
+            ).finallyDo((interrupted) -> Commands.runOnce(() -> m_driverSubsystem.drive(0, 0, 0)));
+
             m_driverSubsystem.setAutoalignmentFieldOriented(targetPose2d);
-            SmartDashboard.putNumber("targetX", targetPose2d.getX());
-            SmartDashboard.putNumber("targetY", targetPose2d.getY());
-            SmartDashboard.putNumber("targetAngle", targetPose2d.getRotation().getDegrees());
             pathfindingCommand.schedule();
         } else System.out.println("target null");
     }

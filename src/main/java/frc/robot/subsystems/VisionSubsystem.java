@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.*;
 
 public class VisionSubsystem extends SubsystemBase {
-    // TODO
+/*
     private NetworkTable m_table;
     
     private String m_tablename;
@@ -118,6 +118,7 @@ public class VisionSubsystem extends SubsystemBase {
      * @param pose The Pose3d object to convert.
      * @return The array of doubles representing the pose.
      **/
+    /*
     public static double[] pose3dToArray(Pose3d pose) {
         double[] result = new double[6];
         result[0] = pose.getTranslation().getX();
@@ -128,13 +129,14 @@ public class VisionSubsystem extends SubsystemBase {
         result[5] = Units.radiansToDegrees(pose.getRotation().getZ());
         return result;
     }
-
+    
     /**
      * Converts a Pose2d object to an array of doubles.
      * 
      * @param pose The Pose2d object to convert.
      * @return The array of doubles representing the pose.
      **/
+    /*
     public static double[] pose2dToArray(Pose2d pose) {
         double[] result = new double[6];
         result[0] = pose.getTranslation().getX();
@@ -145,11 +147,11 @@ public class VisionSubsystem extends SubsystemBase {
         result[5] = Units.radiansToDegrees(pose.getRotation().getRadians());
         return result;
     }
-
+    */
     //public
 
     //@Override
     //public void periodic() {
-        
+    
     
 }

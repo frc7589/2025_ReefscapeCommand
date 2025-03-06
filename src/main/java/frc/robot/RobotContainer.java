@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoAlignmentPIDCommand;
 import frc.robot.commands.AutoMoveToPoseCommand;
 import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.CoralIntakeCommand;
@@ -117,17 +118,15 @@ public class RobotContainer {
       m_Elevator
     ).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
-    
+    /*
     m_AlgeaArm.setDefaultCommand(Commands.run(() -> {
       m_AlgeaArm.setArmSpeed(m_ActionController.getLeftY()*0.15);
     }, 
     m_AlgeaArm
     ).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    */
     
-    
-    
-    
-    m_DriveController.a().whileFalse(Commands.runOnce(
+    m_DriveController.x().or(m_DriveController.b()).whileFalse(Commands.runOnce(
       () -> m_Swerve.setDefaultCommand(Commands.run(
         () -> m_Swerve.drive(
           m_DriveController.getLeftY(),
@@ -137,10 +136,6 @@ public class RobotContainer {
         m_Swerve))
     ));
     
-    m_DriveController.a().onTrue(Commands.runOnce(
-      () -> m_Swerve.removeDefaultCommand(),
-      m_Swerve));
-
     configureBindings();
   }
 
@@ -161,9 +156,11 @@ public class RobotContainer {
     m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
-    m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
-    m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
-    m_DriveController.y().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
+    m_DriveController.x().whileTrue(new AutoAlignmentPIDCommand(m_Swerve, AutoAlignmentPIDCommand.autoState.KLeft).beforeStarting(() -> m_Swerve.removeDefaultCommand()));
+    m_DriveController.b().whileTrue(new AutoAlignmentPIDCommand(m_Swerve, AutoAlignmentPIDCommand.autoState.kRight).beforeStarting(() -> m_Swerve.removeDefaultCommand()));
+    //m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController).withTimeout(0.01).andThen(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController)));
+    //m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController).withTimeout(0.01).andThen(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController)));
+    //m_DriveController.y().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController).withTimeout(0.01).andThen(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController)));
     
     m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
@@ -178,7 +175,7 @@ public class RobotContainer {
       () -> m_Shooter.reverseMotor(),
       () -> m_Shooter.stop(),
       m_Shooter));
-    
+    /*
     m_ActionController.y().whileTrue(Commands.startEnd(
       () -> m_AlgeaIntake.setSpeed(0.4),
       () -> m_AlgeaIntake.setSpeed(0),
@@ -188,7 +185,7 @@ public class RobotContainer {
       () -> m_AlgeaIntake.setSpeed(-0.4),
       () -> m_AlgeaIntake.setSpeed(0),
       m_AlgeaIntake));
-    
+    */
     m_ActionController.start().onTrue(Commands.runOnce(
       () -> m_Shooter.changeMode(),
       m_Shooter));
@@ -212,7 +209,7 @@ public class RobotContainer {
 
   }
 
-  public void enable() {
+  public void robotInit() {
     m_location = DriverStation.getRawAllianceStation();
 
     switch (m_location) {
@@ -241,16 +238,15 @@ public class RobotContainer {
       m_Swerve.resetAllinace();
       m_Swerve.resetPoseEstimator(m_Swerve.getImuARotation2d(), initialPose);
       m_Swerve.resetReefcoralTargetAngle();
-      m_Elevator.setSetpoint(m_Elevator.getDistance());
   }
 
-  public void disable() {
-
+  public void enable() {
+    m_Elevator.setSetpoint(m_Elevator.getDistance());
   }
+
+  public void disable() {}
 
   public Command getAutonomousCommand() {
-    //TODO Auto初始化
-    
     return m_autoChooser.getSelected();
   }
 }

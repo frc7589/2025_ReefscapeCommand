@@ -35,6 +35,11 @@ public class Robot extends TimedRobot {
     FollowPathCommand.warmupCommand().schedule();
   }
 
+  @Override
+  public void robotInit() {
+    m_robotContainer.robotInit();
+  }
+
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.

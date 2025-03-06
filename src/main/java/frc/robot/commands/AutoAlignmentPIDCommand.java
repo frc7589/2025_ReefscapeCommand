@@ -10,7 +10,6 @@ public class AutoAlignmentPIDCommand extends Command {
     private Pose2d targetPose2d;
     private Swerve m_driverSubsystem;
     private Command pathfindingCommand;
-    private OpzXboxController controller;
     private autoState direction;
 
     public static enum autoState{
@@ -21,30 +20,27 @@ public class AutoAlignmentPIDCommand extends Command {
         kFinish
     }
 
-    public AutoAlignmentPIDCommand(Swerve swerve, autoState direction, OpzXboxController controller) {
+    public AutoAlignmentPIDCommand(Swerve swerve, autoState direction) {
         this.direction = direction;
         this.m_driverSubsystem = swerve;
-        this.controller = controller;
         addRequirements(m_driverSubsystem);
+        System.out.println("con " + this.direction.toString());
     }
 
     @Override
     public void initialize() {
-        
+        System.out.println("start " + this.direction.toString());
     }
 
     @Override
     public void execute() {
+        System.out.println("exe " + this.direction.toString());
         switch (direction) {
             case KLeft:
-                m_driverSubsystem.autoalignmentL();
-                if(m_driverSubsystem.atSetpoint())
-                    direction = autoState.kFinish;
+                m_driverSubsystem.autoAlignmentLPID();
                 break;
             case kRight:
-                targetPose2d = m_driverSubsystem.autoalignmentR();
-                if(m_driverSubsystem.atSetpoint())
-                    direction = autoState.kFinish;
+                m_driverSubsystem.autoAlignmentRPID();
                 break;
             default:
                 break;
@@ -53,12 +49,12 @@ public class AutoAlignmentPIDCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        System.out.println("end " + this.direction.toString());
         m_driverSubsystem.resetPID();
     }
 
     @Override
     public boolean isFinished() {
-        return !controller.x().getAsBoolean() || !controller.b().getAsBoolean() || direction == autoState.kFinish;
+        return m_driverSubsystem.atSetpoint();
     }
-    
 }

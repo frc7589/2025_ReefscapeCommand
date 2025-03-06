@@ -157,7 +157,7 @@ public final class Constants {
   
       //看下面轉多少 上面轉多少
       public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
-      public static final double kElevatorAbsOffset = 0.05366525134163128;
+      public static final double kElevatorAbsOffset = 0.059533751488343785;
   
     }
 

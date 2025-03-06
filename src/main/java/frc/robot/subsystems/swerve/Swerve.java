@@ -104,9 +104,9 @@ public class Swerve extends SubsystemBase{
 
     private Field2d m_field = new Field2d();
     
-    private PIDController m_XmotionPID = new PIDController(0.1, 0, 0);
-    private PIDController m_YmotionPID = new PIDController(0.1, 0, 0);
-    private PIDController m_RotationPID = new PIDController(0.1, 0, 0);
+    private PIDController m_XmotionPID = new PIDController(0.2, 0, 0);
+    private PIDController m_YmotionPID = new PIDController(0.2, 0, 0);
+    private PIDController m_RotationPID = new PIDController(0.012, 0, 0);
 
     public Swerve() {
         m_RotationPID.setTolerance(3);
@@ -441,23 +441,38 @@ public class Swerve extends SubsystemBase{
         }
 
         return m_RobotPose;
-    } 
+    }
 
     public void autoAlignmentLPID() {
-        this.setHeadingAngle(180);
-        drive(
-            m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()),
-            m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()),
-            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(this.getImuARotation2d().getDegrees(), this.autoalignmentL().getRotation().getDegrees())
+        if(DriverStation.isTest()) {
+            autoDriver(
+                0,
+                0,
+                m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            );
+            return;
+        }
+        autoDriver(
+            m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
+            m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
         );
     }
 
     public void autoAlignmentRPID() {
-        this.setHeadingAngle(180);
-        drive(
-            m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()),
-            m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()),
-            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(this.getImuARotation2d().getDegrees(), this.autoalignmentR().getRotation().getDegrees())
+        if(DriverStation.isTest()) {
+            autoDriver(
+                0,
+                0,
+                m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
+            );
+            return;
+        }
+        
+        autoDriver(
+            m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
+            m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
         );
     }
 

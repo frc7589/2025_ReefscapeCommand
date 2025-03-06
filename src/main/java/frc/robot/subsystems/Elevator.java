@@ -159,7 +159,7 @@ public class Elevator extends SubsystemBase{
     }
     
     public void setSetpoint(double setpoint) {
-        setpoint = MathUtil.clamp(setpoint, 0, (0.97 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
+        setpoint = MathUtil.clamp(setpoint, 2, (0.97 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
         pidController.setSetpoint(setpoint);
     }
     

@@ -35,16 +35,16 @@ public class ElevatorCommand extends Command{
     public void execute() {
         switch (level) {
             case "L1":
-                height = 0;
+                height = 2;
                 break;
             case "L2":
-                height = 31;
+                height = 22;
                 break;
             case "L3":
-                height = 86;
+                height = 77;
                 break;
             case "L4":
-                height = 173;
+                height = 164;
                 break;
             default:
                 break;
@@ -62,7 +62,7 @@ public class ElevatorCommand extends Command{
         m_Elevator.resetPID();
         m_TimeLimit.stop();
         m_TimeLimit.reset();
-        m_Elevator.setPosisionCommand(m_Elevator.getDistance());
+        //m_Elevator.setPosisionCommand(m_Elevator.getDistance());
     }
 
     // Returns true when the command should end.

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AlgeaConstants;
 
 public class AlgeaIntakeSubsystem extends SubsystemBase{
+    /*
     private SparkMax m_Intakemotor = new SparkMax(AlgeaConstants.kIntakeMotorID, MotorType.kBrushless);
 
 
@@ -29,4 +30,5 @@ public class AlgeaIntakeSubsystem extends SubsystemBase{
     public void setSpeed(double Speed){
         m_Intakemotor.set(Speed);
     }
+    */
 }

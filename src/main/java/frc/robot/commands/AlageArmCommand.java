@@ -2,9 +2,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Algea.AlgeaArmSubsystem;
-import frc.robot.subsystems.Algea.AlgeaTestSubsystem;
 
 public class AlageArmCommand extends Command{
+    /*
     private double height;
     private double init;
     private double controllerOutput;
@@ -35,4 +35,5 @@ public class AlageArmCommand extends Command{
     public boolean isFinished() {
        return m_Arm.atSetpoint();
     }
+    */
 }
