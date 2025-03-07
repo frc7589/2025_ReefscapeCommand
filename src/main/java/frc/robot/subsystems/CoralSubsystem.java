@@ -103,7 +103,7 @@ public class CoralSubsystem extends SubsystemBase {
         }else{ 
             this.setRightMode(IdleMode.kBrake);
             this.setLeftMode(IdleMode.kCoast);
-            m_leftmotor.set(0.6);
+            m_leftmotor.set(0.5);
             m_rightmotor.set(0.05);
         }
     }

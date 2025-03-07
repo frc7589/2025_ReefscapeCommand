@@ -104,8 +104,8 @@ public class Swerve extends SubsystemBase{
 
     private Field2d m_field = new Field2d();
     
-    private PIDController m_XmotionPID = new PIDController(0.25, 0, 0);
-    private PIDController m_YmotionPID = new PIDController(0.25, 0, 0);
+    private PIDController m_XmotionPID = new PIDController(0.375, 0, 0);
+    private PIDController m_YmotionPID = new PIDController(0.375, 0, 0);
     private PIDController m_RotationPID = new PIDController(0.012, 0, 0);
 
     public Swerve() {
@@ -192,27 +192,32 @@ public class Swerve extends SubsystemBase{
               // Boolean supplier that controls when the path will be mirrored for the red alliance
               // This will flip the path being followed to the red side of the field.
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
+              if (DriverStation.getAlliance().isPresent()) {
+                return DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
               }
               return false;
             },
             this
         );
+        if(DriverStation.getAlliance().isPresent())
+            System.out.println("Alliance = RED =>" + (DriverStation.getAlliance().get() == DriverStation.Alliance.Red));
     }
     
     
     
     @Override
-    public void periodic() {        
+    public void periodic() {
+        if(DriverStation.getAlliance().isPresent())
+            m_alliance = DriverStation.getAlliance().get();
         if(m_alliance != null) {
             if (m_alliance == Alliance.Blue) {
                 inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_BlueReefCenterPose.getTranslation().toTranslation2d());
             }
             else 
                 inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_RedReefCenterPose.getTranslation().toTranslation2d());
-
         }
+
+        System.out.println("m_alliance =>" + m_alliance);
         Translation2d coralInputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_CoralCenterPose.getTranslation().toTranslation2d());
         Rotation2d getRotation2d = getImuARotation2d();//m_Imu.getRotation2d().unaryMinus();
         m_RobotPose = m_poseEstimator.getEstimatedPosition();
@@ -277,8 +282,8 @@ public class Swerve extends SubsystemBase{
         min_REEFangle = 5000;
         if(distance <= 5) {
             ReefTargetAngle.forEach((tagID, angle) -> {
-                //System.out.println("Robot to Reef distance => " + distance);
-                //System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
+                System.out.println("Robot to Reef distance => " + distance);
+                System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
                 if(Math.abs(inputAngle.getAngle().minus(angle).getRadians()) < this.min_REEFangle) {
                     this.min_REEFangle = Math.abs(inputAngle.getAngle().minus(angle).getRadians());
                     this.min_REEFtagID = tagID;
@@ -346,7 +351,8 @@ public class Swerve extends SubsystemBase{
     }
 
     public void resetAllinace() {
-        m_alliance = DriverStation.getAlliance().get();
+        if(DriverStation.getAlliance().isPresent())
+            m_alliance = DriverStation.getAlliance().get();
     }
     
     public Command resetHeadingOffset() {
@@ -414,8 +420,8 @@ public class Swerve extends SubsystemBase{
         
         if(targetPose != null && getAlliance() != null) {
             Pose2d targetPose2d = targetPose.toPose2d();
-            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.15, 0.0)).rotateBy(targetPose2d.getRotation());
-            Translation2d tagToPillar = (new Translation2d(0.16, 0).rotateBy(targetPose2d.getRotation().minus(Rotation2d.fromDegrees(90))));
+            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.075, 0.0)).rotateBy(targetPose2d.getRotation());
+            Translation2d tagToPillar = (new Translation2d(0.15, 0).rotateBy(targetPose2d.getRotation().minus(Rotation2d.fromDegrees(90))));
             position = new Pose2d(targetPose2d.getTranslation().plus(tagToPillar).plus(robotToEage), targetPose2d.getRotation().plus(Rotation2d.fromDegrees(180)));
             System.out.println("target x => " + position.getX());
             System.out.println("target Y => " + position.getY());
@@ -431,8 +437,8 @@ public class Swerve extends SubsystemBase{
         Pose2d targetpose2d;
         if(targetPose != null) {
             targetpose2d = targetPose.toPose2d();
-            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.15, 0.0)).rotateBy(targetpose2d.getRotation());
-            Translation2d tagToPillar = (new Translation2d(0.16, 0).rotateBy(targetpose2d.getRotation().plus(Rotation2d.fromDegrees(90))));
+            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.075, 0.0)).rotateBy(targetpose2d.getRotation());
+            Translation2d tagToPillar = (new Translation2d(0.15, 0).rotateBy(targetpose2d.getRotation().plus(Rotation2d.fromDegrees(90))));
 
             Pose2d position = new Pose2d(targetpose2d. getTranslation().plus(tagToPillar).plus(robotToEage), targetpose2d.getRotation().plus(Rotation2d.fromDegrees(180)));
             System.out.println("target x => " + position.getX());
@@ -454,9 +460,24 @@ public class Swerve extends SubsystemBase{
             );
             return;
         }
-        autoDriver(
+        /*
+        if (m_alliance == Alliance.Blue) {
+            autoDriver(
             m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
             m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            );
+        } else {
+            autoDriver(
+            m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
+            m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            );
+        }
+         */
+        autoDriver(
+            m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
+            m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
         );
     }
@@ -470,10 +491,24 @@ public class Swerve extends SubsystemBase{
             );
             return;
         }
-        
+        /*
+        if (m_alliance == Alliance.Blue) {
+            autoDriver(
+            m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
+            m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            );
+        } else {
+            autoDriver(
+            m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
+            m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            );
+        }
+         */
         autoDriver(
-            m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
-            m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
+            m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
+            m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
         );
     }

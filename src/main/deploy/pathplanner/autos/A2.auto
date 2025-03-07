@@ -40,6 +40,18 @@
           "data": {
             "name": "ch"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop"
+          }
         }
       ]
     }

@@ -185,11 +185,11 @@ public class RobotContainer {
       () -> m_Shooter.differenrtShoot(),
       () -> m_Shooter.stop(), 
       m_Shooter));
-/*
+
     m_ActionController.start().onTrue(Commands.runOnce(
       () -> m_Shooter.changeMode(),
       m_Shooter));
-
+    /* 
     m_ActionController.y().whileTrue(Commands.startEnd(
       () -> m_AlgeaIntake.setSpeed(0.4),
       () -> m_AlgeaIntake.setSpeed(0),
@@ -253,6 +253,8 @@ public class RobotContainer {
   }
 
   public void enable() {
+    m_Swerve.resetAllinace();
+    m_Swerve.resetReefcoralTargetAngle();
     m_Elevator.setSetpoint(m_Elevator.getDistance());
   }
 
