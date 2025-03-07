@@ -44,7 +44,7 @@ public class ElevatorCommand extends Command{
                 height = 77;
                 break;
             case "L4":
-                height = 164;
+                height = 167;
                 break;
             default:
                 break;

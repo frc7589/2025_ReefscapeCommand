@@ -104,8 +104,8 @@ public class Swerve extends SubsystemBase{
 
     private Field2d m_field = new Field2d();
     
-    private PIDController m_XmotionPID = new PIDController(0.2, 0, 0);
-    private PIDController m_YmotionPID = new PIDController(0.2, 0, 0);
+    private PIDController m_XmotionPID = new PIDController(0.25, 0, 0);
+    private PIDController m_YmotionPID = new PIDController(0.25, 0, 0);
     private PIDController m_RotationPID = new PIDController(0.012, 0, 0);
 
     public Swerve() {
@@ -232,6 +232,8 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("LR_speed", getModuleStates()[2].speedMetersPerSecond);
         SmartDashboard.putNumber("RF_speed", getModuleStates()[1].speedMetersPerSecond);
         SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
+
+        SmartDashboard.putBoolean("Auto Aignment Reached", this.atSetpoint());
 
 
         SmartDashboard.putNumber("minREEFID", min_REEFtagID);

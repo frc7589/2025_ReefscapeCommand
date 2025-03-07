@@ -175,7 +175,21 @@ public class RobotContainer {
       () -> m_Shooter.reverseMotor(),
       () -> m_Shooter.stop(),
       m_Shooter));
-    /*
+      
+    m_ActionController.y().whileTrue(Commands.startEnd(
+      () -> m_Shooter.slowMotor(),
+      () -> m_Shooter.stop(),
+      m_Shooter));
+
+    m_ActionController.a().whileTrue(Commands.startEnd(
+      () -> m_Shooter.differenrtShoot(),
+      () -> m_Shooter.stop(), 
+      m_Shooter));
+/*
+    m_ActionController.start().onTrue(Commands.runOnce(
+      () -> m_Shooter.changeMode(),
+      m_Shooter));
+
     m_ActionController.y().whileTrue(Commands.startEnd(
       () -> m_AlgeaIntake.setSpeed(0.4),
       () -> m_AlgeaIntake.setSpeed(0),
@@ -186,14 +200,12 @@ public class RobotContainer {
       () -> m_AlgeaIntake.setSpeed(0),
       m_AlgeaIntake));
     */
-    m_ActionController.start().onTrue(Commands.runOnce(
-      () -> m_Shooter.changeMode(),
-      m_Shooter));
+    /*
 
     m_ActionController.rightTrigger().onTrue(Commands.runOnce(
       () -> elevatorHighLog.append(m_Elevator.getDistance()),
       m_Elevator));
-    
+    */
     m_DriveController.povDown().onTrue(Commands.runOnce(
       () -> CommandScheduler.getInstance().cancelAll()));
 
@@ -222,13 +234,13 @@ public class RobotContainer {
       case Blue3:
           initialPose = new Pose2d(7.506, 1.910, Rotation2d.fromDegrees(180));
           break;
-      case Red1:
+      case Red3:
           initialPose = new Pose2d(10.206944, 5.370, Rotation2d.fromDegrees(0));
           break;
       case Red2:
           initialPose = new Pose2d(10.206944, 4.0259, Rotation2d.fromDegrees(0));
           break;
-      case Red3:
+      case Red1:
           initialPose = new Pose2d(10.206944, 1.910, Rotation2d.fromDegrees(0));
           break;
       default:
