@@ -11,6 +11,7 @@ import frc.robot.commands.AutoShootCommand;
 import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.Stop;
+import frc.robot.commands.autoCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -48,7 +49,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Swerve m_Swerve = new Swerve();
+  private final Swerve m_Swerve;
 
   private final SendableChooser<Command> m_autoChooser;
 
@@ -81,6 +82,7 @@ public class RobotContainer {
     DriverStation.startDataLog(log);
     elevatorHighLog = new DoubleLogEntry(log, "ElevatorHigh");
 
+    this.m_Swerve = new Swerve();
     this.m_Shooter = new CoralSubsystem();
     this.m_Elevator = new Elevator();
     this.m_AlgeaArm = new AlgeaArmSubsystem();
@@ -256,11 +258,13 @@ public class RobotContainer {
     m_Swerve.resetAllinace();
     m_Swerve.resetReefcoralTargetAngle();
     m_Elevator.setSetpoint(m_Elevator.getDistance());
+    m_Elevator.resetOffset();
   }
 
   public void disable() {}
 
   public Command getAutonomousCommand() {
+    //return new autoCommand(m_Swerve);
     return m_autoChooser.getSelected();
   }
 }

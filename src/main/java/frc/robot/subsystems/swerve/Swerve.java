@@ -115,6 +115,10 @@ public class Swerve extends SubsystemBase{
         if(alliance.isPresent()) {
             m_alliance = alliance.get();
         }
+        if(alliance.isPresent()) {
+            System.out.println("IN alliance" + DriverStation.getAlliance());
+            System.out.println("My alliance" + m_alliance);
+        }
         m_Pigeon.reset();       
 
         SmartDashboard.putBoolean("swerve_ffControlled", ffControl);
@@ -189,18 +193,21 @@ public class Swerve extends SubsystemBase{
                         )
                 ),config,
             () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-              if (DriverStation.getAlliance().isPresent()) {
-                return DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-              }
-              return false;
+                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                if(DriverStation.getAlliance().isPresent()) {
+                    System.out.println("auto Alliance = RED =>" + (DriverStation.getAlliance().get() == DriverStation.Alliance.Red));}
+                /*
+                if (DriverStation.getAlliance().isPresent()) {
+                    return DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+                }
+                return false;
+                */
+                return true;
             },
             this
         );
-        if(DriverStation.getAlliance().isPresent())
-            System.out.println("Alliance = RED =>" + (DriverStation.getAlliance().get() == DriverStation.Alliance.Red));
     }
     
     
@@ -217,19 +224,19 @@ public class Swerve extends SubsystemBase{
                 inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_RedReefCenterPose.getTranslation().toTranslation2d());
         }
 
-        System.out.println("m_alliance =>" + m_alliance);
+       // System.out.println("m_alliance =>" + m_alliance);
         Translation2d coralInputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_CoralCenterPose.getTranslation().toTranslation2d());
         Rotation2d getRotation2d = getImuARotation2d();//m_Imu.getRotation2d().unaryMinus();
         m_RobotPose = m_poseEstimator.getEstimatedPosition();
         //m_RobotPose.getRotation().getDegrees() = m_Filter.calculate(m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
 
         odometry.update(getRotation2d, getModulePositions());
-
+        
         SmartDashboard.putNumber("LF", this.getModuleStates()[0].angle.getDegrees());
         SmartDashboard.putNumber("RF", this.getModuleStates()[1].angle.getDegrees());
         SmartDashboard.putNumber("LR", this.getModuleStates()[2].angle.getDegrees());
         SmartDashboard.putNumber("RR", this.getModuleStates()[3].angle.getDegrees());
-
+        /*
 
         SmartDashboard.putNumber("speed", maxSpeedRatio);
 
@@ -237,6 +244,7 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("LR_speed", getModuleStates()[2].speedMetersPerSecond);
         SmartDashboard.putNumber("RF_speed", getModuleStates()[1].speedMetersPerSecond);
         SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
+        */
 
         SmartDashboard.putBoolean("Auto Aignment Reached", this.atSetpoint());
 
@@ -282,8 +290,8 @@ public class Swerve extends SubsystemBase{
         min_REEFangle = 5000;
         if(distance <= 5) {
             ReefTargetAngle.forEach((tagID, angle) -> {
-                System.out.println("Robot to Reef distance => " + distance);
-                System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
+                //System.out.println("Robot to Reef distance => " + distance);
+                //System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
                 if(Math.abs(inputAngle.getAngle().minus(angle).getRadians()) < this.min_REEFangle) {
                     this.min_REEFangle = Math.abs(inputAngle.getAngle().minus(angle).getRadians());
                     this.min_REEFtagID = tagID;
@@ -353,6 +361,7 @@ public class Swerve extends SubsystemBase{
     public void resetAllinace() {
         if(DriverStation.getAlliance().isPresent())
             m_alliance = DriverStation.getAlliance().get();
+            System.out.println("re Allinac" + m_alliance);
     }
     
     public Command resetHeadingOffset() {
@@ -460,7 +469,6 @@ public class Swerve extends SubsystemBase{
             );
             return;
         }
-        /*
         if (m_alliance == Alliance.Blue) {
             autoDriver(
             m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
@@ -474,12 +482,13 @@ public class Swerve extends SubsystemBase{
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
             );
         }
-         */
+        /*
         autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
             m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
         );
+        */
     }
 
     public void autoAlignmentRPID() {
@@ -491,7 +500,7 @@ public class Swerve extends SubsystemBase{
             );
             return;
         }
-        /*
+        
         if (m_alliance == Alliance.Blue) {
             autoDriver(
             m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
@@ -505,12 +514,13 @@ public class Swerve extends SubsystemBase{
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
             );
         }
-         */
+        /*
         autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
             m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
         );
+        */
     }
 
     public Pose2d getCoralSPose() {
@@ -714,5 +724,103 @@ public class Swerve extends SubsystemBase{
         m_XmotionPID.reset();
         m_YmotionPID.reset();
     }
-    
+
+    @Override
+    public void simulationPeriodic() {
+        if(DriverStation.getAlliance().isPresent())
+            m_alliance = DriverStation.getAlliance().get();
+        if(m_alliance != null) {
+            if (m_alliance == Alliance.Blue) {
+                inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_BlueReefCenterPose.getTranslation().toTranslation2d());
+            }
+            else 
+                inputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_RedReefCenterPose.getTranslation().toTranslation2d());
+        }
+
+        System.out.println("m_alliance =>" + m_alliance);
+        Translation2d coralInputAngle = m_poseEstimator.getEstimatedPosition().getTranslation().minus(m_CoralCenterPose.getTranslation().toTranslation2d());
+        Rotation2d getRotation2d = getImuARotation2d();//m_Imu.getRotation2d().unaryMinus();
+        m_RobotPose = m_poseEstimator.getEstimatedPosition();
+        //m_RobotPose.getRotation().getDegrees() = m_Filter.calculate(m_poseEstimator.getEstimatedPosition().getRotation().getDegrees());
+
+        odometry.update(getRotation2d, getModulePositions());
+
+        SmartDashboard.putNumber("LF", this.getModuleStates()[0].angle.getDegrees());
+        SmartDashboard.putNumber("RF", this.getModuleStates()[1].angle.getDegrees());
+        SmartDashboard.putNumber("LR", this.getModuleStates()[2].angle.getDegrees());
+        SmartDashboard.putNumber("RR", this.getModuleStates()[3].angle.getDegrees());
+
+
+        SmartDashboard.putNumber("speed", maxSpeedRatio);
+
+        SmartDashboard.putNumber("LF_speed", getModuleStates()[0].speedMetersPerSecond);
+        SmartDashboard.putNumber("LR_speed", getModuleStates()[2].speedMetersPerSecond);
+        SmartDashboard.putNumber("RF_speed", getModuleStates()[1].speedMetersPerSecond);
+        SmartDashboard.putNumber("RR_speed", getModuleStates()[3].speedMetersPerSecond);
+
+        SmartDashboard.putBoolean("Auto Aignment Reached", this.atSetpoint());
+
+
+        SmartDashboard.putNumber("minREEFID", min_REEFtagID);
+        SmartDashboard.putNumber("min_CoraStation", min_CoralStationtagID);
+        /*SmartDashboard.putNumber("X Position", m_poseEstimator.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("Y Position", m_poseEstimator.getEstimatedPosition().getY());
+        SmartDashboard.putNumber("Ange", getImuARotation2d().getDegrees());
+        SmartDashboard.putNumber("getAnge", m_Pigeon.getYaw().getValueAsDouble());
+        SmartDashboard.putNumber("EFTFRONTSPEED", m_LeftFrontModule.get());
+        SmartDashboard.putNumber("EFTREARSPEED", m_LeftRearModule.get());
+        SmartDashboard.putNumber("RFSPEED", m_RightFrontModule.get());
+        SmartDashboard.putNumber("RRSPEED", m_RightRearModule.get());*/
+        SmartDashboard.putData("X_PID", m_XmotionPID);
+        SmartDashboard.putData("Y_PID", m_YmotionPID);
+        SmartDashboard.putData("Z_PID", m_RotationPID);
+
+        Swerve.ffControl = SmartDashboard.getBoolean("swerve_ffControlled", ffControl);
+
+        m_poseEstimator.update(
+            getImuARotation2d(),
+            getModulePositions());
+
+
+        odometry.update(
+            getImuARotation2d(),
+            getModulePositions());
+
+        this.updateVisionPose();
+
+        m_field.setRobotPose(m_poseEstimator.getEstimatedPosition());
+        
+        if(m_alliance != null) {
+            if (m_alliance == Alliance.Blue) {
+                distance = m_poseEstimator.getEstimatedPosition().getTranslation().getDistance(m_BlueReefCenterPose.getTranslation().toTranslation2d());
+            }
+            else 
+                distance = m_poseEstimator.getEstimatedPosition().getTranslation().getDistance(m_RedReefCenterPose.getTranslation().toTranslation2d());
+        }
+
+
+        min_REEFangle = 5000;
+        if(distance <= 5) {
+            ReefTargetAngle.forEach((tagID, angle) -> {
+                //System.out.println("Robot to Reef distance => " + distance);
+               // System.out.println(tagID +": " + Math.abs(inputAngle.getAngle().minus(angle).getRadians())); 
+                if(Math.abs(inputAngle.getAngle().minus(angle).getRadians()) < this.min_REEFangle) {
+                    this.min_REEFangle = Math.abs(inputAngle.getAngle().minus(angle).getRadians());
+                    this.min_REEFtagID = tagID;
+                }
+            });
+        }
+
+        min_CoralAngle = 5000;
+        
+ 
+            coralTargetAngle.forEach((tagID, angle) -> {
+                if(Math.abs(coralInputAngle.getAngle().minus(angle).getRadians() )< this.min_CoralAngle) {
+                    this.min_CoralAngle = Math.abs(coralInputAngle.getAngle().minus(angle).getRadians());
+                    this.min_CoralStationtagID = tagID;
+                }
+            });
+        
+        m_field.setRobotPose(m_RobotPose);
+    }
 }
