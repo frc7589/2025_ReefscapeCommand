@@ -103,8 +103,8 @@ public class CoralSubsystem extends SubsystemBase {
         }else{ 
             this.setRightMode(IdleMode.kBrake);
             this.setLeftMode(IdleMode.kCoast);
-            m_leftmotor.set(0.5);
-            m_rightmotor.set(0.05);
+            m_leftmotor.set(0.4);
+            m_rightmotor.set(0);
         }
     }
 
@@ -119,8 +119,8 @@ public class CoralSubsystem extends SubsystemBase {
     public void differenrtShoot() {
         this.setRightMode(IdleMode.kBrake);
         this.setLeftMode(IdleMode.kCoast);
-        m_leftmotor.set(0.5);
-        m_rightmotor.set(0.05);
+        m_leftmotor.set(0.4);
+        m_rightmotor.set(0);
     }
 
     public boolean hasCoral(){

@@ -432,8 +432,7 @@ public class Swerve extends SubsystemBase{
             Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.075, 0.0)).rotateBy(targetPose2d.getRotation());
             Translation2d tagToPillar = (new Translation2d(0.15, 0).rotateBy(targetPose2d.getRotation().minus(Rotation2d.fromDegrees(90))));
             position = new Pose2d(targetPose2d.getTranslation().plus(tagToPillar).plus(robotToEage), targetPose2d.getRotation().plus(Rotation2d.fromDegrees(180)));
-            System.out.println("target x => " + position.getX());
-            System.out.println("target Y => " + position.getY());
+            
 
             return position;
         }
@@ -450,8 +449,6 @@ public class Swerve extends SubsystemBase{
             Translation2d tagToPillar = (new Translation2d(0.15, 0).rotateBy(targetpose2d.getRotation().plus(Rotation2d.fromDegrees(90))));
 
             Pose2d position = new Pose2d(targetpose2d. getTranslation().plus(tagToPillar).plus(robotToEage), targetpose2d.getRotation().plus(Rotation2d.fromDegrees(180)));
-            System.out.println("target x => " + position.getX());
-            System.out.println("target Y => " + position.getY());
 
             return position;
             
@@ -503,15 +500,15 @@ public class Swerve extends SubsystemBase{
         
         if (m_alliance == Alliance.Blue) {
             autoDriver(
-            m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
-            m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
-            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
+            m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
             );
         } else {
             autoDriver(
-            m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
-            m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
-            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
+            m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
+            m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
+            m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
             );
         }
         /*
