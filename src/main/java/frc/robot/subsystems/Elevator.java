@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.DutyCycle;
@@ -34,7 +35,13 @@ public class Elevator extends SubsystemBase{
     private Encoder m_RelEncoder = new Encoder(6, 7);
     private DigitalInput m_limitSwitch = new DigitalInput(5);
 
-    private PIDController pidController = new PIDController(0.08, 0, 0);
+    private PIDController pidController = new PIDController(0.03, 0.001, 0.0006);
+    private ElevatorFeedforward m_ff = new ElevatorFeedforward(0, 0.0275, 0.01, 0.001);
+
+    private TrapezoidProfile.Constraints m_trapezoidProfile = new TrapezoidProfile.Constraints(1, 1);
+    private TrapezoidProfile profile;
+    private TrapezoidProfile.State currentState;
+    private TrapezoidProfile.State goalState;
 
     private double offset = 0;
     //private double  defultposition;
@@ -71,7 +78,9 @@ public class Elevator extends SubsystemBase{
         m_RelEncoder.setReverseDirection(true);
 
         pidController.setTolerance(1);
-
+        currentState = new TrapezoidProfile.State(this.getDistance(), 0);
+        goalState = new TrapezoidProfile.State(this.getDistance(), 0);
+        
         SmartDashboard.putData("Eevator", pidController);
         pidController.setSetpoint(getDistance());
         resetOffset();
@@ -89,7 +98,7 @@ public class Elevator extends SubsystemBase{
 
 
         //m_RMotor.set(Math.abs(getDistance() - getRelEncoderDistance()) < 30 ? pidController.calculate(this.getDistance()) : 0);
-        m_RMotor.set(pidController.calculate(this.getDistance()));
+        m_RMotor.set(Math.min(pidController.calculate(this.getDistance())+m_ff.calculate(pidController.calculate(this.getDistance())), 0.8));
     
     
         
@@ -103,10 +112,11 @@ public class Elevator extends SubsystemBase{
         //SmartDashboard.putString("Elevator_Level", "base");
 
        // SmartDashboard.putNumber("Elevator_SP", pidController.getSetpoint());
-        SmartDashboard.putNumber("Output", m_RMotor.get());
+        SmartDashboard.putNumber("Output", m_RMotor.getOutputCurrent());
         SmartDashboard.putNumber("ABS_encoder", m_AbsEncoder.get());
         //SmartDashboard.putNumber("Elevator_Height", getABSPosition());
         SmartDashboard.putNumber("E_height", this.getDistance());
+        SmartDashboard.putNumber("elevatorsetpoint", this.getSetpoint());
         //SmartDashboard.putBoolean("Elevator_LimitSwitch", m_limitSwitch.get());
         //SmartDashboard.putBoolean("runMotor", isEnabled());
         //SmartDashboard.putNumber("RelEncoderDistance", getRelEncoderDistance());
