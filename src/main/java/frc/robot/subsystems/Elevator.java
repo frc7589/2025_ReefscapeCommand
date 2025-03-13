@@ -38,10 +38,10 @@ public class Elevator extends SubsystemBase{
     private PIDController pidController = new PIDController(0.03, 0.001, 0.0006);
     private ElevatorFeedforward m_ff = new ElevatorFeedforward(0, 0.0275, 0.01, 0.001);
 
-    private TrapezoidProfile.Constraints m_trapezoidProfile = new TrapezoidProfile.Constraints(1, 1);
-    private TrapezoidProfile profile;
-    private TrapezoidProfile.State currentState;
-    private TrapezoidProfile.State goalState;
+    //private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(1, 1);
+    //private TrapezoidProfile profile;
+    //private TrapezoidProfile.State currentState;
+    //private TrapezoidProfile.State goalState;
 
     private double offset = 0;
     //private double  defultposition;
@@ -78,8 +78,10 @@ public class Elevator extends SubsystemBase{
         m_RelEncoder.setReverseDirection(true);
 
         pidController.setTolerance(1);
+        /*
         currentState = new TrapezoidProfile.State(this.getDistance(), 0);
         goalState = new TrapezoidProfile.State(this.getDistance(), 0);
+        */
         
         SmartDashboard.putData("Eevator", pidController);
         pidController.setSetpoint(getDistance());
@@ -179,6 +181,7 @@ public class Elevator extends SubsystemBase{
     }
     
     public void setSetpoint(double setpoint) {
+        //goalState.position = setpoint;
         setpoint = MathUtil.clamp(setpoint, 2, (0.97 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
         pidController.setSetpoint(setpoint);
     }

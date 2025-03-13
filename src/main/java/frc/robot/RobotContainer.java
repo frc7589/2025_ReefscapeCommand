@@ -21,9 +21,12 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.CoralSubsystem;
+import frc.robot.subsystems.CoralSubsystem.IntakeState;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Algea.AlgeaArmSubsystem;
 import frc.robot.subsystems.Algea.AlgeaIntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem.LEDColor;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.OpzXboxController;
 
@@ -33,6 +36,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.epilogue.NotLogged;
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,20 +53,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Swerve m_Swerve;
-
   private final SendableChooser<Command> m_autoChooser;
 
-  private final Elevator m_Elevator;
-  private final AlgeaArmSubsystem m_AlgeaArm;
-  private final AlgeaIntakeSubsystem m_AlgeaIntake;
-  private final CoralSubsystem m_Shooter;
+  private final Swerve m_Swerve = new Swerve();
+  private final Elevator m_Elevator = new Elevator();
+  //private final AlgeaArmSubsystem m_AlgeaArm = new AlgeaArmSubsystem();
+  //private final AlgeaIntakeSubsystem m_AlgeaIntake = new AlgeaIntakeSubsystem();
+  private final CoralSubsystem m_Shooter = new CoralSubsystem();
+  private final LEDSubsystem m_led = new LEDSubsystem();
+
+  private boolean isCoralIntakeFinished = true;
+
+  private IntakeState intakeState = IntakeState.kEmpty;
 
   private DoubleLogEntry elevatorHighLog;
 
   private AllianceStationID m_location;
   private Pose2d initialPose;
-
   //private final AlgeaTestSubsystem m_AlgeaTest = new AlgeaTestSubsystem();
   // Replace with CommandPS4Controller or CommandJoystick if needed
  
@@ -72,7 +79,23 @@ public class RobotContainer {
   private final OpzXboxController m_ActionController = new OpzXboxController(
       OperatorConstants.kActionControllerPort,
       OperatorConstants.kControllerMinValue);
-  
+
+  @NotLogged
+  Command m_CoralIntakeCommand = Commands.run(() -> {
+    if (isCoralIntakeFinished) {
+      isCoralIntakeFinished = false;
+      new CoralIntakeCommand(m_Shooter, m_led).finallyDo(() -> isCoralIntakeFinished = true);
+    }
+  });
+  Command m_hasCoralCommand = Commands.run(() -> {
+    if (isCoralIntakeFinished) {
+      if (m_Shooter.hasCoral()) {
+        intakeState = IntakeState.kLoad;
+      } else {
+        intakeState = IntakeState.kEmpty;
+      }
+    } else intakeState = IntakeState.kLoading;
+  });
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -81,18 +104,12 @@ public class RobotContainer {
     DataLog log = DataLogManager.getLog();
     DriverStation.startDataLog(log);
     elevatorHighLog = new DoubleLogEntry(log, "ElevatorHigh");
-
-    this.m_Swerve = new Swerve();
-    this.m_Shooter = new CoralSubsystem();
-    this.m_Elevator = new Elevator();
-    this.m_AlgeaArm = new AlgeaArmSubsystem();
-    this.m_AlgeaIntake = new AlgeaIntakeSubsystem();
     
-    NamedCommands.registerCommand("e1", new ElevatorCommand(m_Elevator, "L1", () -> false));
-    NamedCommands.registerCommand("e2", new ElevatorCommand(m_Elevator, "L2", () -> false));
-    NamedCommands.registerCommand("e3", new ElevatorCommand(m_Elevator, "L3", () -> false));
-    NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, "L4", () -> false));
-    NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter));
+    NamedCommands.registerCommand("e1", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL1, () -> false));
+    NamedCommands.registerCommand("e2", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> false));
+    NamedCommands.registerCommand("e3", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> false));
+    NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> false));
+    NamedCommands.registerCommand("ci", m_CoralIntakeCommand);
     NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter));
     NamedCommands.registerCommand("ch", Commands.runOnce(() -> m_Shooter.changeMode(),m_Shooter));
     NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
@@ -138,6 +155,8 @@ public class RobotContainer {
         m_Swerve))
     ));
     
+    m_hasCoralCommand.schedule();
+
     configureBindings();
   }
 
@@ -151,6 +170,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    new Trigger(m_Shooter::hasCoral).onTrue(m_CoralIntakeCommand);
+    new Trigger(() -> intakeState == IntakeState.kEmpty).whileTrue(Commands.runOnce(() -> m_led.setLEDColor(LEDColor.kRed, false)).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
         
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
@@ -166,7 +187,7 @@ public class RobotContainer {
     
     m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
-    m_ActionController.back().onTrue(new CoralIntakeCommand(m_Shooter));
+    m_ActionController.back().onTrue(m_CoralIntakeCommand);
 
     m_ActionController.x().whileTrue(Commands.startEnd(
       () -> m_Shooter.shoot(),
@@ -216,11 +237,10 @@ public class RobotContainer {
       () -> m_AlgeaArm.getDefaultCommand(),
       m_AlgeaArm));*/
 
-    m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, "L4", () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, "L1", () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, "L3", () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, "L2", () -> Math.abs(m_ActionController.getRightY() )> 0));
-
+    m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL1, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> Math.abs(m_ActionController.getRightY() )> 0));
   }
 
   public void robotInit() {
@@ -252,6 +272,18 @@ public class RobotContainer {
       m_Swerve.resetAllinace();
       m_Swerve.resetPoseEstimator(m_Swerve.getImuARotation2d(), initialPose);
       m_Swerve.resetReefcoralTargetAngle();
+  }
+
+  public void autoEnable() {
+    m_Swerve.resetAllinace();
+    m_Swerve.resetReefcoralTargetAngle();
+    m_Elevator.setSetpoint(m_Elevator.getDistance());
+    m_Elevator.resetOffset();
+    m_led.setLEDColor(LEDColor.kRainbow, false);
+  }
+
+  public void autoPeriodic() {
+    m_led.setLEDColor(LEDColor.kRainbow, false);
   }
 
   public void enable() {

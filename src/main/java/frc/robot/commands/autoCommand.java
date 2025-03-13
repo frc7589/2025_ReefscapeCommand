@@ -27,6 +27,11 @@ public class autoCommand extends Command{
     }
 
     @Override
+    public void end(boolean interrupted) {
+        m_Timer.stop();
+    }
+
+    @Override
     public boolean isFinished() {
         return m_Timer.get() > 5;
     }

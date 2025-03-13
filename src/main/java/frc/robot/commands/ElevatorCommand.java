@@ -12,9 +12,9 @@ public class ElevatorCommand extends Command{
     private Elevator m_Elevator;
     private Timer m_TimeLimit = new Timer();
     private double height;
-    private String level;
+    private ElevatorHigh level;
     private BooleanSupplier leftY;
-    public ElevatorCommand(Elevator elevator, String level, BooleanSupplier leftY) {
+    public ElevatorCommand(Elevator elevator, ElevatorHigh level, BooleanSupplier leftY) {
         this.m_Elevator = elevator;
         this.level = level;
         this.leftY = leftY;
@@ -22,7 +22,22 @@ public class ElevatorCommand extends Command{
         addRequirements(m_Elevator);
     }
 
-        // Called when the command is initially scheduled.  
+    public static enum ElevatorHigh{
+        kL1("L1"),
+        kL2("L2"),
+        kL3("L3"),
+        kL4("L4");
+
+        private String name;
+        private ElevatorHigh(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+    }
+    // Called when the command is initially scheduled.  
     @Override
     public void initialize() {
         m_Elevator.setSetpoint(m_Elevator.getDistance());
@@ -34,16 +49,16 @@ public class ElevatorCommand extends Command{
     @Override
     public void execute() {
         switch (level) {
-            case "L1":
+            case kL1:
                 height = 2;
                 break;
-            case "L2":
+            case kL2:
                 height = 27.5;
                 break;
-            case "L3":
+            case kL3:
                 height = 80.7;
                 break;
-            case "L4":
+            case kL4:
                 height = 172;
                 break;
             default:
@@ -51,7 +66,7 @@ public class ElevatorCommand extends Command{
         }
         m_Elevator.setPosisionCommand(height);
         
-        SmartDashboard.putString("Elevator_Level", level);
+        SmartDashboard.putString("Elevator_Level", level.getName());
         //m_Elevator.moving();
     }
 

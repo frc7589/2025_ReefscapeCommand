@@ -30,7 +30,6 @@ public class AutoShootCommand extends Command {
                 }
                 break;
             case 1:
-            
                 mCoral.stop();
                 stage++;
                 break;
@@ -38,7 +37,9 @@ public class AutoShootCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {}
+    public void end(boolean interrupted) {
+        m_Timer.stop();
+    }
 
     @Override
     public boolean isFinished() {

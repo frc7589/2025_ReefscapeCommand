@@ -26,6 +26,7 @@ public class CoralSubsystem extends SubsystemBase {
 
     public static enum IntakeState {
         kLoad("已裝載"),
+        kLoading("裝載中"),
         kEmpty("空載");
 
         private String name;
@@ -61,8 +62,6 @@ public class CoralSubsystem extends SubsystemBase {
             ResetMode.kResetSafeParameters,
             PersistMode.kPersistParameters
         );
-
-        state = this.hasCoral() ? IntakeState.kLoad : IntakeState.kEmpty;
     }
 
     public void setRightMode(IdleMode mode) {
@@ -125,10 +124,6 @@ public class CoralSubsystem extends SubsystemBase {
 
     public boolean hasCoral(){
         return m_sensor.get();
-    }
-
-    public void updateState() {
-        this.state = this.hasCoral() ? IntakeState.kLoad : IntakeState.kEmpty;
     }
 
     public void slowMotor(){
