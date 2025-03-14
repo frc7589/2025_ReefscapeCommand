@@ -80,23 +80,6 @@ public class RobotContainer {
       OperatorConstants.kActionControllerPort,
       OperatorConstants.kControllerMinValue);
 
-  @NotLogged
-  Command m_CoralIntakeCommand = Commands.run(() -> {
-    if (isCoralIntakeFinished) {
-      isCoralIntakeFinished = false;
-      new CoralIntakeCommand(m_Shooter, m_led).finallyDo(() -> isCoralIntakeFinished = true);
-    }
-  });
-  Command m_hasCoralCommand = Commands.run(() -> {
-    if (isCoralIntakeFinished) {
-      if (m_Shooter.hasCoral()) {
-        intakeState = IntakeState.kLoad;
-      } else {
-        intakeState = IntakeState.kEmpty;
-      }
-    } else intakeState = IntakeState.kLoading;
-  });
-
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -109,7 +92,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("e2", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> false));
     NamedCommands.registerCommand("e3", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> false));
     NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> false));
-    NamedCommands.registerCommand("ci", m_CoralIntakeCommand);
+    NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter, m_led));
     NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter));
     NamedCommands.registerCommand("ch", Commands.runOnce(() -> m_Shooter.changeMode(),m_Shooter));
     NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
@@ -154,8 +137,7 @@ public class RobotContainer {
         ),
         m_Swerve))
     ));
-    
-    m_hasCoralCommand.schedule();
+
 
     configureBindings();
   }
@@ -170,8 +152,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    new Trigger(m_Shooter::hasCoral).onTrue(m_CoralIntakeCommand);
-    new Trigger(() -> intakeState == IntakeState.kEmpty).whileTrue(Commands.runOnce(() -> m_led.setLEDColor(LEDColor.kRed, false)).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    new Trigger(m_Shooter.isIntakekEmpty()).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    new Trigger(() -> m_Shooter.getIntakeState() == IntakeState.kLoad).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    new Trigger(() -> m_Shooter.getIntakeState() == IntakeState.kLoading).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
         
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
@@ -187,7 +170,7 @@ public class RobotContainer {
     
     m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
-    m_ActionController.back().onTrue(m_CoralIntakeCommand);
+    m_ActionController.back().onTrue(new CoralIntakeCommand(m_Shooter, m_led));
 
     m_ActionController.x().whileTrue(Commands.startEnd(
       () -> m_Shooter.shoot(),
@@ -279,14 +262,13 @@ public class RobotContainer {
     m_Swerve.resetReefcoralTargetAngle();
     m_Elevator.setSetpoint(m_Elevator.getDistance());
     m_Elevator.resetOffset();
-    m_led.setLEDColor(LEDColor.kRainbow, false);
+    m_led.setRainbow(true);
   }
 
-  public void autoPeriodic() {
-    m_led.setLEDColor(LEDColor.kRainbow, false);
-  }
+  public void autoPeriodic() {}
 
   public void enable() {
+    m_led.setRainbow(false);
     m_Swerve.resetAllinace();
     m_Swerve.resetReefcoralTargetAngle();
     m_Elevator.setSetpoint(m_Elevator.getDistance());

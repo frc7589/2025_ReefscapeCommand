@@ -3,11 +3,13 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.AutoMoveToPoseCommand.autoState;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.OpzXboxController;
 
 public class AutoAlignmentPIDCommand extends Command {
     private Pose2d targetPose2d;
+    private LEDSubsystem m_Led;
     private Swerve m_driverSubsystem;
     private Command pathfindingCommand;
     private autoState direction;
@@ -30,6 +32,7 @@ public class AutoAlignmentPIDCommand extends Command {
     @Override
     public void initialize() {
         System.out.println("start " + this.direction.toString());
+        m_Led.setAStage(0);
     }
 
     @Override
@@ -49,6 +52,7 @@ public class AutoAlignmentPIDCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        if (m_driverSubsystem.atSetpoint()) m_Led.setAStage(1);
         System.out.println("end " + this.direction.toString());
         m_driverSubsystem.resetPID();
     }

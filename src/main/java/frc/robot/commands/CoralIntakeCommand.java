@@ -29,11 +29,12 @@ public class CoralIntakeCommand extends Command {
         m_Isfinished.reset();
         m_Isfinished.start();
         stage = 0;
-        m_led.setLEDColor(LEDColor.kOrange, true);
+        m_led.setCoralStage(stage);
     }
 
     @Override
     public void execute(){
+        m_led.setCoralStage(stage);
         SmartDashboard.putNumber("stage", stage);
         switch(stage) {
             case 0:
@@ -41,7 +42,6 @@ public class CoralIntakeCommand extends Command {
                 else m_intake.intake();
                 break;
             case 1:
-                m_led.setLEDColor(LEDColor.kGreen, true);
                 if(m_intake.hasCoral()) m_intake.slowMotor();
                 else stage++;
                 break;
@@ -60,8 +60,7 @@ public class CoralIntakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        if (stage == 4) m_led.setLEDColor(LEDColor.kGreen, false);
-        else m_led.setLEDColor(LEDColor.kRed, true);
+        m_led.setCoralStage(stage);
         m_reverseTimer.stop();
         m_intake.stop();
     }
