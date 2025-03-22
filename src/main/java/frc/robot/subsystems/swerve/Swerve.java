@@ -109,7 +109,7 @@ public class Swerve extends SubsystemBase{
     private PIDController m_RotationPID = new PIDController(0.012, 0, 0);
 
     public Swerve() {
-        m_RotationPID.setTolerance(3);
+        m_RotationPID.setTolerance(1);
         m_RotationPID.enableContinuousInput(-180, 180);
         var alliance = DriverStation.getAlliance();
         if(alliance.isPresent()) {
@@ -432,12 +432,18 @@ public class Swerve extends SubsystemBase{
             m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
             );
+            SmartDashboard.putNumber("xpidutput", m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0);
+            SmartDashboard.putNumber("ypidutput", m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0);
+            SmartDashboard.putNumber("rpidutput", m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0));
         } else {
             autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
             m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
             );
+            SmartDashboard.putNumber("xpidutput", m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0);
+            SmartDashboard.putNumber("ypidutput", m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentL().getY()) : 0);
+            SmartDashboard.putNumber("rpidutput", m_RotationPID.atSetpoint() ? 0 : -m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0));
         }
         setAutoalignmentFieldOriented(autoalignmentL());
         /*
@@ -465,12 +471,18 @@ public class Swerve extends SubsystemBase{
             m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
             );
+            SmartDashboard.putNumber("xpidutput", m_RotationPID.getError() < 15 ? m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0);
+            SmartDashboard.putNumber("ypidutput", m_RotationPID.getError() < 15 ? m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0);
+            SmartDashboard.putNumber("rpidutput", m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0));
         } else {
             autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
             m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0,
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
             );
+            SmartDashboard.putNumber("xpidutput", m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0);
+            SmartDashboard.putNumber("ypidutput", m_RotationPID.getError() < 15 ? -m_YmotionPID.calculate(m_RobotPose.getY(), this.autoalignmentR().getY()) : 0);
+            SmartDashboard.putNumber("rpidutput", m_RotationPID.atSetpoint() ? 0 : -m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0));
         }
         setAutoalignmentFieldOriented(autoalignmentR());
         /*
@@ -675,7 +687,7 @@ public class Swerve extends SubsystemBase{
     }
 
     public boolean atSetpoint() {
-        return m_RotationPID.atSetpoint() && (m_XmotionPID.getError() < 2) && (m_YmotionPID.getError() < 2);
+        return m_RotationPID.atSetpoint() && m_XmotionPID.atSetpoint() && m_YmotionPID.atSetpoint();
     }
 
     public void resetPID() {
@@ -823,7 +835,7 @@ public class Swerve extends SubsystemBase{
                 }
                 return false;
                 */
-                return true;
+                return false;
             },
             this
         );

@@ -78,7 +78,7 @@ public class Elevator extends SubsystemBase{
         m_RelEncoder.setDistancePerPulse(ElevatorConstants.PositionConversionFactor / 8192);
         m_RelEncoder.setReverseDirection(true);
 
-        pidController.setTolerance(1);
+        pidController.setTolerance(0.5);
         /*
         currentState = new TrapezoidProfile.State(this.getDistance(), 0);
         goalState = new TrapezoidProfile.State(this.getDistance(), 0);

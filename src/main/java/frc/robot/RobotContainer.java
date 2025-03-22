@@ -223,8 +223,8 @@ public class RobotContainer {
 
     m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> Math.abs(m_ActionController.getRightY() )> 0));
     m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL1, () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> Math.abs(m_ActionController.getRightY() )> 0));
   }
 
   public void robotInit() {

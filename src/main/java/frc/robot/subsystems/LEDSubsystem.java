@@ -165,6 +165,7 @@ public class LEDSubsystem extends SubsystemBase{
         if (aStage == 1) {
             m_Timer.reset();
             m_Timer.start();
+            aStage++;
         } else if (aStage == 2 && m_Timer.get() < 1.5) {
             setLEDColor(LEDColor.kPurple, true);
         } else if (intakeState == IntakeState.kLoading) {
