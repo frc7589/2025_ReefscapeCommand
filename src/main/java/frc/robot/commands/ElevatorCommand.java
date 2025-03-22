@@ -53,13 +53,13 @@ public class ElevatorCommand extends Command{
                 height = 2;
                 break;
             case kL2:
-                height = 27.5;
+                height = 30.1;
                 break;
             case kL3:
-                height = 81.4;
+                height = 83.4;
                 break;
             case kL4:
-                height = 168.519;
+                height = 172.5;
                 break;
             default:
                 break;
