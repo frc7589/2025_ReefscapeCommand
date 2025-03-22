@@ -36,6 +36,7 @@ public class Elevator extends SubsystemBase{
     private DigitalInput m_limitSwitch = new DigitalInput(5);
 
     private PIDController pidController = new PIDController(0.03, 0.001, 0.0006);
+    //private PIDController pidController = new PIDController(0, 0, 0);
     private ElevatorFeedforward m_ff = new ElevatorFeedforward(0, 0.0275, 0.01, 0.001);
 
     //private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(1, 1);
@@ -171,7 +172,7 @@ public class Elevator extends SubsystemBase{
     }
 
     public double getDistance() {
-    double limitrange = this.getABSPosition() * ElevatorConstants.PositionConversionFactor * 5/4;
+    double limitrange = this.getABSPosition() * ElevatorConstants.PositionConversionFactor * ElevatorConstants.kElevatorEncoderReduction;
         return limitrange;
     }
 
@@ -182,7 +183,7 @@ public class Elevator extends SubsystemBase{
     
     public void setSetpoint(double setpoint) {
         //goalState.position = setpoint;
-        setpoint = MathUtil.clamp(setpoint, 2, (0.97 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * 5/4);
+        setpoint = MathUtil.clamp(setpoint, -1.3, (0.8810851720271293 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * ElevatorConstants.kElevatorEncoderReduction); 
         pidController.setSetpoint(setpoint);
     }
     

@@ -11,19 +11,13 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "ch"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "cs"
+                  "name": "csd"
                 }
               },
               {
@@ -33,12 +27,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ch"
           }
         },
         {

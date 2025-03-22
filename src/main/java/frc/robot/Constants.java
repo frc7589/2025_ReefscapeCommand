@@ -47,10 +47,10 @@ public final class Constants {
     public static final SensorDirectionValue kRotorEncoderdiretion = SensorDirectionValue.CounterClockwise_Positive;
 
     //Rotor Encode 偏移量    
-    public static final double kLeftFrontRotorEncoderOffset = -41.9238 - 0.1757 + 0.6152 + 6.4  + 0.6 - 0.08 - 0.26 + 0.43  +3.867 -4.3 + 1.14;
-    public static final double kLeftRearRotorEncoderOffset = -82.001953125;
-    public static final double kRightFrontRotorEncoderOffset = -39.9023 + 180 + 0.175 - 1.58 + 0.79 - 0.087 + 1.83 - 0.2636 + 0.52 - 2.636;
-    public static final double kRightRearRotorEncoderOffset = -40.166 + 0.966 + 2.2 - 4.5 + 0.6 - 0.36 + 3.16 -2.37 - 0.26 + 0.43 + 0.7 - 0.088;
+    public static final double kLeftFrontRotorEncoderOffset = 146.689453125 + 180;
+    public static final double kLeftRearRotorEncoderOffset = 101.337890625 - 1.23046875 + 180;
+    public static final double kRightFrontRotorEncoderOffset = -137.900390625 - 84.19921875 + 180 + 180;
+    public static final double kRightRearRotorEncoderOffset = -41.748046875 + 180 + 180;
 
     public static final double kwhatever = 0.60325;//meter
 
@@ -157,7 +157,8 @@ public final class Constants {
   
       //看下面轉多少 上面轉多少
       public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
-      public static final double kElevatorAbsOffset = 0.05265;
+      public static final double kElevatorEncoderReduction = 6.612244898 / 4.0;
+      public static final double kElevatorAbsOffset = 0.187346479683662;
   
     }
 

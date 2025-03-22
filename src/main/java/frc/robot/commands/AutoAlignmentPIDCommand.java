@@ -22,8 +22,9 @@ public class AutoAlignmentPIDCommand extends Command {
         kFinish
     }
 
-    public AutoAlignmentPIDCommand(Swerve swerve, autoState direction) {
+    public AutoAlignmentPIDCommand(LEDSubsystem m_Led, Swerve swerve, autoState direction) {
         this.direction = direction;
+        this.m_Led = m_Led;
         this.m_driverSubsystem = swerve;
         addRequirements(m_driverSubsystem);
         System.out.println("con " + this.direction.toString());
@@ -54,6 +55,7 @@ public class AutoAlignmentPIDCommand extends Command {
     public void end(boolean interrupted) {
         if (m_driverSubsystem.atSetpoint()) m_Led.setAStage(1);
         System.out.println("end " + this.direction.toString());
+        System.out.println("PIDatsetpoint" + m_driverSubsystem.atSetpoint());
         m_driverSubsystem.resetPID();
     }
 

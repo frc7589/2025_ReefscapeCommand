@@ -93,8 +93,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("e3", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> false));
     NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> false));
     NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter, m_led));
-    NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter));
-    NamedCommands.registerCommand("ch", Commands.runOnce(() -> m_Shooter.changeMode(),m_Shooter));
+    NamedCommands.registerCommand("csd", new AutoShootCommand(m_Shooter, true));
+    NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter, false));
+    //NamedCommands.registerCommand("ch", Commands.runOnce(() -> m_Shooter.changeMode(),m_Shooter));
     NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
     NamedCommands.registerCommand("AA_R", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
     NamedCommands.registerCommand("AA_C", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
@@ -162,8 +163,8 @@ public class RobotContainer {
     m_DriveController.rightBumper().onTrue(m_Swerve.increaseSpeed());
     m_DriveController.leftBumper().onTrue(m_Swerve.decreaseSpeed());
     
-    m_DriveController.x().whileTrue(new AutoAlignmentPIDCommand(m_Swerve, AutoAlignmentPIDCommand.autoState.KLeft).beforeStarting(() -> m_Swerve.removeDefaultCommand()));
-    m_DriveController.b().whileTrue(new AutoAlignmentPIDCommand(m_Swerve, AutoAlignmentPIDCommand.autoState.kRight).beforeStarting(() -> m_Swerve.removeDefaultCommand()));
+    m_DriveController.x().whileTrue(new AutoAlignmentPIDCommand(m_led, m_Swerve, AutoAlignmentPIDCommand.autoState.KLeft).beforeStarting(() -> m_Swerve.removeDefaultCommand()));
+    m_DriveController.b().whileTrue(new AutoAlignmentPIDCommand(m_led, m_Swerve, AutoAlignmentPIDCommand.autoState.kRight).beforeStarting(() -> m_Swerve.removeDefaultCommand()));
     //m_DriveController.x().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController).withTimeout(0.01).andThen(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController)));
     //m_DriveController.b().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController).withTimeout(0.01).andThen(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController)));
     //m_DriveController.y().onTrue(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController).withTimeout(0.01).andThen(new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController)));
@@ -220,10 +221,10 @@ public class RobotContainer {
       () -> m_AlgeaArm.getDefaultCommand(),
       m_AlgeaArm));*/
 
-    m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL1, () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> Math.abs(m_ActionController.getRightY() )> 0));
-    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povUp().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povDown().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL1, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povLeft().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> Math.abs(m_ActionController.getRightY() )> 0));
+    m_ActionController.povRight().onTrue(new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> Math.abs(m_ActionController.getRightY() )> 0));
   }
 
   public void robotInit() {
@@ -255,6 +256,7 @@ public class RobotContainer {
       m_Swerve.resetAllinace();
       m_Swerve.resetPoseEstimator(m_Swerve.getImuARotation2d(), initialPose);
       m_Swerve.resetReefcoralTargetAngle();
+      m_Elevator.setSetpoint(m_Elevator.getDistance());
   }
 
   public void autoEnable() {

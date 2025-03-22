@@ -103,6 +103,8 @@ public class CoralSubsystem extends SubsystemBase {
           }
         SmartDashboard.putBoolean("hasCoral", hasCoral());        
         SmartDashboard.putBoolean("shooterMode", isDifferentSpeed);
+        SmartDashboard.putString("intakeState", getIntakeState().name());
+        SmartDashboard.putBoolean("isCoralIntakeFinished", isCoralIntakeFinished);
     } 
 
     public void changeMode(){

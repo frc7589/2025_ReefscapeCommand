@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Distance;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CoralSubsystem.IntakeState;
 
 public class LEDSubsystem extends SubsystemBase{
+    
     private CoralSubsystem m_Coral;
 
     private AddressableLED m_led = new AddressableLED(9);
@@ -49,6 +52,12 @@ public class LEDSubsystem extends SubsystemBase{
     private final LEDPattern m_rainbow = LEDPattern.rainbow(255, 128);
     private final LEDPattern m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
 
+    private LEDPattern base = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kRed, Color.kBlue);
+    private LEDPattern RedWithBlue = base.scrollAtRelativeSpeed(Percent.per(Second).of(25));
+
+    private LEDPattern YellowWithOrange = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kOrange, Color.kYellow, Color.kOrange);
+    private LEDPattern GreenWithDarkGreen = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGreen, Color.kDarkGreen, Color.kGreen);
+    private LEDPattern PurpleWithPink = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kPurple, Color.kPink, Color.kPurple);
     /*
     private AddressableLEDBufferView m_A = m_ledBuffer.createView(0, 50);
     private AddressableLEDBufferView m_B = m_ledBuffer.createView(50, 100);
@@ -63,7 +72,12 @@ public class LEDSubsystem extends SubsystemBase{
         kOrange,
         kPurple,
         kPink,
+        kYellowWithOrange,
+        kGreenWithDarkGreen,
+        kPurpleWithPink,
         kRainbow,
+        kscrollingRainbow,
+        kRedWithBlue,
         kOff
     }
 
@@ -99,7 +113,22 @@ public class LEDSubsystem extends SubsystemBase{
             case kPink:
                 pattern = pink;
                 break;
+            case kYellowWithOrange:
+                pattern = YellowWithOrange;
+                break;
+            case kGreenWithDarkGreen:
+                pattern = GreenWithDarkGreen;
+                break;
+            case kPurpleWithPink:
+                pattern = PurpleWithPink;
+                break;
             case kRainbow:
+                pattern = m_rainbow;
+                break;
+            case kRedWithBlue:
+                pattern = RedWithBlue;
+                break;
+            case kscrollingRainbow:
                 pattern = m_scrollingRainbow;
                 break;
             case kOff:
@@ -133,41 +162,39 @@ public class LEDSubsystem extends SubsystemBase{
     public void periodic() {
         SmartDashboard.putString("LED",intakeState.name());
         SmartDashboard.putNumber("CoralStage", CoralStage);
-        if (rainbow) setLEDColor(LEDColor.kRainbow, false);
-        else{
-            if (aStage == 1) {
-                m_Timer.reset();
-                m_Timer.start();
-                aStage = 2;
-            } else if (aStage == 2 && m_Timer.get() < 1.5) {
-                setLEDColor(LEDColor.kPurple, true);
-            } else if (intakeState == IntakeState.kLoading) {
-                switch (CoralStage) {
-                    case 0:
-                        setLEDColor(LEDColor.kOrange, true);  
-                        break;
-                    case 1:
-                        setLEDColor(LEDColor.kGreen, true);  
-                        break;
-                    case 2:
-                        setLEDColor(LEDColor.kGreen, true);
-                        break;
-                    case 3:
-                        setLEDColor(LEDColor.kGreen, true);
-                        break;
-                    case 4:
-                        setLEDColor(LEDColor.kGreen, false);
-                        break;
-                    default:
-                        break;
-                }
-            } else if (intakeState == IntakeState.kLoad) {
-                setLEDColor(LEDColor.kGreen, false);
-            } else {
-                setLEDColor(LEDColor.kRed, false);
+        if (aStage == 1) {
+            m_Timer.reset();
+            m_Timer.start();
+        } else if (aStage == 2 && m_Timer.get() < 1.5) {
+            setLEDColor(LEDColor.kPurple, true);
+        } else if (intakeState == IntakeState.kLoading) {
+            switch (CoralStage) {
+                case 0:
+                    setLEDColor(LEDColor.kYellow, true);  
+                    break;
+                case 1:
+                    setLEDColor(LEDColor.kGreen, true);  
+                    break;
+                case 2:
+                    setLEDColor(LEDColor.kGreen, true);
+                    break;
+                case 3:
+                    setLEDColor(LEDColor.kGreen, true);
+                    break;
+                case 4:
+                    setLEDColor(LEDColor.kGreen, false);
+                    break;
+                default:
+                    break;
             }
+        } else if (intakeState == IntakeState.kLoad) {
+            setLEDColor(LEDColor.kGreen, false);
+        } else {
+            if (rainbow) setLEDColor(LEDColor.kRainbow, false);
+            else setLEDColor(LEDColor.kRedWithBlue, false);
         }
         pattern.applyTo(m_ledBuffer);
         m_led.setData(m_ledBuffer);
     }
+        
 }

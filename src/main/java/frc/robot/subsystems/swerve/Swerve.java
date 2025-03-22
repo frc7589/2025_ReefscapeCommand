@@ -165,49 +165,7 @@ public class Swerve extends SubsystemBase{
 
         m_Pigeon.reset();
 
-        RobotConfig config;{
-            try{
-                config = RobotConfig.fromGUISettings();
-            } catch (Exception e) {
-                // Handle exception as needed
-                config = SwerveConstants.kconfig;
-                e.printStackTrace();
-            }
-        }
-
-        AutoBuilder.configure(
-            this::getPose,
-            this::setPose,
-            this::getSpeeds,
-            this::driveChassis,
-            new PPHolonomicDriveController(
-                    new PIDConstants(
-                            SwerveConstants.kPath_kP,
-                            SwerveConstants.kPath_kI,
-                            SwerveConstants.kPath_kD
-                        ),
-                    new PIDConstants(
-                            SwerveConstants.kPathZ_kP,
-                            SwerveConstants.kPathZ_kI,
-                            SwerveConstants.kPathZ_kD
-                        )
-                ),config,
-            () -> {
-                // Boolean supplier that controls when the path will be mirrored for the red alliance
-                // This will flip the path being followed to the red side of the field.
-                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                if(DriverStation.getAlliance().isPresent()) {
-                    System.out.println("auto Alliance = RED =>" + (DriverStation.getAlliance().get() == DriverStation.Alliance.Red));}
-                /*
-                if (DriverStation.getAlliance().isPresent()) {
-                    return DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-                }
-                return false;
-                */
-                return true;
-            },
-            this
-        );
+        setAutoBuilder();
     }
     
     
@@ -236,6 +194,8 @@ public class Swerve extends SubsystemBase{
         SmartDashboard.putNumber("RF", this.getModuleStates()[1].angle.getDegrees());
         SmartDashboard.putNumber("LR", this.getModuleStates()[2].angle.getDegrees());
         SmartDashboard.putNumber("RR", this.getModuleStates()[3].angle.getDegrees());
+
+        SmartDashboard.putNumber("m_Pigeon", this.getImuARotation2d().getDegrees());
         /*
 
         SmartDashboard.putNumber("speed", maxSpeedRatio);
@@ -479,6 +439,7 @@ public class Swerve extends SubsystemBase{
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0)
             );
         }
+        setAutoalignmentFieldOriented(autoalignmentL());
         /*
         autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
@@ -511,6 +472,7 @@ public class Swerve extends SubsystemBase{
             m_RotationPID.atSetpoint() ? 0 : m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0)
             );
         }
+        setAutoalignmentFieldOriented(autoalignmentR());
         /*
         autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
@@ -713,7 +675,7 @@ public class Swerve extends SubsystemBase{
     }
 
     public boolean atSetpoint() {
-        return m_RotationPID.atSetpoint() && m_XmotionPID.atSetpoint() && m_YmotionPID.atSetpoint();
+        return m_RotationPID.atSetpoint() && (m_XmotionPID.getError() < 2) && (m_YmotionPID.getError() < 2);
     }
 
     public void resetPID() {
@@ -819,5 +781,51 @@ public class Swerve extends SubsystemBase{
             });
         
         m_field.setRobotPose(m_RobotPose);
+    }
+
+    public void setAutoBuilder() {
+        RobotConfig config;{
+            try{
+                config = RobotConfig.fromGUISettings();
+            } catch (Exception e) {
+                // Handle exception as needed
+                config = SwerveConstants.kconfig;
+                e.printStackTrace();
+            }
+        }
+
+        AutoBuilder.configure(
+            this::getPose,
+            this::setPose,
+            this::getSpeeds,
+            this::driveChassis,
+            new PPHolonomicDriveController(
+                    new PIDConstants(
+                            SwerveConstants.kPath_kP,
+                            SwerveConstants.kPath_kI,
+                            SwerveConstants.kPath_kD
+                        ),
+                    new PIDConstants(
+                            SwerveConstants.kPathZ_kP,
+                            SwerveConstants.kPathZ_kI,
+                            SwerveConstants.kPathZ_kD
+                        )
+                ),config,
+            () -> {
+                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                if(DriverStation.getAlliance().isPresent()) {
+                    System.out.println("auto Alliance = RED =>" + (DriverStation.getAlliance().get() == DriverStation.Alliance.Red));}
+                /*
+                if (DriverStation.getAlliance().isPresent()) {
+                    return DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+                }
+                return false;
+                */
+                return true;
+            },
+            this
+        );
     }
 }
