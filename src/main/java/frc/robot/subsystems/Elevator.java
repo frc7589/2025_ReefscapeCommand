@@ -13,6 +13,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalSource;
@@ -31,7 +32,7 @@ public class Elevator extends SubsystemBase{
     private SparkMax m_RMotor = new SparkMax(ElevatorConstants.kElevatorRMotorID, MotorType.kBrushless);
     private SparkMax m_LMotor = new SparkMax(ElevatorConstants.kElevatorLMotorID, MotorType.kBrushless);
     private RelativeEncoder m_Encoder;
-    private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(3);
+    private DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(1);
     private Encoder m_RelEncoder = new Encoder(6, 7);
     private DigitalInput m_limitSwitch = new DigitalInput(5);
 
@@ -41,8 +42,11 @@ public class Elevator extends SubsystemBase{
 
     //private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(1, 1);
     //private TrapezoidProfile profile;
-    //private TrapezoidProfile.State currentState;
-    //private TrapezoidProfile.State goalState;
+    private TrapezoidProfile.State currentState;
+    private TrapezoidProfile.State goalState;
+
+    private ProfiledPIDController m_PIDF = new ProfiledPIDController(0.03, 0.001, 0.0006, 
+        new TrapezoidProfile.Constraints(1, 1));
 
     private double offset = 0;
     //private double  defultposition;
@@ -79,10 +83,11 @@ public class Elevator extends SubsystemBase{
         m_RelEncoder.setReverseDirection(true);
 
         pidController.setTolerance(0.5);
-        /*
-        currentState = new TrapezoidProfile.State(this.getDistance(), 0);
-        goalState = new TrapezoidProfile.State(this.getDistance(), 0);
-        */
+        
+        //currentState = new TrapezoidProfile.State(this.getDistance(),0);
+        //goalState = new TrapezoidProfile.State(this.getDistance(), 0);
+        
+        
         
         SmartDashboard.putData("Eevator", pidController);
         pidController.setSetpoint(getDistance());
@@ -101,7 +106,7 @@ public class Elevator extends SubsystemBase{
 
 
         //m_RMotor.set(Math.abs(getDistance() - getRelEncoderDistance()) < 30 ? pidController.calculate(this.getDistance()) : 0);
-        m_RMotor.set(Math.min(pidController.calculate(this.getDistance())+m_ff.calculate(pidController.calculate(this.getDistance())), 0.8));
+        m_RMotor.set(Math.min(pidController.calculate(this.getDistance()) + m_ff.calculate(pidController.calculate(this.getDistance())), 0.8));
     
     
         
@@ -183,7 +188,7 @@ public class Elevator extends SubsystemBase{
     
     public void setSetpoint(double setpoint) {
         //goalState.position = setpoint;
-        setpoint = MathUtil.clamp(setpoint, 0, (0.93133014828325 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * ElevatorConstants.kElevatorEncoderReduction); 
+        setpoint = MathUtil.clamp(setpoint, 0, (0.97133014828325 - ElevatorConstants.kElevatorAbsOffset) * ElevatorConstants.PositionConversionFactor * ElevatorConstants.kElevatorEncoderReduction); 
         pidController.setSetpoint(setpoint);
         //0.8810851720271293
     }

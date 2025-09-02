@@ -2,6 +2,7 @@
 package frc.robot.subsystems.swerve;
 
 
+import java.security.PrivateKey;
 import java.util.HashMap;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -91,6 +92,7 @@ public class Swerve extends SubsystemBase{
 
     private boolean fieldOriented = true;
     private boolean cameraGotSomething = false;
+    private boolean driveMode = false;
 
     public static boolean ffControl = true;
 
@@ -363,6 +365,13 @@ public class Swerve extends SubsystemBase{
     }
 
     public void drive(double xSpeed, double ySpeed, double zSpeed) {
+
+        if(driveMode) {    
+            xSpeed *= Math.pow(xSpeed, 2) / 1;
+            ySpeed *= Math.pow(ySpeed, 2) / 1;
+            zSpeed *= Math.pow(zSpeed, 2) / 1;
+        }
+
         if(Swerve.ffControl) {
             xSpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
             ySpeed *= SwerveConstants.kMaxVelocityMetersPerSecond;
@@ -389,7 +398,7 @@ public class Swerve extends SubsystemBase{
         
         if(targetPose != null && getAlliance() != null) {
             Pose2d targetPose2d = targetPose.toPose2d();
-            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.075, 0.0)).rotateBy(targetPose2d.getRotation());
+            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.07, 0.0)).rotateBy(targetPose2d.getRotation());
             Translation2d tagToPillar = (new Translation2d(0.15, 0).rotateBy(targetPose2d.getRotation().minus(Rotation2d.fromDegrees(90))));
             position = new Pose2d(targetPose2d.getTranslation().plus(tagToPillar).plus(robotToEage), targetPose2d.getRotation().plus(Rotation2d.fromDegrees(180)));
             
@@ -405,8 +414,8 @@ public class Swerve extends SubsystemBase{
         Pose2d targetpose2d;
         if(targetPose != null) {
             targetpose2d = targetPose.toPose2d();
-            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.075, 0.0)).rotateBy(targetpose2d.getRotation());
-            Translation2d tagToPillar = (new Translation2d(0.15, 0).rotateBy(targetpose2d.getRotation().plus(Rotation2d.fromDegrees(90))));
+            Translation2d robotToEage = (new Translation2d(SwerveConstants.khowlongismyrobot/2 + 0.07, 0.0)).rotateBy(targetpose2d.getRotation());
+            Translation2d tagToPillar = (new Translation2d(0.15 + 0.05, 0).rotateBy(targetpose2d.getRotation().plus(Rotation2d.fromDegrees(90))));
 
             Pose2d position = new Pose2d(targetpose2d. getTranslation().plus(tagToPillar).plus(robotToEage), targetpose2d.getRotation().plus(Rotation2d.fromDegrees(180)));
 
@@ -446,6 +455,7 @@ public class Swerve extends SubsystemBase{
             SmartDashboard.putNumber("rpidutput", m_RotationPID.atSetpoint() ? 0 : -m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentL().getRotation()).getDegrees(), 0));
         }
         setAutoalignmentFieldOriented(autoalignmentL());
+        this.advancedDrive();
         /*
         autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentL().getX()) : 0,
@@ -485,6 +495,7 @@ public class Swerve extends SubsystemBase{
             SmartDashboard.putNumber("rpidutput", m_RotationPID.atSetpoint() ? 0 : -m_RotationPID.calculate(-this.getImuARotation2d().minus(this.autoalignmentR().getRotation()).getDegrees(), 0));
         }
         setAutoalignmentFieldOriented(autoalignmentR());
+        this.advancedDrive();
         /*
         autoDriver(
             m_RotationPID.getError() < 15 ? -m_XmotionPID.calculate(m_RobotPose.getX(), this.autoalignmentR().getX()) : 0,
@@ -562,6 +573,22 @@ public class Swerve extends SubsystemBase{
         });
     }
 
+    public Command changeDriveMode() {
+        return runOnce(() -> {
+            driveMode = !driveMode;
+        });
+    }
+
+    public Command basicDrive() {
+        return runOnce(() -> {
+            driveMode = false;
+        });
+    }
+
+    public void advancedDrive() {
+        driveMode = true;
+    }
+
     public SwerveModuleState[] getModuleStates() {
         return new SwerveModuleState[]{
             m_LeftFrontModule.getState(),
@@ -598,15 +625,24 @@ public class Swerve extends SubsystemBase{
         LimelightHelpers.SetRobotOrientation("limelight", this.getImuARotation2d().getDegrees(), m_Pigeon.getAngularVelocityZWorld().getValueAsDouble(), 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
         cameraGotSomething = LimelightHelpers.getTV("");
+        boolean doreject = false;
 
         if(cameraGotSomething && mt2 != null) {
-            m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 999999999));
-            m_poseEstimator.addVisionMeasurement(
-                mt2.pose,
-                mt2.timestampSeconds); 
-            m_poseEstimator.resetPosition(getImuARotation2d(), getModulePositions(), mt2.pose);
-        }
+            if(Math.abs(m_Pigeon.getRate()) > 360) {
+                System.out.println("Rejecting vision measurement due to high angular velocity: " + m_Pigeon.getRate());
+                doreject = true;
+            }
+            
+            if(!doreject) {
+                m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7, 0.7, 999999999));
+                m_poseEstimator.addVisionMeasurement(
+                    mt2.pose,
+                    mt2.timestampSeconds); 
+                m_poseEstimator.resetPosition(getImuARotation2d(), getModulePositions(), mt2.pose);
+            }
+
         SmartDashboard.putBoolean("cameraGotSomething", cameraGotSomething);
+        }    
     }
 
     public Pose2d getPose() {
@@ -835,7 +871,7 @@ public class Swerve extends SubsystemBase{
                 }
                 return false;
                 */
-                return false;
+                return true;
             },
             this
         );

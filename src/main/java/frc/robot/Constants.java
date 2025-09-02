@@ -49,8 +49,8 @@ public final class Constants {
     //Rotor Encode 偏移量    
     public static final double kLeftFrontRotorEncoderOffset = 146.689453125 + 180;
     public static final double kLeftRearRotorEncoderOffset = 101.337890625 - 1.23046875 + 180;
-    public static final double kRightFrontRotorEncoderOffset = -137.900390625 - 84.19921875 + 180 + 180;
-    public static final double kRightRearRotorEncoderOffset = -41.748046875 + 180 + 180;
+    public static final double kRightFrontRotorEncoderOffset = -137.900390625 - 84.19921875 + 180 + 93.076171875;
+    public static final double kRightRearRotorEncoderOffset = -41.748046875 + 180 - 88.681640625;
 
     public static final double kwhatever = 0.60325;//meter
 
@@ -148,7 +148,7 @@ public final class Constants {
 
 
     public static class ElevatorConstants {
-      public static final int kElevatorRMotorID = 31;
+      public static final int kElevatorRMotorID = 44;
       public static final int kElevatorLMotorID = 46;
   
       public static final double kP = 0.08;
@@ -158,7 +158,7 @@ public final class Constants {
       //看下面轉多少 上面轉多少
       public static final double PositionConversionFactor = (51.56 - 3.25)*Math.PI;
       public static final double kElevatorEncoderReduction = 5.0 / 4.0;//6.612244898 / 4.0;
-      public static final double kElevatorAbsOffset = 0.004874250121856253;//0.187346479683662;
+      public static final double kElevatorAbsOffset = 0.072214726805368;//0.187346479683662;
   
     }
 
@@ -173,7 +173,7 @@ public final class Constants {
 
   public static class CoralConstants {
     public static final int kLeftMotorID = 47;
-    public static final int kRightMotorID = 44;
+    public static final int kRightMotorID = 45;
 
     public static final int kSensorPortID = 0;
   }

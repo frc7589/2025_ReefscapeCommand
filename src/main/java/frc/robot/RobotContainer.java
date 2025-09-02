@@ -12,11 +12,13 @@ import frc.robot.commands.CoralIntakeCommand;
 import frc.robot.commands.ElevatorCommand;
 import frc.robot.commands.Stop;
 import frc.robot.commands.autoCommand;
+import frc.robot.commands.AutoAlignmentPIDCommand.autoState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -26,7 +28,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Algea.AlgeaArmSubsystem;
 import frc.robot.subsystems.Algea.AlgeaIntakeSubsystem;
-import frc.robot.subsystems.LEDSubsystem.LEDColor;
+//import frc.robot.subsystems.LEDSubsystem.LEDColor;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.utils.OpzXboxController;
 
@@ -92,10 +94,12 @@ public class RobotContainer {
     NamedCommands.registerCommand("e2", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL2, () -> false));
     NamedCommands.registerCommand("e3", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL3, () -> false));
     NamedCommands.registerCommand("e4", new ElevatorCommand(m_Elevator, ElevatorCommand.ElevatorHigh.kL4, () -> false));
-    NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter, m_led));
+    //NamedCommands.registerCommand("ci", new CoralIntakeCommand(m_Shooter, m_led));
     NamedCommands.registerCommand("csd", new AutoShootCommand(m_Shooter, true));
     NamedCommands.registerCommand("cs", new AutoShootCommand(m_Shooter, false));
     //NamedCommands.registerCommand("ch", Commands.runOnce(() -> m_Shooter.changeMode(),m_Shooter));
+    NamedCommands.registerCommand("GoToPoseR", new AutoAlignmentPIDCommand(m_led, m_Swerve, autoState.kRight));
+    NamedCommands.registerCommand("GoToPoseL", new AutoAlignmentPIDCommand(m_led, m_Swerve, autoState.KLeft));
     NamedCommands.registerCommand("AA_L", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.KLeft, m_DriveController));
     NamedCommands.registerCommand("AA_R", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kRight, m_DriveController));
     NamedCommands.registerCommand("AA_C", new AutoMoveToPoseCommand(m_Swerve, AutoMoveToPoseCommand.autoState.kCoral, m_DriveController));
@@ -153,9 +157,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    new Trigger(m_Shooter.isIntakekEmpty()).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    new Trigger(() -> m_Shooter.getIntakeState() == IntakeState.kLoad).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    new Trigger(() -> m_Shooter.getIntakeState() == IntakeState.kLoading).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    //new Trigger(m_Shooter.isIntakekEmpty()).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    //new Trigger(() -> m_Shooter.getIntakeState() == IntakeState.kLoad).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+    //new Trigger(() -> m_Shooter.getIntakeState() == IntakeState.kLoading).onChange(Commands.run(() -> m_led.setIntakeState(m_Shooter.getIntakeState())).withInterruptBehavior(InterruptionBehavior.kCancelSelf));
         
     m_DriveController.leftTrigger().onTrue(m_Swerve.tolowspeed());
     m_DriveController.rightTrigger().onTrue(m_Swerve.tohighSpeed());
@@ -171,7 +175,11 @@ public class RobotContainer {
     
     m_DriveController.start().onTrue(m_Swerve.resetHeadingOffset());
 
+    m_DriveController.back().onTrue(m_Swerve.changeDriveMode());
+
     m_ActionController.back().onTrue(new CoralIntakeCommand(m_Shooter, m_led));
+
+    m_ActionController.x().onTrue(m_Swerve.basicDrive());
 
     m_ActionController.x().whileTrue(Commands.startEnd(
       () -> m_Shooter.shoot(),
@@ -264,13 +272,13 @@ public class RobotContainer {
     m_Swerve.resetReefcoralTargetAngle();
     m_Elevator.setSetpoint(m_Elevator.getDistance());
     m_Elevator.resetOffset();
-    m_led.setRainbow(true);
+    //m_led.setRainbow(true);
   }
 
   public void autoPeriodic() {}
 
   public void enable() {
-    m_led.setRainbow(false);
+    //m_led.setRainbow(false);
     m_Swerve.resetAllinace();
     m_Swerve.resetReefcoralTargetAngle();
     m_Elevator.setSetpoint(m_Elevator.getDistance());

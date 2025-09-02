@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CoralSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
-import frc.robot.subsystems.LEDSubsystem.LEDColor;
+//import frc.robot.subsystems.LEDSubsystem.LEDColor;
 
 
 public class CoralIntakeCommand extends Command {
@@ -30,12 +30,12 @@ public class CoralIntakeCommand extends Command {
         m_Isfinished.reset();
         m_Isfinished.start();
         stage = 0;
-        m_led.setCoralStage(stage);
+        //m_led.setCoralStage(stage);
     }
 
     @Override
     public void execute(){
-        m_led.setCoralStage(stage);
+        //m_led.setCoralStage(stage);
         SmartDashboard.putNumber("stage", stage);
         switch(stage) {
             case 0:
@@ -61,7 +61,7 @@ public class CoralIntakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        m_led.setCoralStage(stage);
+        //m_led.setCoralStage(stage);
         m_intake.setIsCoralIntakeFinished(true);
         m_reverseTimer.stop();
         m_intake.stop();

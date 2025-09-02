@@ -136,7 +136,7 @@ public class CoralSubsystem extends SubsystemBase {
     public void differenrtShoot() {
         this.setRightMode(IdleMode.kBrake);
         this.setLeftMode(IdleMode.kCoast);
-        m_leftmotor.set(0.375);
+        m_leftmotor.set(0.325);//0.375
         m_rightmotor.set(0);
     }
 
@@ -145,8 +145,8 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void slowMotor(){
-        m_leftmotor.set(0.15);
-        m_rightmotor.set(0.15);
+        m_leftmotor.set(0.125);
+        m_rightmotor.set(0.125);
     }
 
     public void intake() {

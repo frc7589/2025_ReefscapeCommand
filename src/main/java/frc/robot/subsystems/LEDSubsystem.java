@@ -1,3 +1,4 @@
+
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -18,10 +19,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CoralSubsystem.IntakeState;
 
 public class LEDSubsystem extends SubsystemBase{
-    
+    /*
     private CoralSubsystem m_Coral;
 
-    private AddressableLED m_led = new AddressableLED(9);
+    private AddressableLED m_led = new AddressableLED(1);
     private AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(148);
 
     private static final Distance kLedSpacing = Meters.of(1 / 148.0);
@@ -53,6 +54,8 @@ public class LEDSubsystem extends SubsystemBase{
     private final LEDPattern m_scrollingRainbow = m_rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
 
     private LEDPattern base = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kRed, Color.kBlue);
+    //private LEDPattern abase = LEDPattern.gradient(LEDPattern.GradientType.kDiscontinuous, Color.kRed, Color.kBlue);
+    //private LEDPattern base = abase.atBrightness(Percent.of(50));
     private LEDPattern RedWithBlue = base.scrollAtRelativeSpeed(Percent.per(Second).of(25));
 
     private LEDPattern YellowWithOrange = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kOrange, Color.kYellow, Color.kOrange);
@@ -62,7 +65,7 @@ public class LEDSubsystem extends SubsystemBase{
     private AddressableLEDBufferView m_A = m_ledBuffer.createView(0, 50);
     private AddressableLEDBufferView m_B = m_ledBuffer.createView(50, 100);
     */
-
+/*
     public static enum LEDColor{
         kWhite,
         kRed,
@@ -197,5 +200,5 @@ public class LEDSubsystem extends SubsystemBase{
         pattern.applyTo(m_ledBuffer);
         m_led.setData(m_ledBuffer);
     }
-        
+  */      
 }

@@ -33,7 +33,7 @@ public class AutoAlignmentPIDCommand extends Command {
     @Override
     public void initialize() {
         System.out.println("start " + this.direction.toString());
-        m_Led.setAStage(0);
+        //m_Led.setAStage(0);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class AutoAlignmentPIDCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        if (m_driverSubsystem.atSetpoint()) m_Led.setAStage(1);
+        //if (m_driverSubsystem.atSetpoint()) m_Led.setAStage(1);
         System.out.println("end " + this.direction.toString());
         System.out.println("PIDatsetpoint" + m_driverSubsystem.atSetpoint());
         m_driverSubsystem.resetPID();
